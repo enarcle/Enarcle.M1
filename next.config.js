@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Image optimization — serve WebP automatically
+  // Image optimization — serve WebP/AVIF automatically
   images: {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
@@ -11,12 +11,12 @@ const nextConfig = {
     ],
   },
 
-  // Reduce bundle size — tree-shake lucide icons
+  // Tree-shake lucide icons for smaller bundles
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
 
-  // Headers for caching static assets
+  // Security + static asset caching headers
   async headers() {
     return [
       {
@@ -28,9 +28,10 @@ const nextConfig = {
         ],
       },
       {
-        // Cache static files aggressively
-        source: '/(.*)\\.(ico|png|jpg|jpeg|svg|woff2|woff)',
-        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+        source: '/(.*)\\.(?:ico|png|jpg|jpeg|svg|woff2|woff)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
       },
     ]
   },
