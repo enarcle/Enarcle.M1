@@ -6,17 +6,17 @@ import { supabase } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
 interface AuthContextType {
-  user: User | null
+  user:            User | null
   isAuthenticated: boolean
-  loading: boolean
-  logout: () => Promise<void>
+  loading:         boolean
+  logout:          () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
+  user:            null,
   isAuthenticated: false,
-  loading: true,
-  logout: async () => {},
+  loading:         true,
+  logout:          async () => {},
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -25,17 +25,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router                = useRouter()
 
   useEffect(() => {
-    // Get initial session — fast, from local storage
+    // Hydrate from local storage immediately — no network round-trip
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    // Subscribe to auth changes — this fires on login, logout, token refresh
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    // Subscribe to auth state changes (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
+    )
 
     return () => subscription.unsubscribe()
   }, [])
