@@ -28,7 +28,9 @@ const nextConfig = {
         ],
       },
       {
-        source: '/(.*)\\.(?:ico|png|jpg|jpeg|svg|woff2|woff)',
+        // NOTE: Next.js route patterns reject non-capturing groups (?:...).
+        // Use plain alternation with :path* instead.
+        source: '/:path*.(ico|png|jpg|jpeg|svg|woff2|woff)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
