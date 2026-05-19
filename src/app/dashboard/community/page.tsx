@@ -70,9 +70,21 @@ function Avatar({ u, size = 40 }: { u: Record<string, unknown>; size?: number })
   )
 }
 
+// ─── Announcement type ───────────────────────────────────────────────────────
+interface Announcement {
+  id:         string
+  title:      string
+  body:       string
+  created_at: string
+  image_url:  string | null
+  link_url:   string | null
+  link_label: string | null
+  is_active:  boolean
+}
+
 // ─── Announcement Card ────────────────────────────────────────────────────────
-function AnnouncementCard({ ann }: { ann: Record<string, unknown> }) {
-  const date = new Date(ann.created_at as string).toLocaleDateString('en-US', {
+function AnnouncementCard({ ann }: { ann: Announcement }) {
+  const date = new Date(ann.created_at).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
   })
   return (
@@ -82,7 +94,7 @@ function AnnouncementCard({ ann }: { ann: Record<string, unknown> }) {
       border: '1px solid rgba(245,158,11,0.25)',
     }}>
       {ann.image_url && (
-        <img src={ann.image_url as string} alt="" style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}
+        <img src={ann.image_url} alt="" style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}
           onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
       )}
       <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -99,15 +111,15 @@ function AnnouncementCard({ ann }: { ann: Record<string, unknown> }) {
           </div>
         </div>
         <div>
-          <p style={{ fontSize: 15, fontWeight: 700, color: C.text, fontFamily: 'Sora,sans-serif', marginBottom: 6, letterSpacing: '-0.01em' }}>{ann.title as string}</p>
-          <p style={{ fontSize: 13, color: C.textMuted, fontFamily: 'Inter,sans-serif', lineHeight: 1.65, whiteSpace: 'pre-wrap' }}>{ann.body as string}</p>
+          <p style={{ fontSize: 15, fontWeight: 700, color: C.text, fontFamily: 'Sora,sans-serif', marginBottom: 6, letterSpacing: '-0.01em' }}>{ann.title}</p>
+          <p style={{ fontSize: 13, color: C.textMuted, fontFamily: 'Inter,sans-serif', lineHeight: 1.65, whiteSpace: 'pre-wrap' }}>{ann.body}</p>
         </div>
         {ann.link_url && (
-          <a href={ann.link_url as string} target="_blank" rel="noopener noreferrer"
+          <a href={ann.link_url} target="_blank" rel="noopener noreferrer"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 9, background: C.goldDim, color: C.gold, fontFamily: 'Inter,sans-serif', fontWeight: 600, fontSize: 13, textDecoration: 'none', border: '1px solid rgba(245,158,11,0.25)', alignSelf: 'flex-start', transition: 'background 0.15s' }}
             onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(245,158,11,0.2)')}
             onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = C.goldDim)}>
-            {(ann.link_label as string) || 'Learn more'} →
+            {ann.link_label || 'Learn more'} →
           </a>
         )}
       </div>
@@ -595,7 +607,7 @@ export default function CommunityPage() {
   const [currentUser,    setCurrentUser]    = useState<Record<string, unknown> | null>(null)
   const [profile,        setProfile]        = useState<Record<string, unknown> | null>(null)
   const [posts,          setPosts]          = useState<Record<string, unknown>[]>([])
-  const [announcements,  setAnnouncements]  = useState<Record<string, unknown>[]>([])
+  const [announcements,  setAnnouncements]  = useState<Announcement[]>([])
   const [loading,        setLoading]        = useState(true)
   const [loadingMore,    setLoadingMore]    = useState(false)
   const [hasMore,        setHasMore]        = useState(true)
@@ -655,7 +667,7 @@ export default function CommunityPage() {
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(3)
-      setAnnouncements((anns as Record<string, unknown>[]) || [])
+      setAnnouncements((anns as Announcement[]) || [])
     })
   }, [])
 
@@ -727,7 +739,7 @@ export default function CommunityPage() {
               {announcements.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {announcements.map(ann => (
-                    <AnnouncementCard key={ann.id as string} ann={ann} />
+                    <AnnouncementCard key={ann.id} ann={ann} />
                   ))}
                 </div>
               )}
