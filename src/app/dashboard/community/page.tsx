@@ -9,6 +9,48 @@ import {
   Loader2, UserPlus, ChevronDown, Megaphone
 } from 'lucide-react'
 
+// ─── Interfaces — every data shape explicitly typed, no Record<string,unknown> ──
+interface UserProfile {
+  id:        string
+  full_name: string | null
+  email:     string | null
+  username:  string | null
+  photo_url: string | null
+  role:      string | null
+  bio:       string | null
+}
+
+interface Post {
+  id:             string
+  content:        string | null
+  image_urls:     string[]
+  created_at:     string
+  user_id:        string
+  likes_count:    number
+  comments_count: number
+  users:          Partial<UserProfile> | null
+  my_like:        boolean
+}
+
+interface Comment {
+  id:         string
+  content:    string
+  created_at: string
+  user_id:    string
+  users:      Partial<UserProfile> | null
+}
+
+interface Announcement {
+  id:         string
+  title:      string
+  body:       string
+  created_at: string
+  image_url:  string | null
+  link_url:   string | null
+  link_label: string | null
+  is_active:  boolean
+}
+
 // ─── Enarcle Design Tokens ────────────────────────────────────────────────────
 const C = {
   bg:        '#09090b',
@@ -32,13 +74,13 @@ const C = {
   greenDim:  'rgba(34,197,94,0.10)',
 }
 
-const AVATAR_COLORS = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#22c55e','#3b82f6']
+const AVATAR_COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#22c55e', '#3b82f6']
 const avatarColor = (id: string) => AVATAR_COLORS[(id?.charCodeAt(0) || 0) % AVATAR_COLORS.length]
 
-function getDisplayName(u: Record<string, unknown>): string {
-  return (u?.full_name as string) || (u?.email as string)?.split('@')[0] || 'User'
+function getDisplayName(u: Partial<UserProfile> | null): string {
+  return u?.full_name || u?.email?.split('@')[0] || 'User'
 }
-function getInitials(u: Record<string, unknown>): string {
+function getInitials(u: Partial<UserProfile> | null): string {
   return getDisplayName(u).slice(0, 2).toUpperCase()
 }
 function timeAgo(ts: string): string {
@@ -51,8 +93,9 @@ function timeAgo(ts: string): string {
   return `${Math.floor(h / 24)}d ago`
 }
 
-function Avatar({ u, size = 40 }: { u: Record<string, unknown>; size?: number }) {
-  const color = avatarColor((u?.id as string) || (u?.user_id as string) || '')
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+function Avatar({ u, size = 40 }: { u: Partial<UserProfile> | null; size?: number }) {
+  const color = avatarColor(u?.id || '')
   return (
     <div style={{
       width: size, height: size, minWidth: size,
@@ -64,28 +107,16 @@ function Avatar({ u, size = 40 }: { u: Record<string, unknown>; size?: number })
       border: `1.5px solid ${color}33`,
     }}>
       {u?.photo_url
-        ? <img src={u.photo_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ? <img src={u.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         : getInitials(u)}
     </div>
   )
 }
 
-// ─── Announcement type ───────────────────────────────────────────────────────
-interface Announcement {
-  id:         string
-  title:      string
-  body:       string
-  created_at: string
-  image_url:  string | null
-  link_url:   string | null
-  link_label: string | null
-  is_active:  boolean
-}
-
 // ─── Announcement Card ────────────────────────────────────────────────────────
 function AnnouncementCard({ ann }: { ann: Announcement }) {
   const date = new Date(ann.created_at).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric'
+    month: 'short', day: 'numeric', year: 'numeric',
   })
   return (
     <div style={{
@@ -94,7 +125,8 @@ function AnnouncementCard({ ann }: { ann: Announcement }) {
       border: '1px solid rgba(245,158,11,0.25)',
     }}>
       {ann.image_url && (
-        <img src={ann.image_url} alt="" style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}
+        <img src={ann.image_url} alt=""
+          style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}
           onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
       )}
       <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -117,8 +149,8 @@ function AnnouncementCard({ ann }: { ann: Announcement }) {
         {ann.link_url && (
           <a href={ann.link_url} target="_blank" rel="noopener noreferrer"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 9, background: C.goldDim, color: C.gold, fontFamily: 'Inter,sans-serif', fontWeight: 600, fontSize: 13, textDecoration: 'none', border: '1px solid rgba(245,158,11,0.25)', alignSelf: 'flex-start', transition: 'background 0.15s' }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(245,158,11,0.2)')}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = C.goldDim)}>
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,158,11,0.2)')}
+            onMouseLeave={e => (e.currentTarget.style.background = C.goldDim)}>
             {ann.link_label || 'Learn more'} →
           </a>
         )}
@@ -127,10 +159,10 @@ function AnnouncementCard({ ann }: { ann: Announcement }) {
   )
 }
 
-// ─── People Search Panel ──────────────────────────────────────────────────────
+// ─── People Search ────────────────────────────────────────────────────────────
 function PeopleSearch({ currentUserId }: { currentUserId: string }) {
   const [query,   setQuery]   = useState('')
-  const [results, setResults] = useState<Record<string, unknown>[]>([])
+  const [results, setResults] = useState<UserProfile[]>([])
   const [loading, setLoading] = useState(false)
   const [pending, setPending] = useState<Set<string>>(new Set())
   const [sent,    setSent]    = useState<Set<string>>(new Set())
@@ -145,7 +177,7 @@ function PeopleSearch({ currentUserId }: { currentUserId: string }) {
       .or(`full_name.ilike.%${q}%,username.ilike.%${q}%,email.ilike.%${q}%`)
       .neq('id', currentUserId)
       .limit(10)
-    setResults((data as Record<string, unknown>[]) || [])
+    setResults((data as UserProfile[]) || [])
     setLoading(false)
   }, [currentUserId])
 
@@ -155,16 +187,13 @@ function PeopleSearch({ currentUserId }: { currentUserId: string }) {
     debounce.current = setTimeout(() => search(val), 350)
   }
 
-  // ── FIX: Array.from() instead of [...Set] — ES5-safe, no downlevelIteration needed ──
   const connect = async (targetId: string) => {
     setPending(p => new Set(Array.from(p).concat(targetId)))
-
     const { data: existing } = await supabase
       .from('connections')
       .select('id, status')
       .or(`and(user1_id.eq.${currentUserId},user2_id.eq.${targetId}),and(user1_id.eq.${targetId},user2_id.eq.${currentUserId})`)
       .maybeSingle()
-
     if (!existing) {
       await supabase.from('connections').insert({
         user1_id: currentUserId,
@@ -172,23 +201,9 @@ function PeopleSearch({ currentUserId }: { currentUserId: string }) {
         status:   'requested',
       })
     }
-
     setSent(p => new Set(Array.from(p).concat(targetId)))
     setPending(p => { const n = new Set(Array.from(p)); n.delete(targetId); return n })
   }
-
-  const follow = async (targetId: string) => {
-    const key = targetId + '_f'
-    setPending(p => new Set(Array.from(p).concat(key)))
-    await supabase
-      .from('follows')
-      .insert({ follower_id: currentUserId, following_id: targetId })
-      .maybeSingle()
-    setSent(p => new Set(Array.from(p).concat(key)))
-    setPending(p => { const n = new Set(Array.from(p)); n.delete(key); return n })
-  }
-  // Suppress unused warning — follow is wired to connect button in extended view
-  void follow
 
   return (
     <div style={{ borderRadius: 16, padding: 16, background: C.card, border: `1px solid ${C.border}` }}>
@@ -218,32 +233,25 @@ function PeopleSearch({ currentUserId }: { currentUserId: string }) {
       )}
 
       {results.map(u => (
-        <div key={u.id as string} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
+        <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
           <Avatar u={u} size={34} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: C.text, fontFamily: 'Inter,sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: C.text, fontFamily: 'Inter,sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
               {getDisplayName(u)}
             </p>
-            {u.username && <p style={{ fontSize: 11, color: C.indigoL, fontFamily: 'Inter,sans-serif' }}>@{u.username as string}</p>}
-            {u.role && <p style={{ fontSize: 10, color: C.textDim, fontFamily: 'Inter,sans-serif' }}>{u.role as string}</p>}
+            {u.username && (
+              <p style={{ fontSize: 11, color: C.indigoL, fontFamily: 'Inter,sans-serif', margin: 0 }}>@{u.username}</p>
+            )}
+            {u.role && (
+              <p style={{ fontSize: 10, color: C.textDim, fontFamily: 'Inter,sans-serif', margin: 0 }}>{u.role}</p>
+            )}
           </div>
-          <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-            <button
-              onClick={() => connect(u.id as string)}
-              disabled={sent.has(u.id as string) || pending.has(u.id as string)}
-              style={{
-                padding: '5px 10px', borderRadius: 8,
-                border: `1px solid ${sent.has(u.id as string) ? C.green : C.indigo}`,
-                cursor: 'pointer',
-                background: sent.has(u.id as string) ? C.greenDim : C.indigoDim,
-                color: sent.has(u.id as string) ? C.green : C.indigoL,
-                fontFamily: 'Inter,sans-serif', fontSize: 11, fontWeight: 600,
-                opacity: pending.has(u.id as string) ? 0.5 : 1,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-              {sent.has(u.id as string) ? '✓' : <UserPlus style={{ width: 11, height: 11 }} />}
-            </button>
-          </div>
+          <button
+            onClick={() => connect(u.id)}
+            disabled={sent.has(u.id) || pending.has(u.id)}
+            style={{ padding: '5px 10px', borderRadius: 8, border: `1px solid ${sent.has(u.id) ? C.green : C.indigo}`, cursor: 'pointer', background: sent.has(u.id) ? C.greenDim : C.indigoDim, color: sent.has(u.id) ? C.green : C.indigoL, fontFamily: 'Inter,sans-serif', fontSize: 11, fontWeight: 600, opacity: pending.has(u.id) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {sent.has(u.id) ? '✓' : <UserPlus style={{ width: 11, height: 11 }} />}
+          </button>
         </div>
       ))}
 
@@ -258,8 +266,8 @@ function PeopleSearch({ currentUserId }: { currentUserId: string }) {
 
 // ─── Post Composer ────────────────────────────────────────────────────────────
 function Composer({ currentUser, profile, onPosted }: {
-  currentUser: Record<string, unknown>
-  profile:     Record<string, unknown> | null
+  currentUser: { id: string }
+  profile:     Partial<UserProfile> | null
   onPosted:    () => void
 }) {
   const [text,     setText]     = useState('')
@@ -267,7 +275,7 @@ function Composer({ currentUser, profile, onPosted }: {
   const [expanded, setExpanded] = useState(false)
 
   const post = async () => {
-    if (!text.trim() || posting || !currentUser) return
+    if (!text.trim() || posting) return
     setPosting(true)
     try {
       await supabase.from('posts').insert({
@@ -277,7 +285,8 @@ function Composer({ currentUser, profile, onPosted }: {
         likes_count:    0,
         comments_count: 0,
       })
-      setText(''); setExpanded(false)
+      setText('')
+      setExpanded(false)
       onPosted()
     } catch (err: unknown) {
       alert('Post failed: ' + (err instanceof Error ? err.message : 'Unknown error'))
@@ -289,7 +298,7 @@ function Composer({ currentUser, profile, onPosted }: {
   return (
     <div style={{ borderRadius: 16, padding: 16, background: C.card, border: `1px solid ${C.border}` }}>
       <div style={{ display: 'flex', gap: 12 }}>
-        <Avatar u={{ ...(profile || {}), id: currentUser?.id }} size={40} />
+        <Avatar u={{ ...profile, id: currentUser.id }} size={40} />
         <div style={{ flex: 1 }}>
           <textarea
             value={text}
@@ -301,11 +310,11 @@ function Composer({ currentUser, profile, onPosted }: {
             style={{ width: '100%', background: C.surface, border: `1px solid ${expanded ? C.borderF : C.border}`, borderRadius: 10, padding: '10px 14px', color: C.text, fontFamily: 'Inter,sans-serif', fontSize: 14, lineHeight: 1.6, outline: 'none', resize: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
           />
           {expanded && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
               <button
                 onClick={post}
                 disabled={posting || !text.trim()}
-                style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 18px', borderRadius: 9, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', fontFamily: 'Inter,sans-serif', fontWeight: 600, fontSize: 13, opacity: (posting || !text.trim()) ? 0.45 : 1, transition: 'opacity 0.15s' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 18px', borderRadius: 9, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', fontFamily: 'Inter,sans-serif', fontWeight: 600, fontSize: 13, opacity: posting || !text.trim() ? 0.45 : 1, transition: 'opacity 0.15s' }}>
                 {posting
                   ? <Loader2 style={{ width: 14, height: 14, animation: 'spin 1s linear infinite' }} />
                   : <Send style={{ width: 14, height: 14 }} />}
@@ -321,24 +330,24 @@ function Composer({ currentUser, profile, onPosted }: {
 
 // ─── Post Card ────────────────────────────────────────────────────────────────
 function PostCard({ post, currentUserId, onDelete }: {
-  post:          Record<string, unknown>
+  post:          Post
   currentUserId: string
   onDelete:      (id: string) => void
 }) {
-  const [liked,          setLiked]          = useState((post.my_like as boolean) || false)
-  const [likeCount,      setLikeCount]      = useState((post.likes_count as number) || 0)
+  const [liked,          setLiked]          = useState(post.my_like)
+  const [likeCount,      setLikeCount]      = useState(post.likes_count)
   const [liking,         setLiking]         = useState(false)
   const [showComments,   setShowComments]   = useState(false)
-  const [comments,       setComments]       = useState<Record<string, unknown>[]>([])
+  const [comments,       setComments]       = useState<Comment[]>([])
   const [commentsLoaded, setCommentsLoaded] = useState(false)
   const [commentText,    setCommentText]    = useState('')
   const [sending,        setSending]        = useState(false)
   const [showMenu,       setShowMenu]       = useState(false)
-  const [commentCount,   setCommentCount]   = useState((post.comments_count as number) || 0)
+  const [commentCount,   setCommentCount]   = useState(post.comments_count)
 
   const isOwn  = post.user_id === currentUserId
-  const author = (post.users as Record<string, unknown>) || {}
-  const imgs   = ((post.image_urls as string[]) || []).filter(Boolean)
+  const author = post.users || {}
+  const imgs   = (post.image_urls || []).filter(Boolean)
 
   const loadComments = async () => {
     if (commentsLoaded) return
@@ -348,7 +357,7 @@ function PostCard({ post, currentUserId, onDelete }: {
       .eq('post_id', post.id)
       .order('created_at', { ascending: true })
       .limit(30)
-    setComments((data as Record<string, unknown>[]) || [])
+    setComments((data as Comment[]) || [])
     setCommentsLoaded(true)
   }
 
@@ -399,13 +408,12 @@ function PostCard({ post, currentUserId, onDelete }: {
           content:    commentText.trim(),
           created_at: data[0].created_at as string,
           user_id:    currentUserId,
-          users:      me || { id: currentUserId, email: '' },
+          users:      (me as Partial<UserProfile>) || null,
         }])
         setCommentCount(c => c + 1)
         setCommentText('')
       }
     } catch {
-      // Fallback: direct insert if RPC fails
       const { data: me } = await supabase
         .from('users')
         .select('id, full_name, email, photo_url')
@@ -417,11 +425,11 @@ function PostCard({ post, currentUserId, onDelete }: {
         .select()
         .single()
       if (inserted) {
-        await supabase
-          .from('posts')
-          .update({ comments_count: commentCount + 1 })
-          .eq('id', post.id)
-        setComments(prev => [...prev, { ...(inserted as Record<string, unknown>), users: me }])
+        await supabase.from('posts').update({ comments_count: commentCount + 1 }).eq('id', post.id)
+        setComments(prev => [...prev, {
+          ...(inserted as Comment),
+          users: (me as Partial<UserProfile>) || null,
+        }])
         setCommentCount(c => c + 1)
         setCommentText('')
       }
@@ -434,12 +442,12 @@ function PostCard({ post, currentUserId, onDelete }: {
       {/* Header */}
       <div style={{ padding: '14px 16px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: 10 }}>
-          <a href={`/profile/${post.user_id as string}`} style={{ textDecoration: 'none' }}>
-            <Avatar u={{ ...author, id: post.user_id as string }} size={40} />
+          <a href={`/profile/${post.user_id}`} style={{ textDecoration: 'none' }}>
+            <Avatar u={{ ...author, id: post.user_id }} size={40} />
           </a>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <a href={`/profile/${post.user_id as string}`} style={{ textDecoration: 'none' }}>
+              <a href={`/profile/${post.user_id}`} style={{ textDecoration: 'none' }}>
                 <p style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'Sora,sans-serif', cursor: 'pointer', margin: 0 }}
                   onMouseEnter={e => (e.currentTarget.style.color = C.indigoL)}
                   onMouseLeave={e => (e.currentTarget.style.color = C.text)}>
@@ -454,12 +462,12 @@ function PostCard({ post, currentUserId, onDelete }: {
               )}
             </div>
             {author.username && (
-              <p style={{ fontSize: 12, color: C.indigoL, fontFamily: 'Inter,sans-serif', margin: 0 }}>@{author.username as string}</p>
+              <p style={{ fontSize: 12, color: C.indigoL, fontFamily: 'Inter,sans-serif', margin: 0 }}>@{author.username}</p>
             )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
               <Globe style={{ width: 11, height: 11, color: C.textDim }} />
               <span style={{ fontSize: 11, color: C.textDim, fontFamily: 'Inter,sans-serif' }}>
-                {timeAgo(post.created_at as string)} · visible to everyone
+                {timeAgo(post.created_at)} · visible to everyone
               </span>
             </div>
           </div>
@@ -467,16 +475,14 @@ function PostCard({ post, currentUserId, onDelete }: {
 
         {isOwn && (
           <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setShowMenu(p => !p)}
+            <button onClick={() => setShowMenu(p => !p)}
               style={{ width: 32, height: 32, borderRadius: 8, border: 'none', cursor: 'pointer', background: 'transparent', color: C.textMuted, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <MoreHorizontal style={{ width: 16, height: 16 }} />
             </button>
             {showMenu && (
               <div style={{ position: 'absolute', right: 0, top: 36, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden', zIndex: 20, minWidth: 130 }}>
-                <button
-                  onClick={() => { onDelete(post.id as string); setShowMenu(false) }}
-                  style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', color: C.red, fontFamily: 'Inter,sans-serif', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left' }}>
+                <button onClick={() => { onDelete(post.id); setShowMenu(false) }}
+                  style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', color: C.red, fontFamily: 'Inter,sans-serif', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Trash2 style={{ width: 13, height: 13 }} /> Delete post
                 </button>
               </div>
@@ -488,14 +494,14 @@ function PostCard({ post, currentUserId, onDelete }: {
       {/* Content */}
       {post.content && (
         <p style={{ padding: '12px 16px 8px', fontSize: 14, color: C.text, fontFamily: 'Inter,sans-serif', lineHeight: 1.7, whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0 }}>
-          {post.content as string}
+          {post.content}
         </p>
       )}
 
       {/* Images */}
       {imgs.length > 0 && (
         <div style={{ display: 'grid', gap: 2, margin: '4px 0', gridTemplateColumns: imgs.length === 1 ? '1fr' : '1fr 1fr' }}>
-          {imgs.slice(0, 4).map((url: string, i: number) => (
+          {imgs.slice(0, 4).map((url, i) => (
             <div key={i} style={{ position: 'relative', overflow: 'hidden', background: C.surface, aspectRatio: imgs.length === 1 ? '16/9' : '1/1' }}>
               <img src={url} alt="" loading="lazy"
                 style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
@@ -511,7 +517,7 @@ function PostCard({ post, currentUserId, onDelete }: {
         </div>
       )}
 
-      {/* Stats row */}
+      {/* Stats */}
       {(likeCount > 0 || commentCount > 0) && (
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 16px', borderTop: `1px solid ${C.border}` }}>
           {likeCount > 0 && <span style={{ fontSize: 12, color: C.textMuted, fontFamily: 'Inter,sans-serif' }}>❤️ {likeCount}</span>}
@@ -526,26 +532,11 @@ function PostCard({ post, currentUserId, onDelete }: {
 
       {/* Action bar */}
       <div style={{ display: 'flex', borderTop: `1px solid ${C.border}` }}>
-        {[
-          {
-            icon: <Heart style={{ width: 15, height: 15, fill: liked ? C.red : 'none', stroke: liked ? C.red : 'currentColor' }} />,
-            label: liked ? 'Liked' : 'Like',
-            onClick: handleLike,
-            color: liked ? C.red : C.textMuted,
-          },
-          {
-            icon: <MessageCircle style={{ width: 15, height: 15 }} />,
-            label: 'Comment',
-            onClick: toggleComments,
-            color: showComments ? C.indigoL : C.textMuted,
-          },
-          {
-            icon: <Share2 style={{ width: 15, height: 15 }} />,
-            label: 'Share',
-            onClick: () => navigator.clipboard?.writeText(window.location.origin + '/post/' + (post.id as string)),
-            color: C.textMuted,
-          },
-        ].map((btn, i) => (
+        {([
+          { icon: <Heart style={{ width: 15, height: 15, fill: liked ? C.red : 'none', stroke: liked ? C.red : 'currentColor' }} />, label: liked ? 'Liked' : 'Like', onClick: handleLike, color: liked ? C.red : C.textMuted },
+          { icon: <MessageCircle style={{ width: 15, height: 15 }} />, label: 'Comment', onClick: toggleComments, color: showComments ? C.indigoL : C.textMuted },
+          { icon: <Share2 style={{ width: 15, height: 15 }} />, label: 'Share', onClick: () => navigator.clipboard?.writeText(window.location.origin + '/post/' + post.id), color: C.textMuted },
+        ] as { icon: React.ReactNode; label: string; onClick: () => void; color: string }[]).map((btn, i) => (
           <button key={i} onClick={btn.onClick}
             style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px', border: 'none', background: 'transparent', color: btn.color, cursor: 'pointer', fontFamily: 'Inter,sans-serif', fontSize: 13, transition: 'background 0.15s' }}
             onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.035)')}
@@ -555,24 +546,23 @@ function PostCard({ post, currentUserId, onDelete }: {
         ))}
       </div>
 
-      {/* Comments section */}
+      {/* Comments */}
       {showComments && (
         <div style={{ padding: '12px 16px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {comments.map(c => (
-            <div key={c.id as string} style={{ display: 'flex', gap: 8 }}>
-              <Avatar u={{ ...((c.users as Record<string, unknown>) || {}), id: c.user_id as string }} size={28} />
+            <div key={c.id} style={{ display: 'flex', gap: 8 }}>
+              <Avatar u={{ ...c.users, id: c.user_id }} size={28} />
               <div style={{ flex: 1, background: C.surface, borderRadius: '4px 12px 12px 12px', padding: '8px 12px' }}>
                 <p style={{ fontSize: 12, fontWeight: 600, color: C.indigoL, marginBottom: 2, fontFamily: 'Inter,sans-serif' }}>
-                  {getDisplayName((c.users as Record<string, unknown>) || {})}
+                  {getDisplayName(c.users)}
                 </p>
                 <p style={{ fontSize: 13, color: C.text, fontFamily: 'Inter,sans-serif', lineHeight: 1.5, margin: 0 }}>
-                  {c.content as string}
+                  {c.content}
                 </p>
               </div>
             </div>
           ))}
 
-          {/* Comment input */}
           <div style={{ display: 'flex', gap: 8 }}>
             <Avatar u={{ id: currentUserId }} size={28} />
             <div style={{ flex: 1, display: 'flex', gap: 6 }}>
@@ -586,9 +576,7 @@ function PostCard({ post, currentUserId, onDelete }: {
                 onFocus={e => (e.target.style.borderColor = C.borderF)}
                 onBlur={e => (e.target.style.borderColor = C.border)}
               />
-              <button
-                onClick={sendComment}
-                disabled={!commentText.trim() || sending}
+              <button onClick={sendComment} disabled={!commentText.trim() || sending}
                 style={{ width: 34, height: 34, borderRadius: 9, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: !commentText.trim() || sending ? 0.35 : 1, flexShrink: 0, transition: 'opacity 0.15s' }}>
                 {sending
                   ? <Loader2 style={{ width: 13, height: 13, animation: 'spin 1s linear infinite' }} />
@@ -604,14 +592,14 @@ function PostCard({ post, currentUserId, onDelete }: {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function CommunityPage() {
-  const [currentUser,    setCurrentUser]    = useState<Record<string, unknown> | null>(null)
-  const [profile,        setProfile]        = useState<Record<string, unknown> | null>(null)
-  const [posts,          setPosts]          = useState<Record<string, unknown>[]>([])
-  const [announcements,  setAnnouncements]  = useState<Announcement[]>([])
-  const [loading,        setLoading]        = useState(true)
-  const [loadingMore,    setLoadingMore]    = useState(false)
-  const [hasMore,        setHasMore]        = useState(true)
-  const [likedIds,       setLikedIds]       = useState<Set<string>>(new Set())
+  const [currentUser,   setCurrentUser]   = useState<{ id: string } | null>(null)
+  const [profile,       setProfile]       = useState<Partial<UserProfile> | null>(null)
+  const [posts,         setPosts]         = useState<Post[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [loading,       setLoading]       = useState(true)
+  const [loadingMore,   setLoadingMore]   = useState(false)
+  const [hasMore,       setHasMore]       = useState(true)
+  const [likedIds,      setLikedIds]      = useState<Set<string>>(new Set())
   const PAGE      = 20
   const offsetRef = useRef(0)
 
@@ -626,16 +614,13 @@ export default function CommunityPage() {
       .range(offsetRef.current, offsetRef.current + PAGE - 1)
 
     if (!error && data) {
-      const enriched = (data as Record<string, unknown>[]).map(p => ({
-        ...p,
-        my_like: likedIds.has(p.id as string),
-      }))
+      const enriched = (data as Post[]).map(p => ({ ...p, my_like: likedIds.has(p.id) }))
       if (reset) {
         setPosts(enriched)
       } else {
         setPosts(prev => {
-          const ids = new Set(prev.map(x => x.id as string))
-          return [...prev, ...enriched.filter(x => !ids.has(x.id as string))]
+          const ids = new Set(prev.map(x => x.id))
+          return [...prev, ...enriched.filter(x => !ids.has(x.id))]
         })
       }
       setHasMore(data.length === PAGE)
@@ -649,15 +634,13 @@ export default function CommunityPage() {
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
       if (!u) return
-      setCurrentUser(u as unknown as Record<string, unknown>)
+      setCurrentUser({ id: u.id })
 
       const { data: prof } = await supabase.from('users').select('*').eq('id', u.id).single()
-      setProfile(prof as Record<string, unknown>)
+      setProfile(prof as Partial<UserProfile>)
 
       const { data: likes } = await supabase.from('post_likes').select('post_id').eq('user_id', u.id)
-      // ── FIX: Array.from() on mapped array, no Set spread ──
-      const ids = new Set(Array.from((likes || []).map((l: Record<string, unknown>) => l.post_id as string)))
-      setLikedIds(ids)
+      setLikedIds(new Set(Array.from((likes || []).map((l: { post_id: string }) => l.post_id))))
 
       loadPosts(u.id, true)
 
@@ -671,7 +654,6 @@ export default function CommunityPage() {
     })
   }, [])
 
-  // Realtime — new posts appear instantly without a refresh
   useEffect(() => {
     const ch = supabase.channel('community-global')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, payload => {
@@ -682,9 +664,10 @@ export default function CommunityPage() {
           .single()
           .then(({ data }) => {
             if (data) {
+              const p = data as Post
               setPosts(prev => {
-                if (prev.find(p => p.id === (data as Record<string, unknown>).id)) return prev
-                return [{ ...(data as Record<string, unknown>), my_like: false }, ...prev]
+                if (prev.find(x => x.id === p.id)) return prev
+                return [{ ...p, my_like: false }, ...prev]
               })
             }
           })
@@ -697,7 +680,7 @@ export default function CommunityPage() {
   }, [])
 
   const handlePosted = () => {
-    if (currentUser) loadPosts(currentUser.id as string, true)
+    if (currentUser) loadPosts(currentUser.id, true)
   }
 
   const handleDelete = async (postId: string) => {
@@ -706,14 +689,14 @@ export default function CommunityPage() {
     setPosts(prev => prev.filter(p => p.id !== postId))
   }
 
-  const postsWithLikes = posts.map(p => ({ ...p, my_like: likedIds.has(p.id as string) }))
+  const postsWithLikes = posts.map(p => ({ ...p, my_like: likedIds.has(p.id) }))
 
   return (
     <DashboardLayout>
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @media (max-width: 768px) {
-          .community-grid { grid-template-columns: 1fr !important; }
+          .community-grid    { grid-template-columns: 1fr !important; }
           .community-sidebar { display: none !important; }
         }
       `}</style>
@@ -722,7 +705,7 @@ export default function CommunityPage() {
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 16px' }}>
           <div className="community-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
 
-            {/* ── Main feed ── */}
+            {/* ── Feed ── */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: C.indigoL, fontFamily: 'Inter,sans-serif', marginBottom: 4 }}>Global</p>
@@ -732,15 +715,11 @@ export default function CommunityPage() {
                 </p>
               </div>
 
-              {currentUser && (
-                <Composer currentUser={currentUser} profile={profile} onPosted={handlePosted} />
-              )}
+              {currentUser && <Composer currentUser={currentUser} profile={profile} onPosted={handlePosted} />}
 
               {announcements.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {announcements.map(ann => (
-                    <AnnouncementCard key={ann.id} ann={ann} />
-                  ))}
+                  {announcements.map(ann => <AnnouncementCard key={ann.id} ann={ann} />)}
                 </div>
               )}
 
@@ -761,16 +740,11 @@ export default function CommunityPage() {
               ) : (
                 <>
                   {postsWithLikes.map(post => (
-                    <PostCard
-                      key={post.id as string}
-                      post={post}
-                      currentUserId={currentUser?.id as string}
-                      onDelete={handleDelete}
-                    />
+                    <PostCard key={post.id} post={post} currentUserId={currentUser?.id || ''} onDelete={handleDelete} />
                   ))}
                   {hasMore && (
                     <button
-                      onClick={() => currentUser && loadPosts(currentUser.id as string, false)}
+                      onClick={() => currentUser && loadPosts(currentUser.id, false)}
                       disabled={loadingMore}
                       style={{ padding: '12px', borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.textMuted, cursor: 'pointer', fontFamily: 'Inter,sans-serif', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: loadingMore ? 0.6 : 1 }}>
                       {loadingMore
@@ -785,16 +759,15 @@ export default function CommunityPage() {
 
             {/* ── Sidebar ── */}
             <div className="community-sidebar" style={{ position: 'sticky', top: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {currentUser && <PeopleSearch currentUserId={currentUser.id as string} />}
-
+              {currentUser && <PeopleSearch currentUserId={currentUser.id} />}
               <div style={{ borderRadius: 16, padding: 16, background: C.card, border: `1px solid ${C.border}` }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color: C.text, fontFamily: 'Sora,sans-serif', marginBottom: 12 }}>About Community</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {[
-                    { label: 'Open to everyone',    value: '🌍' },
-                    { label: 'Connect with anyone', value: '🤝' },
+                    { label: 'Open to everyone',     value: '🌍' },
+                    { label: 'Connect with anyone',  value: '🤝' },
                     { label: 'All posts are global', value: '📢' },
-                    { label: 'Real-time updates',   value: '⚡' },
+                    { label: 'Real-time updates',    value: '⚡' },
                   ].map(s => (
                     <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: 13, color: C.textMuted, fontFamily: 'Inter,sans-serif' }}>{s.label}</span>
