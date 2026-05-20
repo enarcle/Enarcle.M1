@@ -106,7 +106,6 @@ const Navbar = ({ visible }: { visible: boolean }) => {
 
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? '?'
 
-  // Nav links: Events, Groups, Pricing — no login required to view
   const navLinks = [
     { label: 'Events', href: '/events' },
     { label: 'Groups', href: '/groups' },
@@ -240,7 +239,6 @@ const PillarCard = ({ icon: Icon, title, desc, badge, index }: { icon: any; titl
     onMouseEnter={(e: any) => e.currentTarget.style.borderColor = P.borderStr}
     onMouseLeave={(e: any) => e.currentTarget.style.borderColor = P.border}
   >
-    {/* Subtle corner glow */}
     <div style={{ position: 'absolute', top: 0, right: 0, width: 120, height: 120, background: 'radial-gradient(circle at top right, rgba(255,255,255,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
     <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
       <Icon style={{ width: 22, height: 22, color: P.text }} />
@@ -255,7 +253,6 @@ const PillarCard = ({ icon: Icon, title, desc, badge, index }: { icon: any; titl
   </motion.div>
 )
 
-// ── Live Events + Groups preview ─────────────────────────────────────────────
 function LiveEventsPreview() {
   const [events, setEvents] = useState<any[]>([])
   const [groups, setGroups] = useState<any[]>([])
@@ -373,7 +370,6 @@ export default function LandingPage() {
               <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(to top, ${P.bg} 0%, rgba(11,11,12,0.75) 50%, rgba(11,11,12,0.4) 100%)` }} />
             </motion.div>
 
-            {/* Dot grid overlay */}
             <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none' }} />
 
             <div style={{ position: 'relative', zIndex: 10, maxWidth: 860, margin: '0 auto', padding: '0 24px', textAlign: 'center', marginTop: 80 }}>
@@ -386,7 +382,6 @@ export default function LandingPage() {
                   <ChromeText>Who Refuse Average.</ChromeText>
                 </h1>
 
-                {/* Rotating tagline sequence */}
                 <RotatingTagline />
 
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -447,7 +442,7 @@ export default function LandingPage() {
             </div>
           </Section>
 
-          {/* ═══ FOUR PILLARS — full grid, all 4 in a row ═══ */}
+          {/* ═══ PILLARS ═══ */}
           <Section id="pillars">
             <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
               <div style={{ textAlign: 'center', marginBottom: 56 }}>
@@ -456,7 +451,87 @@ export default function LandingPage() {
                   Four Ways to <ChromeText>Grow</ChromeText>
                 </h2>
               </div>
-              {/* 4 cards in one row on desktop, 2x2 on tablet, 1 col on mobile */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="pillars-grid">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
                 {pillars.map((p, i) => <PillarCard key={p.title} {...p} index={i} />)}
               </div>
+            </div>
+          </Section>
+
+          {/* ═══ LIVE PREVIEW ═══ */}
+          <LiveEventsPreview />
+
+          {/* ═══ HOW IT WORKS ═══ */}
+          <Section id="how-it-works" style={{ borderTop: `1px solid ${P.border}` }}>
+            <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px' }}>
+              <div style={{ textAlign: 'center', marginBottom: 64 }}>
+                <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textDim, marginBottom: 16 }}>The Process</p>
+                <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: P.text }}>How ENARCLE Works</h2>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
+                {steps.map((s, i) => (
+                  <motion.div key={s.num} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 16, padding: 24 }}>
+                    <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 32, fontWeight: 800, background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: 16 }}>{s.num}</div>
+                    <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: 16, fontWeight: 700, color: P.text, marginBottom: 8 }}>{s.title}</h4>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: P.textDim, lineHeight: 1.6 }}>{s.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </Section>
+
+          {/* ═══ TOOLS ═══ */}
+          <Section id="tools" style={{ background: P.bgSec, borderTop: `1px solid ${P.border}`, borderBottom: `1px solid ${P.border}` }}>
+            <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px' }}>
+              <div style={{ textAlign: 'center', marginBottom: 56 }}>
+                <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textDim, marginBottom: 16 }}>The Toolkit</p>
+                <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: P.text }}>Built for High-Fidelity Teaching</h2>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
+                {tools.map((t, i) => {
+                  const Icon = t.icon
+                  return (
+                    <div key={t.name} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Icon size={18} style={{ color: P.textMuted }} />
+                      </div>
+                      <div>
+                        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: P.text, marginBottom: 4 }}>{t.name}</h4>
+                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: P.textDim, lineHeight: 1.5 }}>{t.desc}</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </Section>
+
+          {/* ═══ CTA ═══ */}
+          <Section id="cta">
+            <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
+              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, color: P.text, marginBottom: 20, letterSpacing: '-0.02em' }}>Stop Building in Secret.</h2>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 16, color: P.textDim, marginBottom: 36, lineHeight: 1.6 }}>
+                Join the operators pushing bounds without the vanity of traditional social platforms.
+              </p>
+              <Link href="/auth/login">
+                <button style={{ padding: '14px 36px', background: '#FFFFFF', color: '#000000', fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 14, border: 'none', borderRadius: 10, cursor: 'pointer', transition: 'all 0.2s' }}
+                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#E8E8E8')}
+                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#FFFFFF')}>
+                  Claim Your Spot
+                </button>
+              </Link>
+            </div>
+          </Section>
+
+          {/* ═══ FOOTER ═══ */}
+          <footer style={{ borderTop: `1px solid ${P.border}`, padding: '40px 24px', background: '#09090A' }}>
+            <div style={{ maxWidth: '7xl', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
+              <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: '1.2rem', color: P.textDim }}>ENARCLE</span>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: P.textDim }}>&copy; {new Date().getFullYear()} ENARCLE. All rights reserved.</p>
+            </div>
+          </footer>
+
+        </motion.main>
+      )}
+    </div>
+  )
+}
