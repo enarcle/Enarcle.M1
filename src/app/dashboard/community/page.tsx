@@ -614,7 +614,7 @@ export default function CommunityPage() {
       .range(offsetRef.current, offsetRef.current + PAGE - 1)
 
     if (!error && data) {
-      const enriched = (data as Post[]).map(p => ({ ...p, my_like: likedIds.has(p.id) }))
+      const enriched = (data as unknown as Omit<Post, 'my_like'>[]).map(p => ({ ...p, my_like: likedIds.has(p.id) }))
       if (reset) {
         setPosts(enriched)
       } else {
