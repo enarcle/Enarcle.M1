@@ -664,10 +664,10 @@ export default function CommunityPage() {
           .single()
           .then(({ data }) => {
             if (data) {
-              const p = data as Post
+              const p = { ...(data as unknown as Omit<Post, 'my_like'>), my_like: false }
               setPosts(prev => {
                 if (prev.find(x => x.id === p.id)) return prev
-                return [{ ...p, my_like: false }, ...prev]
+                return [p, ...prev]
               })
             }
           })
