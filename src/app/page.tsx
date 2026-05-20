@@ -36,7 +36,7 @@ const IntroAnimation = ({ onComplete }: { onComplete: () => void }) => (
         initial={{ opacity: 0, y: 40, letterSpacing: '0.3em' }}
         animate={{ opacity: 1, y: 0, letterSpacing: '-0.03em' }}
         transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}>
-        GRITCLUB
+        ENARCLE
       </motion.h1>
       <motion.div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent)' }} initial={{ width: 0 }} animate={{ width: '60%' }} transition={{ duration: 0.8, delay: 1 }} />
       <motion.p style={{ fontFamily: "'Inter', sans-serif", color: P.textDim, letterSpacing: '0.4em', fontSize: 12, textTransform: 'uppercase' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
@@ -118,7 +118,7 @@ const Navbar = ({ visible }: { visible: boolean }) => {
       style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, transition: 'all 0.5s', background: scrolled ? 'rgba(11,11,12,0.97)' : 'transparent', backdropFilter: scrolled ? 'blur(8px)' : 'none', borderBottom: scrolled ? `1px solid ${P.border}` : 'none' }}>
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: scrolled ? '60px' : '88px', transition: 'height 0.5s' }}>
-          <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, letterSpacing: '-0.02em', fontSize: scrolled ? '1.4rem' : '2rem', transition: 'font-size 0.5s', background: 'linear-gradient(135deg, #E8E8E8 0%, #CFCFCF 25%, #FFFFFF 50%, #B8B8B8 75%, #EDEDED 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>GRITCLUB</span>
+          <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, letterSpacing: '-0.02em', fontSize: scrolled ? '1.4rem' : '2rem', transition: 'font-size 0.5s', background: 'linear-gradient(135deg, #E8E8E8 0%, #CFCFCF 25%, #FFFFFF 50%, #B8B8B8 75%, #EDEDED 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>ENARCLE</span>
 
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map(link => (
@@ -272,7 +272,7 @@ function LiveEventsPreview() {
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textDim, marginBottom: 12 }}>Happening Now</p>
-          <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 800, color: P.text }}>Live on <ChromeText>GritClub</ChromeText></h2>
+          <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 800, color: P.text }}>Live on <ChromeText>ENARCLE</ChromeText></h2>
         </div>
         {events.length > 0 && (
           <div style={{ marginBottom: 40 }}>
@@ -338,7 +338,7 @@ export default function LandingPage() {
 
   const pillars = [
     { icon: Radio, title: 'Live Sessions', desc: 'Interactive sessions from founders, operators, coaches, and experts. Real workflows, real decisions — no pre-recorded fluff.', badge: 'Host & earn 80%' },
-    { icon: MessageCircle, title: 'Direct Access', desc: 'Message anyone on GritClub directly. No gatekeeping, no vanity walls. Connect with mentors, co-founders, and clients.', badge: 'Text messaging' },
+    { icon: MessageCircle, title: 'Direct Access', desc: 'Message anyone on ENARCLE directly. No gatekeeping, no vanity walls. Connect with mentors, co-founders, and clients.', badge: 'Text messaging' },
     { icon: Users, title: 'Small Groups', desc: 'Start with 5 members free. Upgrade to grow your group beyond 5 — built for accountability and long-term progress.', badge: 'Free up to 5 · Upgrade for more' },
     { icon: Zap, title: 'Curated Network', desc: 'People filtered by intent — from early builders to experienced operators. Find your co-founder, mentor, or first client.', badge: 'Open to everyone' },
   ]
@@ -420,7 +420,7 @@ export default function LandingPage() {
                 Most people don't fail because they lack ambition.
               </h2>
               <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 17, color: P.textDim, lineHeight: 1.75 }}>
-                They fail because they build alone, learn from the wrong people, and never get real feedback. GritClub fixes all three — for founders, coaches, creators, and anyone serious about moving forward.
+                They fail because they build alone, learn from the wrong people, and never get real feedback. ENARCLE fixes all three — for founders, coaches, creators, and anyone serious about moving forward.
               </p>
               <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent)', marginTop: 48 }} />
             </div>
@@ -460,174 +460,3 @@ export default function LandingPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="pillars-grid">
                 {pillars.map((p, i) => <PillarCard key={p.title} {...p} index={i} />)}
               </div>
-              <style>{`
-                @media (max-width: 900px) { .pillars-grid { grid-template-columns: repeat(2,1fr) !important; } }
-                @media (max-width: 560px) { .pillars-grid { grid-template-columns: 1fr !important; } }
-              `}</style>
-            </div>
-          </Section>
-
-          {/* ═══ LIVE EVENTS + GROUPS PREVIEW (real data) ═══ */}
-          <LiveEventsPreview />
-
-          {/* ═══ DM MOCKUP ═══ */}
-          <Section>
-            <div style={{ maxWidth: 560, margin: '0 auto', padding: '0 24px' }}>
-              <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textDim, marginBottom: 12 }}>1:1 Conversations</p>
-                <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 700, color: P.text }}>Conversations That <ChromeText>Change Trajectories</ChromeText></h2>
-              </div>
-              <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-                style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 16, overflow: 'hidden' }}>
-                <div style={{ borderBottom: `1px solid ${P.border}`, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: P.text, fontFamily: "'Sora', sans-serif" }}>AK</span>
-                  </div>
-                  <div>
-                    <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 13, fontWeight: 600, color: P.text }}>Alex K. — SaaS Founder</p>
-                    <p style={{ fontSize: 11, color: P.textDim }}>Active now</p>
-                  </div>
-                  <div style={{ marginLeft: 'auto', width: 7, height: 7, borderRadius: '50%', background: '#32D74B' }} />
-                </div>
-                <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {[
-                    { from: true, text: 'Saw your session on cold outbound — the LinkedIn strategy was 🔥' },
-                    { from: false, text: 'Thanks! Happy to share my exact sequence. Want to jump on a call this week?' },
-                    { from: true, text: "Absolutely. Wednesday work? I'll bring my current metrics for feedback." },
-                    { from: false, text: "Good. Bring your numbers. We'll go through it properly." },
-                  ].map((msg, i) => (
-                    <motion.div key={i} initial={{ opacity: 0, x: msg.from ? -16 : 16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} style={{ display: 'flex', justifyContent: msg.from ? 'flex-start' : 'flex-end' }}>
-                      <div style={{ maxWidth: '80%', padding: '10px 14px', borderRadius: 10, fontSize: 13, fontFamily: "'Inter', sans-serif", lineHeight: 1.55, background: msg.from ? P.bgSec : 'rgba(255,255,255,0.08)', color: P.text, border: `1px solid ${P.border}` }}>
-                        {msg.text}
-                      </div>
-                    </motion.div>
-                  ))}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingTop: 4 }}>
-                    {[0, 1, 2].map(i => <motion.div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.3 }} />)}
-                    <span style={{ fontSize: 11, color: P.textDim, fontFamily: "'Inter', sans-serif", marginLeft: 4 }}>Alex is typing...</span>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </Section>
-
-          {/* ═══ HOW IT WORKS ═══ */}
-          <Section id="how-it-works" style={{ borderTop: `1px solid ${P.border}`, borderBottom: `1px solid ${P.border}` }}>
-            <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px' }}>
-              <div style={{ textAlign: 'center', marginBottom: 56 }}>
-                <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textDim, marginBottom: 16 }}>The Protocol</p>
-                <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, color: P.text }}>From Zero to <ChromeText>Authority</ChromeText></h2>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-                {steps.map((step, i) => (
-                  <motion.div key={step.num} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                    style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 16, padding: 28, position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: 16, right: 20, fontFamily: "'Sora', sans-serif", fontSize: 44, fontWeight: 800, color: 'rgba(255,255,255,0.04)' }}>{step.num}</div>
-                    <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, color: P.textDim, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 16 }}>Step {step.num}</p>
-                    <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: 22, fontWeight: 700, color: P.text, marginBottom: 10 }}>{step.title}</h3>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: P.textDim, lineHeight: 1.65 }}>{step.desc}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </Section>
-
-          {/* ═══ HOST REVENUE — clear 80% explanation ═══ */}
-          <Section>
-            <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
-              <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textDim, marginBottom: 16 }}>Host Economics</p>
-              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, color: P.text, marginBottom: 16 }}>
-                You Keep <ChromeText>80%</ChromeText> of Every Dollar
-              </h2>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 16, color: P.textDim, marginBottom: 16, lineHeight: 1.7 }}>
-                GritClub takes a flat 20% platform fee — that's it. No hidden charges, no monthly hosting cost, no per-seat fees.
-              </p>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: P.textMuted, marginBottom: 48, lineHeight: 1.7 }}>
-                Example: Sell 50 tickets at <strong style={{ color: P.text }}>$29</strong> each = <strong style={{ color: P.text }}>$1,450</strong> total revenue.<br />
-                GritClub keeps <strong style={{ color: P.text }}>$290</strong> (20%) · You keep <strong style={{ color: P.text }}>$1,160</strong> (80%).
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, maxWidth: 480, margin: '0 auto 40px' }}>
-                {[
-                  { label: '50 tickets @ $29', value: '$1,450', sub: 'Total revenue' },
-                  { label: 'Platform fee (20%)', value: '$290', sub: 'GritClub keeps' },
-                  { label: 'You keep (80%)', value: '$1,160', sub: 'Paid to you' }
-                ].map((item, i) => (
-                  <motion.div key={item.label} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                    style={{ background: i === 2 ? 'rgba(255,255,255,0.06)' : P.card, border: `1px solid ${i === 2 ? P.borderStr : P.border}`, borderRadius: 12, padding: 20 }}>
-                    <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 22, fontWeight: 700, color: i === 2 ? P.text : P.textMuted, marginBottom: 4 }}>{item.value}</p>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: P.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{item.sub}</p>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{item.label}</p>
-                  </motion.div>
-                ))}
-              </div>
-              <Link href="/pricing">
-                <button style={{ padding: '10px 28px', background: 'transparent', border: `1px solid ${P.borderStr}`, color: P.textMuted, borderRadius: 8, fontFamily: "'Sora', sans-serif", fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = P.text; (e.currentTarget as HTMLElement).style.borderColor = P.text }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = P.textMuted; (e.currentTarget as HTMLElement).style.borderColor = P.borderStr }}>
-                  See All Plans →
-                </button>
-              </Link>
-            </div>
-          </Section>
-
-          {/* ═══ TOOLS ═══ */}
-          <Section id="tools" style={{ borderTop: `1px solid ${P.border}`, borderBottom: `1px solid ${P.border}` }}>
-            <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px' }}>
-              <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textDim, marginBottom: 16 }}>Arsenal</p>
-                <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, color: P.text }}>Built for <ChromeText>Live Teaching</ChromeText></h2>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-                {tools.map((tool, i) => (
-                  <motion.div key={tool.name} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} whileHover={{ scale: 1.02 }}
-                    style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 16, padding: 28, textAlign: 'center' }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                      <tool.icon style={{ width: 22, height: 22, color: P.text }} />
-                    </div>
-                    <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: P.text, marginBottom: 8 }}>{tool.name}</h3>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: P.textDim }}>{tool.desc}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </Section>
-
-          {/* ═══ FINAL CTA ═══ */}
-          <Section>
-            <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
-              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.03em', color: P.text, marginBottom: 24 }}>
-                Start Building With<br /><ChromeText>the Right People.</ChromeText>
-              </h2>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 17, color: P.textDim, marginBottom: 40, lineHeight: 1.7 }}>
-                The right environment changes everything.<br />One conversation can shift your trajectory.
-              </p>
-              <Link href="/auth/login">
-                <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '16px 40px', background: '#FFFFFF', color: '#000000', fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 10, cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E8E8E8'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 40px rgba(255,255,255,0.15)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#FFFFFF'; (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}>
-                  Enter the Network <ArrowRight style={{ width: 16, height: 16 }} />
-                </button>
-              </Link>
-            </div>
-          </Section>
-
-          {/* ═══ FOOTER — Privacy · Terms · Pricing only, no "Hosts keep 80%" ═══ */}
-          <footer style={{ borderTop: `1px solid ${P.border}`, padding: '40px 24px' }}>
-            <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-              <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 18, background: 'linear-gradient(135deg, #E8E8E8 0%, #CFCFCF 25%, #FFFFFF 50%, #B8B8B8 75%, #EDEDED 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>GRITCLUB</span>
-              <div style={{ display: 'flex', gap: 28 }}>
-                {[{ label: 'Privacy', href: '/privacy' }, { label: 'Terms', href: '/terms' }, { label: 'Pricing', href: '/pricing' }].map(link => (
-                  <Link key={link.label} href={link.href} style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: P.textDim, textDecoration: 'none', transition: 'color 0.2s' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = P.textMuted)}
-                    onMouseLeave={e => (e.currentTarget.style.color = P.textDim)}>{link.label}</Link>
-                ))}
-              </div>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>© 2026 GritClub</p>
-            </div>
-          </footer>
-
-        </motion.main>
-      )}
-    </div>
-  )
-}
