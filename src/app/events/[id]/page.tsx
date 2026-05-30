@@ -339,7 +339,7 @@ export default function EventDetailPage() {
                 {isFree && (
                   <span style={{ fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:20, background:C.greenDim, color:C.green, fontFamily:'Syne,sans-serif' }}>FREE</span>
                 )}
-                {event.category && (
+                {(event.category as string | undefined) && (
                   <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, background:C.indigoDim, color:C.indigoL, fontFamily:'Inter,sans-serif' }}>
                     {event.category as string}
                   </span>
@@ -353,7 +353,7 @@ export default function EventDetailPage() {
               <h1 style={{ fontSize:'clamp(22px,5vw,32px)', fontWeight:800, color:C.text, fontFamily:'Syne,sans-serif', letterSpacing:'-0.025em', lineHeight:1.2, marginBottom:14 }}>
                 {event.title as string}
               </h1>
-              {event.description && (
+              {(event.description as string | undefined) && (
                 <p style={{ fontSize:15, color:C.muted, fontFamily:'Inter,sans-serif', lineHeight:1.75 }}>
                   {event.description as string}
                 </p>
@@ -365,7 +365,7 @@ export default function EventDetailPage() {
               {(
                 [
                   eventDate && { icon: Calendar, label: eventDate, sublabel: eventTime || '' },
-                  event.location && { icon: MapPin, label: event.location as string },
+                  (event.location as string | undefined) && { icon: MapPin, label: event.location as string },
                   { icon: Globe, label: 'Online Event', sublabel: 'Join from anywhere' },
                 ] as ({ icon: React.ElementType; label: string; sublabel?: string } | false)[]
               ).filter(Boolean).map((item, i) => {
