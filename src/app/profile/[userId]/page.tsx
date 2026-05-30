@@ -12,17 +12,17 @@ import {
 } from 'lucide-react'
 
 const C = {
-  bg:'#0B0B0C', surface:'#121214', card:'#121214',
+  bg:'#09090b', surface:'#18181b', card:'#18181b',
   border:'rgba(255,255,255,0.06)',
-  text:'#FFFFFF', textMuted:'#C7C7CC', textDim:'#8A8A8F',
-  blue:'#C7C7CC', blueLight:'#C7C7CC', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#C7C7CC', goldDim:'rgba(199,199,204,0.08)',
+  text:'#f4f4f5', textMuted:'#a1a1aa', textDim:'#8A8A8F',
+  blue:'#a1a1aa', blueLight:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
+  gold:'#a1a1aa', goldDim:'rgba(161,161,170,0.08)',
   red:'#EF4444', redDim:'rgba(239,68,68,0.1)',
-  green:'#34D399', greenDim:'rgba(52,211,153,0.12)',
-  purple:'#C7C7CC', purpleDim:'rgba(199,199,204,0.08)',
+  green:'#34D399', greenDim:'rgba(34,197,94,0.12)',
+  purple:'#a1a1aa', purpleDim:'rgba(161,161,170,0.08)',
 }
 
-const AVATAR_COLORS = ['#C7C7CC','#C7C7CC','#DB2777','#D97706','#059669','#0891B2']
+const AVATAR_COLORS = ['#6366f1','#8b5cf6','#DB2777','#D97706','#059669','#0891B2']
 const avatarColor = (id: string) => AVATAR_COLORS[(id?.charCodeAt(0)||0) % AVATAR_COLORS.length]
 const getName = (u: any) => u?.full_name || u?.email?.split('@')[0] || 'User'
 const timeAgo = (ts: string) => {
@@ -254,7 +254,7 @@ export default function PublicProfilePage() {
               {currentUser && (
                 <>
                   <button onClick={() => router.push(`/dashboard/messages?user=${targetId}`)}
-                    style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 14px', borderRadius:10, border:`1px solid rgba(59,130,246,0.22)`, cursor:'pointer', background:'rgba(255,255,255,0.06)', color:'#C7C7CC', fontFamily:'Inter,sans-serif', fontWeight:600, fontSize:13 }}>
+                    style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 14px', borderRadius:10, border:`1px solid rgba(59,130,246,0.22)`, cursor:'pointer', background:'rgba(255,255,255,0.06)', color:'#a1a1aa', fontFamily:'Inter,sans-serif', fontWeight:600, fontSize:13 }}>
                     <MessageSquare style={{ width:13, height:13 }} />
                     Message
                   </button>
@@ -312,7 +312,7 @@ export default function PublicProfilePage() {
               <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
                 {profile.website_url && (
                   <a href={profile.website_url.startsWith('http')?profile.website_url:`https://${profile.website_url}`} target="_blank" rel="noopener noreferrer"
-                    style={{ display:'flex', alignItems:'center', gap:5, fontSize:12, color:C.blueLight, textDecoration:'none', padding:'5px 12px', borderRadius:8, background:C.blueDim, border:`1px solid rgba(37,99,235,0.2)` }}>
+                    style={{ display:'flex', alignItems:'center', gap:5, fontSize:12, color:C.blueLight, textDecoration:'none', padding:'5px 12px', borderRadius:8, background:C.blueDim, border:`1px solid rgba(99,102,241,0.2)` }}>
                     <Globe style={{ width:12, height:12 }} /> Website
                   </a>
                 )}
