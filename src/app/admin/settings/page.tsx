@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase/client'
 import DashboardLayout from '@/components/DashboardLayout'
 import { Save, Loader2, Check, Bell, Shield, Globe, DollarSign } from 'lucide-react'
 
-const C = { bg:'#0A0F1E', card:'#111827', surface:'#0D1428', border:'rgba(255,255,255,0.06)', text:'#F0F4FF', textMuted:'#7B8DB0', textDim:'#3D4F6E', blue:'#2563EB', blueLight:'#3B82F6', blueDim:'rgba(37,99,235,0.12)', gold:'#F59E0B', goldDim:'rgba(245,158,11,0.1)', red:'#EF4444', redDim:'rgba(239,68,68,0.1)', green:'#10B981', greenDim:'rgba(16,185,129,0.1)' }
+const C = { bg:'#0A0F1E', card:'#111827', surface:'#0D1428', border:'rgba(255,255,255,0.06)', text:'#F0F4FF', textMuted:'#7B8DB0', textDim:'#3D4F6E', blue:'#6366f1', blueLight:'#818cf8', blueDim:'rgba(99,102,241,0.12)', gold:'#F59E0B', goldDim:'rgba(245,158,11,0.1)', red:'#EF4444', redDim:'rgba(239,68,68,0.1)', green:'#10B981', greenDim:'rgba(16,185,129,0.1)' }
 
 function Toggle({ label, desc, value, onChange, icon: Icon, color = C.green }: any) {
   return (
@@ -98,7 +98,7 @@ export default function AdminSettingsPage() {
           </div>
 
           {/* Info */}
-          <div style={{ padding: '16px 20px', borderRadius: 14, background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.15)' }}>
+          <div style={{ padding: '16px 20px', borderRadius: 14, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
             <p style={{ fontSize: 13, color: C.blueLight, fontFamily: 'DM Sans,sans-serif', lineHeight: 1.6 }}>
               ℹ️ These settings apply platform-wide. Changes take effect immediately after saving. Some settings may require a cache clear to fully propagate.
             </p>
