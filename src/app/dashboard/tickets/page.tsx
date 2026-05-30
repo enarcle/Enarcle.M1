@@ -7,15 +7,15 @@ import Link from 'next/link'
 import { Ticket, Calendar, Clock, Radio, Check, Loader2, ExternalLink } from 'lucide-react'
 
 const C = {
-  bg:'#0B0B0C', surface:'#111113', card:'#121214',
+  bg:'#09090b', surface:'#111113', card:'#18181b',
   border:'rgba(255,255,255,0.06)',
-  text:'#FFFFFF', textMuted:'#C7C7CC', textDim:'#8A8A8F',
-  blue:'#FFFFFF', blueLight:'#C7C7CC', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#C7C7CC', goldDim:'rgba(255,215,0,0.1)',
-  red:'#FF453A', redDim:'rgba(255,69,58,0.08)', green:'#32D74B', greenDim:'rgba(50,215,75,0.08)',
+  text:'#f4f4f5', textMuted:'#a1a1aa', textDim:'#8A8A8F',
+  blue:'#f4f4f5', blueLight:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
+  gold:'#a1a1aa', goldDim:'rgba(255,215,0,0.1)',
+  red:'#ef4444', redDim:'rgba(239,68,68,0.08)', green:'#22c55e', greenDim:'rgba(34,197,94,0.08)',
 }
 
-const AVATAR_COLORS = ['#FF3B3B','#C7C7CC','#DB2777','#D97706','#059669']
+const AVATAR_COLORS = ['#ef4444','#a1a1aa','#DB2777','#D97706','#059669']
 const avatarColor = (id: string) => AVATAR_COLORS[(id?.charCodeAt(0)||0) % AVATAR_COLORS.length]
 const getName = (u: any) => u?.full_name || u?.email?.split('@')[0] || 'Host'
 const formatDate = (ts: string) => ts ? new Date(ts).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' }) : 'Date TBD'
