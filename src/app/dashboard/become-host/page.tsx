@@ -84,9 +84,9 @@ export default function BecomeHostPage() {
     return (
       <DashboardLayout>
         <div className="p-6 max-w-lg mx-auto">
-          <div className="rounded-2xl p-8 text-center" style={{ background: '#1C1C1F' }}>
+          <div className="rounded-2xl p-8 text-center" style={{ background: '#1f2937' }}>
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'rgba(56,189,248,0.15)' }}>
+              style={{ background: 'rgba(99,102,241,0.15)' }}>
               <Clock className="w-8 h-8 text-sky-400" />
             </div>
             <h2 className="text-xl font-bold mb-2">Application Submitted!</h2>
@@ -94,7 +94,7 @@ export default function BecomeHostPage() {
               Your application is under review. The admin will approve you and you'll get instant access to the host dashboard.
             </p>
             {existing && (
-              <div className="mt-4 p-3 rounded-xl text-xs text-slate-500" style={{ background: '#121214' }}>
+              <div className="mt-4 p-3 rounded-xl text-xs text-slate-500" style={{ background: '#18181b' }}>
                 Submitted {new Date(existing.created_at).toLocaleDateString()}
               </div>
             )}
@@ -113,7 +113,7 @@ export default function BecomeHostPage() {
     return (
       <DashboardLayout>
         <div className="p-6 max-w-lg mx-auto">
-          <div className="rounded-2xl p-8 text-center" style={{ background: '#1C1C1F' }}>
+          <div className="rounded-2xl p-8 text-center" style={{ background: '#1f2937' }}>
             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)' }}>
               <X className="w-6 h-6 text-red-400" />
@@ -135,11 +135,11 @@ export default function BecomeHostPage() {
         </div>
 
         <div className="rounded-2xl p-4 mb-6"
-          style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.08), rgba(56,189,248,0.08))', border: '1px solid rgba(255,215,0,0.2)' }}>
+          style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.08), rgba(99,102,241,0.08))', border: '1px solid rgba(255,215,0,0.2)' }}>
           <div className="grid grid-cols-3 gap-3 text-center">
             {[{ v: '80%', l: 'Revenue Share' }, { v: 'Live', l: 'Streaming' }, { v: '$5-99', l: 'Your Price' }].map(s => (
               <div key={s.l}>
-                <div className="text-xl font-bold" style={{ color: '#C7C7CC' }}>{s.v}</div>
+                <div className="text-xl font-bold" style={{ color: '#a1a1aa' }}>{s.v}</div>
                 <div className="text-xs text-slate-400">{s.l}</div>
               </div>
             ))}
@@ -147,7 +147,7 @@ export default function BecomeHostPage() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="rounded-2xl p-5 space-y-4 mb-4" style={{ background: '#1C1C1F' }}>
+          <div className="rounded-2xl p-5 space-y-4 mb-4" style={{ background: '#1f2937' }}>
             <div>
               <label className="text-sm font-medium text-slate-300 mb-2 block">Your Expertise *</label>
               <input
@@ -157,7 +157,7 @@ export default function BecomeHostPage() {
                 placeholder="e.g. SaaS Growth, Fundraising, Product Strategy"
                 required
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-sky-500"
-                style={{ background: '#121214', border: '1px solid #334155', color: '#E2E8F0' }}
+                style={{ background: '#18181b', border: '1px solid #334155', color: '#E2E8F0' }}
               />
             </div>
             <div>
@@ -169,7 +169,7 @@ export default function BecomeHostPage() {
                 rows={4}
                 required
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-sky-500 resize-none"
-                style={{ background: '#121214', border: '1px solid #334155', color: '#E2E8F0' }}
+                style={{ background: '#18181b', border: '1px solid #334155', color: '#E2E8F0' }}
               />
             </div>
             <div>
@@ -180,7 +180,7 @@ export default function BecomeHostPage() {
                 onChange={e => setForm({ ...form, social_url: e.target.value })}
                 placeholder="https://linkedin.com/in/yourprofile"
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-sky-500"
-                style={{ background: '#121214', border: '1px solid #334155', color: '#E2E8F0' }}
+                style={{ background: '#18181b', border: '1px solid #334155', color: '#E2E8F0' }}
               />
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function BecomeHostPage() {
             type="submit"
             disabled={submitting || !form.expertise || !form.reason}
             className="w-full py-3 rounded-xl font-bold text-sm disabled:opacity-50 flex items-center justify-center gap-2"
-            style={{ background: '#C7C7CC', color: '#121214' }}>
+            style={{ background: '#a1a1aa', color: '#18181b' }}>
             <Mic className="w-4 h-4" />
             {submitting ? 'Submitting...' : 'Submit Host Application'}
           </button>
