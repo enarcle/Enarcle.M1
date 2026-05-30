@@ -10,13 +10,13 @@ import {
 } from 'lucide-react'
 
 const C = {
-  bg:'#070B14', surface:'#0D1420', card:'#0F1A2E',
+  bg:'#09090b', surface:'#18181b', card:'#18181b',
   border:'rgba(255,255,255,0.07)', text:'#E8EAF0',
   textMuted:'#8A9BBF', textDim:'#8A8A8F',
-  blue:'#FF3B3B', blueL:'#FF5555', blueDim:'rgba(255,59,59,0.12)',
-  gold:'#C7C7CC', goldDim:'rgba(255,215,0,0.1)',
+  blue:'#6366f1', blueL:'#818cf8', blueDim:'rgba(99,102,241,0.12)',
+  gold:'#a1a1aa', goldDim:'rgba(255,215,0,0.1)',
   red:'#EF4444', redDim:'rgba(239,68,68,0.12)',
-  purple:'#C7C7CC', purpleDim:'rgba(199,199,204,0.08)',
+  purple:'#a1a1aa', purpleDim:'rgba(161,161,170,0.08)',
   green:'#10B981',
 }
 
@@ -35,15 +35,15 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
   return (
     <div style={{ position:'fixed', inset:0, zIndex:100, display:'flex', alignItems:'center', justifyContent:'center' }}>
       <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.75)', backdropFilter:'blur(6px)' }} onClick={onClose}/>
-      <div style={{ position:'relative', width:'100%', maxWidth:420, margin:'0 16px', borderRadius:24, padding:36, background:C.card, border:`1px solid rgba(124,58,237,0.35)`, textAlign:'center', boxShadow:'0 24px 64px rgba(124,58,237,0.2)' }}>
-        <div style={{ width:72, height:72, borderRadius:'50%', background:C.purpleDim, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px', border:`2px solid rgba(124,58,237,0.3)` }}>
+      <div style={{ position:'relative', width:'100%', maxWidth:420, margin:'0 16px', borderRadius:24, padding:36, background:C.card, border:`1px solid rgba(139,92,246,0.35)`, textAlign:'center', boxShadow:'0 24px 64px rgba(139,92,246,0.2)' }}>
+        <div style={{ width:72, height:72, borderRadius:'50%', background:C.purpleDim, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px', border:`2px solid rgba(139,92,246,0.3)` }}>
           <Lock style={{ width:28, height:28, color:C.purple }}/>
         </div>
         <h2 style={{ fontSize:22, fontWeight:800, color:C.text, fontFamily:'Syne,sans-serif', letterSpacing:'-0.02em', marginBottom:8 }}>
           Pro Members Only
         </h2>
         <p style={{ fontSize:14, color:C.textMuted, fontFamily:'DM Sans,sans-serif', lineHeight:1.7, marginBottom:24 }}>
-          Session recordings are exclusive to <strong style={{ color:C.gold }}>GritClub Pro</strong> members.
+          Session recordings are exclusive to <strong style={{ color:C.gold }}>Enarcle Pro</strong> members.
           Upgrade to watch any past session within 30 days of it ending.
         </p>
         <div style={{ borderRadius:16, padding:16, background:C.surface, border:`1px solid ${C.border}`, marginBottom:24, textAlign:'left' }}>
@@ -63,7 +63,7 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
           ))}
         </div>
         <button onClick={() => { router.push('/pricing'); onClose() }}
-          style={{ width:'100%', padding:'14px', borderRadius:14, border:'none', cursor:'pointer', background:`linear-gradient(135deg,${C.purple},#6D28D9)`, color:'#fff', fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:15, display:'flex', alignItems:'center', justifyContent:'center', gap:8, marginBottom:10 }}>
+          style={{ width:'100%', padding:'14px', borderRadius:14, border:'none', cursor:'pointer', background:`linear-gradient(135deg,${C.purple},#7c3aed)`, color:'#fff', fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:15, display:'flex', alignItems:'center', justifyContent:'center', gap:8, marginBottom:10 }}>
           <Crown style={{ width:16, height:16 }}/> Upgrade to Pro →
         </button>
         <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:C.textMuted, fontSize:13, fontFamily:'DM Sans,sans-serif' }}>
@@ -87,11 +87,11 @@ function RecordingCard({ rec, isPremium, onWatch }: { rec: any; isPremium: boole
 
   return (
     <div style={{ borderRadius:20, background:C.card, border:`1px solid ${C.border}`, overflow:'hidden', display:'flex', flexDirection:'column', transition:'border-color 0.15s' }}
-      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,59,59,0.3)')}
+      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(239,68,68,0.3)')}
       onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = C.border)}>
 
       {/* Thumbnail */}
-      <div style={{ position:'relative', aspectRatio:'16/9', background:'linear-gradient(135deg,#0D1428,#0A0F1E)', overflow:'hidden', flexShrink:0 }}>
+      <div style={{ position:'relative', aspectRatio:'16/9', background:'linear-gradient(135deg,#09090b,#18181b)', overflow:'hidden', flexShrink:0 }}>
         {ev.poster_url
           ? <img src={ev.poster_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
           : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -107,8 +107,8 @@ function RecordingCard({ rec, isPremium, onWatch }: { rec: any; isPremium: boole
         {/* Lock overlay */}
         {!canWatch && (
           <div style={{ position:'absolute', inset:0, background:'rgba(10,15,30,0.65)', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(2px)' }}>
-            <div style={{ width:44, height:44, borderRadius:'50%', background:'rgba(124,58,237,0.3)', border:'2px solid rgba(124,58,237,0.5)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              {expired ? <Clock style={{ width:20, height:20, color:'#A78BFA' }}/> : <Lock style={{ width:20, height:20, color:'#A78BFA' }}/>}
+            <div style={{ width:44, height:44, borderRadius:'50%', background:'rgba(139,92,246,0.3)', border:'2px solid rgba(139,92,246,0.5)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              {expired ? <Clock style={{ width:20, height:20, color:'#a78bfa' }}/> : <Lock style={{ width:20, height:20, color:'#a78bfa' }}/>}
             </div>
           </div>
         )}
@@ -117,7 +117,7 @@ function RecordingCard({ rec, isPremium, onWatch }: { rec: any; isPremium: boole
             onMouseEnter={e => ((e.currentTarget as HTMLElement).style.opacity = '1')}
             onMouseLeave={e => ((e.currentTarget as HTMLElement).style.opacity = '0')}>
             <button onClick={() => onWatch(rec)}
-              style={{ width:52, height:52, borderRadius:'50%', border:'none', cursor:'pointer', background:'rgba(37,99,235,0.9)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px rgba(255,59,59,0.5)' }}>
+              style={{ width:52, height:52, borderRadius:'50%', border:'none', cursor:'pointer', background:'rgba(99,102,241,0.9)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px rgba(239,68,68,0.5)' }}>
               <Play style={{ width:22, height:22, color:'#fff', marginLeft:2 }}/>
             </button>
           </div>
@@ -144,11 +144,11 @@ function RecordingCard({ rec, isPremium, onWatch }: { rec: any; isPremium: boole
         {/* Status badges */}
         <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginTop:'auto' }}>
           {expired ? (
-            <span style={{ fontSize:10, padding:'3px 8px', borderRadius:6, background:'rgba(61,79,110,0.3)', color:C.textDim, fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>
+            <span style={{ fontSize:10, padding:'3px 8px', borderRadius:6, background:'rgba(99,102,241,0.12)', color:C.textDim, fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>
               Expired
             </span>
           ) : (
-            <span style={{ fontSize:10, padding:'3px 8px', borderRadius:6, background:C.purpleDim, color:'#A78BFA', fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>
+            <span style={{ fontSize:10, padding:'3px 8px', borderRadius:6, background:C.purpleDim, color:'#a78bfa', fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>
               Pro Only
             </span>
           )}
@@ -167,8 +167,8 @@ function RecordingCard({ rec, isPremium, onWatch }: { rec: any; isPremium: boole
         {/* Watch / Upgrade button */}
         <button onClick={() => onWatch(rec)}
           style={{ width:'100%', padding:'9px', borderRadius:10, border:'none', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:13, display:'flex', alignItems:'center', justifyContent:'center', gap:6,
-            background: canWatch ? C.blueDim : expired ? 'rgba(61,79,110,0.2)' : C.purpleDim,
-            color: canWatch ? C.blueL : expired ? C.textDim : '#A78BFA',
+            background: canWatch ? C.blueDim : expired ? 'rgba(99,102,241,0.08)' : C.purpleDim,
+            color: canWatch ? C.blueL : expired ? C.textDim : '#a78bfa',
           }}>
           {canWatch
             ? <><Play style={{ width:13, height:13 }}/>Watch Recording</>
@@ -243,12 +243,12 @@ export default function RecordingsPage() {
               <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: C.blueL, fontFamily: 'DM Sans,sans-serif', marginBottom: 4 }}>Library</p>
               <h1 style={{ fontSize: 26, fontWeight: 800, color: C.text, fontFamily: 'Syne,sans-serif', letterSpacing: '-0.02em', marginBottom: 4 }}>Session Recordings</h1>
               <p style={{ fontSize: 13, color: C.textMuted, fontFamily: 'DM Sans,sans-serif' }}>
-                Watch past GritClub sessions. Available to Pro members within 30 days.
+                Watch past Enarcle sessions. Available to Pro members within 30 days.
               </p>
             </div>
             {!isPremium && (
               <button onClick={() => setShowUpgrade(true)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 12, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg,${C.purple},#6D28D9)`, color: '#fff', fontFamily: 'DM Sans,sans-serif', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 12, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg,${C.purple},#7c3aed)`, color: '#fff', fontFamily: 'DM Sans,sans-serif', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
                 <Crown style={{ width: 14, height: 14 }}/> Upgrade to Pro
               </button>
             )}
@@ -266,22 +266,22 @@ export default function RecordingsPage() {
             <input value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search recordings by title or host..."
               style={{ width: '100%', padding: '11px 14px 11px 40px', borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontFamily: 'DM Sans,sans-serif', outline: 'none', boxSizing: 'border-box' }}
-              onFocus={e => (e.target.style.borderColor = 'rgba(255,59,59,0.5)')}
+              onFocus={e => (e.target.style.borderColor = 'rgba(239,68,68,0.5)')}
               onBlur={e  => (e.target.style.borderColor = C.border)}/>
           </div>
 
           {/* Pro banner for non-premium */}
           {!isPremium && (
-            <div style={{ borderRadius: 16, padding: '16px 20px', background: 'linear-gradient(135deg,rgba(124,58,237,0.12),rgba(109,40,217,0.08))', border: '1px solid rgba(124,58,237,0.25)', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <div style={{ borderRadius: 16, padding: '16px 20px', background: 'linear-gradient(135deg,rgba(139,92,246,0.12),rgba(109,40,217,0.08))', border: '1px solid rgba(139,92,246,0.25)', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: C.purpleDim, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Lock style={{ width: 18, height: 18, color: C.purple }}/>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'DM Sans,sans-serif', marginBottom: 2 }}>Recordings are a Pro feature</p>
-                <p style={{ fontSize: 12, color: C.textMuted, fontFamily: 'DM Sans,sans-serif' }}>Upgrade to GritClub Pro to watch any session within 30 days of it ending.</p>
+                <p style={{ fontSize: 12, color: C.textMuted, fontFamily: 'DM Sans,sans-serif' }}>Upgrade to Enarcle Pro to watch any session within 30 days of it ending.</p>
               </div>
               <button onClick={() => setShowUpgrade(true)}
-                style={{ padding: '9px 18px', borderRadius: 10, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg,${C.purple},#6D28D9)`, color: '#fff', fontFamily: 'DM Sans,sans-serif', fontWeight: 700, fontSize: 13, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                style={{ padding: '9px 18px', borderRadius: 10, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg,${C.purple},#7c3aed)`, color: '#fff', fontFamily: 'DM Sans,sans-serif', fontWeight: 700, fontSize: 13, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Crown style={{ width: 13, height: 13 }}/> Upgrade <ChevronRight style={{ width: 13, height: 13 }}/>
               </button>
             </div>
