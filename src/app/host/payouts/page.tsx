@@ -48,7 +48,7 @@ export default function PayoutsPage() {
         </div>
 
         {/* Pending payout */}
-        <div className="rounded-2xl p-6 mb-4" style={{ background: '#1C1C1F' }}>
+        <div className="rounded-2xl p-6 mb-4" style={{ background: '#1f2937' }}>
           <div className="flex items-center gap-4 mb-3">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(74,222,128,0.15)' }}>
               <DollarSign className="w-6 h-6 text-green-400" />
@@ -62,7 +62,7 @@ export default function PayoutsPage() {
         </div>
 
         {/* Stripe Connect */}
-        <div className="rounded-2xl p-6 mb-4" style={{ background: '#1C1C1F', border: `1px solid ${hasStripe ? 'rgba(74,222,128,0.3)' : 'rgba(239,68,68,0.3)'}` }}>
+        <div className="rounded-2xl p-6 mb-4" style={{ background: '#1f2937', border: `1px solid ${hasStripe ? 'rgba(74,222,128,0.3)' : 'rgba(239,68,68,0.3)'}` }}>
           <div className="flex items-center gap-3 mb-4">
             {hasStripe ? <CheckCircle className="w-6 h-6 text-green-400" /> : <AlertCircle className="w-6 h-6 text-red-400" />}
             <div>
@@ -71,9 +71,9 @@ export default function PayoutsPage() {
             </div>
           </div>
           {!hasStripe ? (
-            <div className="rounded-xl p-4 text-center" style={{ background: '#121214' }}>
-              <p className="text-sm text-slate-400 mb-3">Contact <span style={{ color: '#38BDF8' }}>admin@gritclub.live</span> to set up your Stripe payout account</p>
-              <a href="mailto:admin@gritclub.live?subject=Stripe Payout Setup" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm" style={{ background: '#635BFF', color: 'white' }}>
+            <div className="rounded-xl p-4 text-center" style={{ background: '#18181b' }}>
+              <p className="text-sm text-slate-400 mb-3">Contact <span style={{ color: '#818cf8' }}>admin@enarcle.live</span> to set up your Stripe payout account</p>
+              <a href="mailto:admin@enarcle.live?subject=Stripe Payout Setup" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm" style={{ background: '#635BFF', color: 'white' }}>
                 <ExternalLink className="w-4 h-4" />
                 Request Payout Setup
               </a>
@@ -88,8 +88,8 @@ export default function PayoutsPage() {
         </div>
 
         {/* How it works */}
-        <div className="p-4 rounded-xl text-sm text-slate-400" style={{ background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.1)' }}>
-          💡 <strong style={{ color: '#38BDF8' }}>How payouts work:</strong> When a ticket sells, 80% goes to you. GritClub keeps 20% as platform fee. We batch payouts every Monday. Minimum payout is $10.
+        <div className="p-4 rounded-xl text-sm text-slate-400" style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.1)' }}>
+          💡 <strong style={{ color: '#818cf8' }}>How payouts work:</strong> When a ticket sells, 80% goes to you. Enarcle keeps 20% as platform fee. We batch payouts every Monday. Minimum payout is $10.
         </div>
       </div>
     </DashboardLayout>
