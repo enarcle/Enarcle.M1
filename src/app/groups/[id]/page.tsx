@@ -14,23 +14,23 @@ import {
 } from 'lucide-react'
 
 const C = {
-  bg:       '#070B14',
-  surface:  '#0D1420',
-  card:     '#0F1A2E',
+  bg:       '#09090b',
+  surface:  '#18181b',
+  card:     '#18181b',
   border:   'rgba(255,255,255,0.07)',
   borderF:  'rgba(255,255,255,0.14)',
-  text:     '#E8EAF0',
-  textMuted:'#8A9BBF',
-  textDim:  '#3D4F6E',
-  red:      '#FF3B3B',
-  redDim:   'rgba(255,59,59,0.12)',
+  text:     '#f4f4f5',
+  textMuted:'#a1a1aa',
+  textDim:  '#71717a',
+  red:      '#ef4444',
+  redDim:   'rgba(239,68,68,0.12)',
   gold:     '#FFD700',
   goldDim:  'rgba(255,215,0,0.10)',
   green:    '#22C55E',
   greenDim: 'rgba(34,197,94,0.12)',
   purple:   '#A78BFA',
   purpleDim:'rgba(167,139,250,0.12)',
-  sky:      '#38BDF8',
+  sky:      '#818cf8',
   skyDim:   'rgba(56,189,248,0.10)',
 }
 
@@ -45,7 +45,7 @@ const ICE: RTCIceServer[] = [
 type Tab = 'chat' | 'files' | 'call' | 'members' | 'settings'
 const getName  = (u: any) => u?.full_name || u?.email?.split('@')[0] || 'User'
 const getInits = (u: any) => getName(u).slice(0, 2).toUpperCase()
-const AC = ['#FF3B3B', '#A78BFA', '#22C55E', '#38BDF8', '#FFD700', '#F472B6']
+const AC = ['#ef4444', '#A78BFA', '#22C55E', '#818cf8', '#FFD700', '#F472B6']
 const ac = (id: string) => AC[(id?.charCodeAt(0) || 0) % AC.length]
 const fmtB = (b: number) => b < 1024 ? `${b}B` : b < 1048576 ? `${(b / 1024).toFixed(1)}KB` : `${(b / 1048576).toFixed(1)}MB`
 const ago = (ts: string) => { const m = Math.floor((Date.now() - new Date(ts).getTime()) / 60000); return m < 1 ? 'now' : m < 60 ? `${m}m` : m < 1440 ? `${Math.floor(m / 60)}h ago` : `${Math.floor(m / 1440)}d ago` }
@@ -510,7 +510,7 @@ function CallTab({ groupId, currentUser, isCtrl, activeTab }: { groupId: string;
           {reactions.map((r, i) => <div key={`${r.uid}-${r.ts}-${i}`} style={{ position: 'absolute', fontSize: 28, animation: 'floatUp 3s ease-out forwards', bottom: 80, left: `${15 + ((r.ts + i * 37) % 70)}%` }}>{r.emoji}</div>)}
         </div>
         <div style={{ flex: 1, background: C.bg, overflow: 'hidden', padding: 8, display: 'grid', gap: 6, gridTemplateColumns: spotlitUid && orderedPeers.length > 0 ? '3fr 1fr' : `repeat(${cols},1fr)`, gridAutoRows: '1fr', minHeight: 0 }}>
-          <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', background: '#121214', minHeight: 0, height: '100%' }}>
+          <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', background: '#18181b', minHeight: 0, height: '100%' }}>
             <video ref={localVid} autoPlay playsInline muted style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             {!camOn && !screenOn && <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.card }}><div style={{ textAlign: 'center' }}><div style={{ width: 44, height: 44, borderRadius: '50%', background: ac(myUid) + '22', color: ac(myUid), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, margin: '0 auto 4px' }}>{getInits(currentUser)}</div><p style={{ fontSize: 10, color: C.textMuted }}>Camera off</p></div></div>}
             <div style={{ position: 'absolute', bottom: 6, left: 8, fontSize: 11, fontWeight: 700, color: '#fff', background: 'rgba(0,0,0,0.65)', padding: '2px 8px', borderRadius: 6 }}>You{!micOn ? ' 🔇' : ''}</div>
@@ -639,7 +639,7 @@ function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: 
                     Approve
                   </button>
                   <button onClick={() => reject(m)} disabled={acting === m.id} title="Reject"
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, border: `1px solid rgba(255,59,59,0.3)`, background: C.redDim, color: C.red, fontFamily: 'DM Sans,sans-serif', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, border: `1px solid rgba(239,68,68,0.3)`, background: C.redDim, color: C.red, fontFamily: 'DM Sans,sans-serif', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                     {acting === m.id ? <Loader2 style={{ width: 12, height: 12, animation: 'spin 1s linear infinite' }} /> : <XCircle style={{ width: 12, height: 12 }} />}
                     Reject
                   </button>
@@ -746,7 +746,7 @@ function SettingsTab({ group, myRole, currentUser, onDeleted }: { group: any; my
         </div>
       </div>
       {isOwner && (
-        <div style={{ padding: 20, borderRadius: 14, background: 'rgba(255,59,59,0.06)', border: `1px solid rgba(255,59,59,0.25)` }}>
+        <div style={{ padding: 20, borderRadius: 14, background: 'rgba(239,68,68,0.06)', border: `1px solid rgba(239,68,68,0.25)` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <AlertTriangle style={{ width: 16, height: 16, color: C.red }} />
             <p style={{ fontSize: 12, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'DM Mono,monospace' }}>Danger Zone</p>
@@ -756,7 +756,7 @@ function SettingsTab({ group, myRole, currentUser, onDeleted }: { group: any; my
           <input value={confirmText} onChange={e => setConfirmText(e.target.value)} placeholder={required}
             style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1px solid ${confirmText === required ? C.red : C.border}`, background: C.surface, color: C.text, fontSize: 13, outline: 'none', fontFamily: 'DM Mono,monospace', boxSizing: 'border-box', marginBottom: 12 }} />
           <button onClick={deleteGroup} disabled={confirmText !== required || deleting}
-            style={{ width: '100%', padding: '11px', borderRadius: 12, border: 'none', background: confirmText === required ? C.red : 'rgba(255,59,59,0.2)', color: confirmText === required ? '#fff' : 'rgba(255,59,59,0.4)', fontFamily: 'DM Sans,sans-serif', fontWeight: 700, fontSize: 13, cursor: confirmText === required ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            style={{ width: '100%', padding: '11px', borderRadius: 12, border: 'none', background: confirmText === required ? C.red : 'rgba(239,68,68,0.2)', color: confirmText === required ? '#fff' : 'rgba(239,68,68,0.4)', fontFamily: 'DM Sans,sans-serif', fontWeight: 700, fontSize: 13, cursor: confirmText === required ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             {deleting ? <><Loader2 style={{ width: 14, height: 14, animation: 'spin 1s linear infinite' }} />Deleting...</> : <><Trash2 style={{ width: 14, height: 14 }} />Delete Circle Permanently</>}
           </button>
         </div>
@@ -917,7 +917,7 @@ export default function GroupRoomPage() {
                 <button key={t.id} onClick={() => setActiveTab(t.id)}
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, border: 'none', background: activeTab === t.id ? C.red : 'transparent', color: activeTab === t.id ? '#fff' : C.textMuted, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', flexShrink: 0, transition: 'all .15s', position: 'relative' }}>
                   <t.icon style={{ width: 13, height: 13 }} />{t.label}
-                  {t.badge && <span style={{ marginLeft: 2, background: C.gold, color: '#0B0B0C', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>{t.badge}</span>}
+                  {t.badge && <span style={{ marginLeft: 2, background: C.gold, color: '#09090b', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>{t.badge}</span>}
                 </button>
               ))}
             </div>
