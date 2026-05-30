@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
-export const metadata = { title: 'Privacy Policy | GritClub', description: 'GritClub Privacy Policy' }
+export const metadata = { title: 'Privacy Policy | Enarcle', description: 'Enarcle Privacy Policy' }
 
-const C = { bg: '#0B0B0C', card: '#121214', border: 'rgba(255,255,255,0.06)', text: '#FFFFFF', muted: '#C7C7CC', dim: '#8A8A8F', blue: '#C7C7CC', gold: '#C7C7CC', green: '#10B981' }
+const C = { bg: '#09090b', card: '#18181b', border: 'rgba(255,255,255,0.06)', text: '#FFFFFF', muted: '#a1a1aa', dim: '#8A8A8F', blue: '#a1a1aa', gold: '#a1a1aa', green: '#10B981' }
 
 const Section = ({ n, title, children }: { n: number; title: string; children: React.ReactNode }) => (
   <section style={{ marginBottom: 32 }}>
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
             Last Updated: March 15, 2026 · Effective immediately
           </p>
           <div style={{ marginTop: 20, padding: '14px 18px', borderRadius: 12, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', color: C.green, fontSize: 13, fontFamily: 'DM Sans,sans-serif' }}>
-            <strong>We never sell your data.</strong> GritClub is built on trust. This policy explains exactly what we collect, why we collect it, and your rights under India's Digital Personal Data Protection Act (DPDP Act 2023).
+            <strong>We never sell your data.</strong> Enarcle is built on trust. This policy explains exactly what we collect, why we collect it, and your rights under India's Digital Personal Data Protection Act (DPDP Act 2023).
           </div>
         </div>
 
@@ -128,11 +128,11 @@ export default function PrivacyPage() {
             <li><strong style={{ color: C.text }}>Portability:</strong> Receive your data in a structured, machine-readable format</li>
             <li><strong style={{ color: C.text }}>Grievance:</strong> Lodge a complaint with India's Data Protection Board</li>
           </ul>
-          <p style={{ marginTop: 12 }}>To exercise any right, email <a href="mailto:gritclubhq@gmail.com" style={{ color: C.blue }}>gritclubhq@gmail.com</a> with "Privacy Request" in the subject. We will respond within 30 days.</p>
+          <p style={{ marginTop: 12 }}>To exercise any right, email <a href="mailto:enarclehq@gmail.com" style={{ color: C.blue }}>enarclehq@gmail.com</a> with "Privacy Request" in the subject. We will respond within 30 days.</p>
         </Section>
 
         <Section n={8} title="Children's Privacy">
-          <p>GritClub is not directed to individuals under 18 years of age. We do not knowingly collect personal information from children. If we become aware that we have collected data from someone under 18, we will delete it immediately. If you believe we may have collected data from a minor, contact us at <a href="mailto:gritclubhq@gmail.com" style={{ color: C.blue }}>gritclubhq@gmail.com</a>.</p>
+          <p>Enarcle is not directed to individuals under 18 years of age. We do not knowingly collect personal information from children. If we become aware that we have collected data from someone under 18, we will delete it immediately. If you believe we may have collected data from a minor, contact us at <a href="mailto:enarclehq@gmail.com" style={{ color: C.blue }}>enarclehq@gmail.com</a>.</p>
         </Section>
 
         <Section n={9} title="International Data Transfers">
@@ -140,14 +140,14 @@ export default function PrivacyPage() {
         </Section>
 
         <Section n={10} title="Changes to This Policy">
-          <p>We will notify you of material changes to this Privacy Policy via email and prominent notice on the Service at least 14 days before they take effect. Minor changes may be made without notice but will be reflected in the "Last Updated" date. Continued use of GritClub after changes constitutes acceptance.</p>
+          <p>We will notify you of material changes to this Privacy Policy via email and prominent notice on the Service at least 14 days before they take effect. Minor changes may be made without notice but will be reflected in the "Last Updated" date. Continued use of Enarcle after changes constitutes acceptance.</p>
         </Section>
 
         <div style={{ padding: '24px', borderRadius: 16, background: C.card, border: `1px solid ${C.border}`, marginTop: 40 }}>
           <p style={{ fontWeight: 700, color: C.text, fontFamily: 'Syne,sans-serif', marginBottom: 8 }}>Privacy Contact</p>
           <p style={{ fontSize: 14, color: C.muted, fontFamily: 'DM Sans,sans-serif', lineHeight: 1.7 }}>
             For privacy requests, data deletion, or questions:<br />
-            📧 <a href="mailto:gritclubhq@gmail.com" style={{ color: C.blue }}>gritclubhq@gmail.com</a><br />
+            📧 <a href="mailto:enarclehq@gmail.com" style={{ color: C.blue }}>enarclehq@gmail.com</a><br />
             Subject: "Privacy Request" — Response within 30 days as required by DPDP Act 2023.
           </p>
         </div>
@@ -156,7 +156,7 @@ export default function PrivacyPage() {
           <Link href="/terms" style={{ fontSize: 13, color: C.blue, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>Terms of Service</Link>
           <Link href="/pricing" style={{ fontSize: 13, color: C.blue, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>Pricing</Link>
           <Link href="/dashboard" style={{ fontSize: 13, color: C.muted, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>Back to App</Link>
-          <span style={{ marginLeft: 'auto', fontSize: 12, color: C.dim, fontFamily: 'DM Mono,monospace' }}>© 2026 GritClub</span>
+          <span style={{ marginLeft: 'auto', fontSize: 12, color: C.dim, fontFamily: 'DM Mono,monospace' }}>© 2026 Enarcle</span>
         </div>
       </div>
     </div>
