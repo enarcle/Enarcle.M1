@@ -4,26 +4,63 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import DashboardLayout from '@/components/DashboardLayout'
 import Link from 'next/link'
-import { Search, Radio, Lock, Globe, X, Loader2, Calendar, Users, Tag, ChevronRight, Zap } from 'lucide-react'
+import { Search, Radio, Lock, X, Loader2, Calendar, Users, Tag, Zap } from 'lucide-react'
 
 const C = {
-  bg:         '#0B0B0C', surface:    '#121214', card:       '#121214', cardHover:  '#1C1C1F',
-  border:     'rgba(255,255,255,0.06)', borderHover: 'rgba(255,255,255,0.12)',
-  text:       '#FFFFFF', textMuted:  '#C7C7CC', textDim:    '#8A8A8F',
-  blue:       '#FF453A', blueLight:  '#FF6B61', blueDim:    'rgba(255,69,58,0.1)',
-  gold:       '#FFD700', goldDim:    'rgba(255,215,0,0.1)',
-  red:        '#FF453A', redDim:     'rgba(255,69,58,0.1)',
-  green:      '#32D74B', greenDim:   'rgba(52,211,153,0.12)',
+  bg:          '#09090b',
+  surface:     '#18181b',
+  card:        '#18181b',
+  cardHover:   '#1f2937',
+  elevated:    '#1f2937',
+  border:      'rgba(255,255,255,0.06)',
+  borderHover: 'rgba(255,255,255,0.12)',
+  text:        '#f4f4f5',
+  textMuted:   '#a1a1aa',
+  textDim:     '#71717a',
+  indigo:      '#6366f1',
+  indigoL:     '#818cf8',
+  indigoDim:   'rgba(99,102,241,0.12)',
+  violet:      '#8b5cf6',
+  violetDim:   'rgba(139,92,246,0.12)',
+  gold:        '#f59e0b',
+  goldDim:     'rgba(245,158,11,0.10)',
+  red:         '#ef4444',
+  redDim:      'rgba(239,68,68,0.12)',
+  green:       '#22c55e',
+  greenDim:    'rgba(34,197,94,0.12)',
 }
 
 const CATEGORIES = ['All','AI & Tech','SaaS','FinTech','HealthTech','EdTech','E-commerce','Climate','Fundraising','Growth','Product']
 
 const formatDate = (d: string, t: string) => {
   const date = new Date(d)
-  return `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ${t}`
+  return `${date.toLocaleDateString('en-US', { month:'short', day:'numeric' })} · ${t}`
 }
 
-function EventCard({ event, currentUserId }: { event: any; currentUserId: string | null }) {
+interface Event {
+  id: string
+  title: string
+  status: string
+  price: number
+  is_free: boolean
+  is_link_only?: boolean
+  banner_url?: string
+  capacity?: number
+  max_attendees?: number
+  total_sold?: number
+  current_attendees?: number
+  category?: string
+  group_name?: string
+  host_name?: string
+  tags?: string[]
+  start_time?: string
+  date?: string
+  time?: string
+  description?: string
+  users?: { id: string; email: string; full_name?: string; photo_url?: string }
+}
+
+function EventCard({ event }: { event: Event }) {
   const total    = event.capacity || event.max_attendees || 50
   const sold     = event.total_sold || event.current_attendees || 0
   const left     = Math.max(total - sold, 0)
@@ -37,45 +74,55 @@ function EventCard({ event, currentUserId }: { event: any; currentUserId: string
     <Link href={`/events/${event.id}`}>
       <div
         className="rounded-2xl overflow-hidden transition-all duration-200 flex flex-col cursor-pointer"
-        style={{ background: C.card, border: `1px solid ${isLive ? 'rgba(239,68,68,0.25)' : C.border}` }}
-        onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = isLive ? 'rgba(239,68,68,0.5)' : C.borderHover; el.style.transform = 'translateY(-2px)'; el.style.boxShadow = `0 8px 32px ${isLive ? 'rgba(239,68,68,0.08)' : 'rgba(59,130,246,0.1)'}` }}
-        onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = isLive ? 'rgba(239,68,68,0.25)' : C.border; el.style.transform = 'translateY(0)'; el.style.boxShadow = 'none' }}
+        style={{ background:C.card, border:`1px solid ${isLive ? 'rgba(239,68,68,0.25)' : C.border}` }}
+        onMouseEnter={e => {
+          const el = e.currentTarget as HTMLElement
+          el.style.borderColor = isLive ? 'rgba(239,68,68,0.5)' : 'rgba(99,102,241,0.3)'
+          el.style.transform = 'translateY(-2px)'
+          el.style.boxShadow = isLive ? '0 8px 32px rgba(239,68,68,0.08)' : '0 8px 32px rgba(99,102,241,0.1)'
+        }}
+        onMouseLeave={e => {
+          const el = e.currentTarget as HTMLElement
+          el.style.borderColor = isLive ? 'rgba(239,68,68,0.25)' : C.border
+          el.style.transform = 'translateY(0)'
+          el.style.boxShadow = 'none'
+        }}
       >
         {/* Banner */}
-        <div className="relative overflow-hidden" style={{ aspectRatio: '16/7' }}>
+        <div className="relative overflow-hidden" style={{ aspectRatio:'16/7' }}>
           {event.banner_url
-            ? <img src={event.banner_url} alt={event.title} className="w-full h-full object-cover" />
+            ? <img src={event.banner_url} alt={event.title} className="w-full h-full object-cover"/>
             : (
               <div className="w-full h-full flex items-center justify-center"
-                style={{ background: `linear-gradient(135deg, ${C.surface}, ${C.card})` }}>
-                <Radio className="w-8 h-8" style={{ color: C.textDim }} />
+                style={{ background:`linear-gradient(135deg, ${C.surface}, ${C.card})` }}>
+                <Radio className="w-8 h-8" style={{ color:C.textDim }}/>
               </div>
             )
           }
           {/* Top accent line */}
           <div className="absolute top-0 left-0 right-0 h-0.5"
-            style={{ background: isLive ? C.red : `linear-gradient(to right, ${C.blue}, ${C.blueLight}, transparent)` }} />
+            style={{ background: isLive ? C.red : `linear-gradient(to right, ${C.indigo}, ${C.violet}, transparent)` }}/>
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex gap-1.5">
             {isLive && (
               <span className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
-                style={{ background: 'rgba(0,0,0,0.75)', color: C.red }}>
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> LIVE
+                style={{ background:'rgba(0,0,0,0.75)', color:C.red }}>
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"/> LIVE
               </span>
             )}
             {event.is_link_only && (
               <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(0,0,0,0.75)', color: C.gold }}>
-                <Lock className="w-2.5 h-2.5" /> Invite Only
+                style={{ background:'rgba(0,0,0,0.75)', color:C.gold }}>
+                <Lock className="w-2.5 h-2.5"/> Invite Only
               </span>
             )}
           </div>
           <div className="absolute top-2 right-2">
             {soldOut
-              ? <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(0,0,0,0.75)', color: C.red }}>Sold Out</span>
+              ? <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background:'rgba(0,0,0,0.75)', color:C.red }}>Sold Out</span>
               : almostFull
-                ? <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(0,0,0,0.75)', color: C.gold }}>⚡ {left} left</span>
+                ? <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background:'rgba(0,0,0,0.75)', color:C.gold }}>⚡ {left} left</span>
                 : null
             }
           </div>
@@ -83,13 +130,15 @@ function EventCard({ event, currentUserId }: { event: any; currentUserId: string
 
         {/* Content */}
         <div className="p-4 flex flex-col gap-3 flex-1">
-          {/* Group + category */}
+          {/* Group + tags */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-medium px-2 py-0.5 rounded-md" style={{ background: C.blueDim, color: C.blueLight }}>
+            <span className="text-xs font-medium px-2 py-0.5 rounded-md"
+              style={{ background:C.indigoDim, color:C.indigoL }}>
               {event.group_name || event.category || 'General'}
             </span>
-            {event.tags?.slice(0,2).map((tag: string) => (
-              <span key={tag} className="text-xs px-2 py-0.5 rounded-md" style={{ background: C.border, color: C.textDim }}>
+            {event.tags?.slice(0,2).map((tag:string) => (
+              <span key={tag} className="text-xs px-2 py-0.5 rounded-md"
+                style={{ background:C.border, color:C.textDim }}>
                 #{tag}
               </span>
             ))}
@@ -97,11 +146,11 @@ function EventCard({ event, currentUserId }: { event: any; currentUserId: string
 
           {/* Title + host */}
           <div>
-            <h3 className="text-sm font-bold leading-snug mb-1" style={{ color: C.text }}>{event.title}</h3>
-            <p className="text-xs" style={{ color: C.textMuted }}>
+            <h3 className="text-sm font-bold leading-snug mb-1" style={{ color:C.text }}>{event.title}</h3>
+            <p className="text-xs" style={{ color:C.textMuted }}>
               {event.host_name || event.users?.full_name || event.users?.email?.split('@')[0] || 'Host'}
-              {event.start_time || event.date
-                ? ` · ${formatDate(event.start_time || event.date, event.time || '')}`
+              {(event.start_time || event.date)
+                ? ` · ${formatDate(event.start_time || event.date || '', event.time || '')}`
                 : ''
               }
             </p>
@@ -109,37 +158,35 @@ function EventCard({ event, currentUserId }: { event: any; currentUserId: string
 
           {/* Capacity bar */}
           <div>
-            <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background:'rgba(255,255,255,0.06)' }}>
               <div className="h-full rounded-full transition-all"
-                style={{ width: `${fill}%`, background: soldOut ? C.red : almostFull ? `linear-gradient(to right, ${C.gold}, #B8915F)` : `linear-gradient(to right, ${C.blue}, ${C.blueLight})` }} />
+                style={{ width:`${fill}%`, background: soldOut ? C.red : almostFull ? `linear-gradient(to right,${C.gold},#b45309)` : `linear-gradient(to right,${C.indigo},${C.violet})` }}/>
             </div>
-            <div className="flex items-center justify-between text-xs" style={{ color: C.textDim }}>
+            <div className="flex items-center justify-between text-xs" style={{ color:C.textDim }}>
               <span>
-                {soldOut ? 'Sold out'
-                  : almostFull ? `Only ${left} spots left!`
-                  : `${left} of ${total} spots remaining`}
+                {soldOut ? 'Sold out' : almostFull ? `Only ${left} spots left!` : `${left} of ${total} spots remaining`}
               </span>
               <span>{fill}% full</span>
             </div>
           </div>
 
           {/* Price + CTA */}
-          <div className="flex items-center justify-between gap-3 mt-auto pt-1" style={{ borderTop: `1px solid ${C.border}` }}>
+          <div className="flex items-center justify-between gap-3 mt-auto pt-1" style={{ borderTop:`1px solid ${C.border}` }}>
             <div>
               {isFree
-                ? <span className="text-base font-bold" style={{ color: C.green }}>Free</span>
-                : <span className="text-base font-bold" style={{ color: C.gold }}>
+                ? <span className="text-base font-bold" style={{ color:C.green }}>Free</span>
+                : <span className="text-base font-bold" style={{ color:C.gold }}>
                     ${((event.price || 0) / 100).toFixed(0)}
-                    <span className="text-xs font-normal ml-1" style={{ color: C.textDim }}>/ ticket</span>
+                    <span className="text-xs font-normal ml-1" style={{ color:C.textDim }}>/ ticket</span>
                   </span>
               }
             </div>
             <div
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
               style={{
-                background: isLive ? '#8A8A8F' : soldOut ? C.border : 'rgba(196,149,106,0.15)',
-                color:      isLive ? '#fff'    : soldOut ? C.textDim  : C.blueLight,
-                border:     `1px solid ${isLive ? '#8A8A8F' : soldOut ? C.border : 'rgba(59,130,246,0.25)'}`,
+                background: isLive ? C.redDim : soldOut ? C.border : C.indigoDim,
+                color:      isLive ? C.red    : soldOut ? C.textDim  : C.indigoL,
+                border:     `1px solid ${isLive ? 'rgba(239,68,68,0.3)' : soldOut ? C.border : 'rgba(99,102,241,0.25)'}`,
               }}>
               {isLive ? 'Join Now →' : soldOut ? 'Sold Out' : 'Get Ticket →'}
             </div>
@@ -151,14 +198,14 @@ function EventCard({ event, currentUserId }: { event: any; currentUserId: string
 }
 
 export default function EventsPage() {
-  const [currentUser,  setCurrentUser]  = useState<any>(null)
-  const [profile,      setProfile]      = useState<any>(null)
-  const [events,       setEvents]       = useState<any[]>([])
-  const [loading,      setLoading]      = useState(true)
-  const [search,       setSearch]       = useState('')
-  const [category,     setCategory]     = useState('All')
-  const [liveOnly,     setLiveOnly]     = useState(false)
-  const [freeOnly,     setFreeOnly]     = useState(false)
+  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null)
+  const [profile,     setProfile]     = useState<{ role?: string } | null>(null)
+  const [events,      setEvents]      = useState<Event[]>([])
+  const [loading,     setLoading]     = useState(true)
+  const [search,      setSearch]      = useState('')
+  const [category,    setCategory]    = useState('All')
+  const [liveOnly,    setLiveOnly]    = useState(false)
+  const [freeOnly,    setFreeOnly]    = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
@@ -171,19 +218,18 @@ export default function EventsPage() {
         .from('events')
         .select('*, users(id, email, full_name, photo_url)')
         .in('status', ['scheduled','live'])
-        .order('start_time', { ascending: true })
-      setEvents(data || [])
+        .order('start_time', { ascending:true })
+      setEvents((data || []) as Event[])
       setLoading(false)
     })
 
-    // Realtime — new events appear
     const ch = supabase.channel('events-list')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
+      .on('postgres_changes', { event:'*', schema:'public', table:'events' }, () => {
         supabase.from('events')
           .select('*, users(id, email, full_name, photo_url)')
           .in('status', ['scheduled','live'])
-          .order('start_time', { ascending: true })
-          .then(({ data }) => setEvents(data || []))
+          .order('start_time', { ascending:true })
+          .then(({ data }) => setEvents((data || []) as Event[]))
       })
       .subscribe()
     return () => { supabase.removeChannel(ch) }
@@ -206,34 +252,33 @@ export default function EventsPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-full" style={{ background: C.bg }}>
+      <div className="min-h-full" style={{ background:C.bg }}>
         <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 space-y-5">
 
-          {/* Header — NO create button for audience */}
+          {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold tracking-widest uppercase mb-0.5" style={{ color: C.blueLight }}>Discover</p>
-              <h1 className="text-2xl font-bold" style={{ color: C.text, fontFamily: 'Syne, sans-serif' }}>
+              <p className="text-xs font-semibold tracking-widest uppercase mb-0.5" style={{ color:C.indigoL }}>Discover</p>
+              <h1 className="text-2xl font-bold" style={{ color:C.text, fontFamily:'Sora,sans-serif' }}>
                 Live Sessions & Events
               </h1>
-              <p className="text-sm mt-1" style={{ color: C.textMuted }}>
+              <p className="text-sm mt-1" style={{ color:C.textMuted }}>
                 Attend live sessions from top founders
               </p>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
               {liveCount > 0 && (
                 <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
-                  style={{ background: C.redDim, border: '1px solid rgba(239,68,68,0.25)' }}>
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <span className="text-xs font-bold" style={{ color: C.red }}>{liveCount} Live</span>
+                  style={{ background:C.redDim, border:'1px solid rgba(239,68,68,0.25)' }}>
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"/>
+                  <span className="text-xs font-bold" style={{ color:C.red }}>{liveCount} Live</span>
                 </div>
               )}
-              {/* Only hosts see create button */}
               {isHost && (
                 <Link href="/host/create">
                   <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-90"
-                    style={{ background: C.gold, color: '#0B0B0C' }}>
-                    <Zap className="w-4 h-4" /> Create Event
+                    style={{ background:`linear-gradient(135deg,${C.indigo},${C.violet})`, color:'#fff' }}>
+                    <Zap className="w-4 h-4"/> Create Event
                   </button>
                 </Link>
               )}
@@ -242,20 +287,18 @@ export default function EventsPage() {
 
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: C.textDim }} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color:C.textDim }}/>
             <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+              type="text" value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search events, hosts, topics..."
               className="w-full pl-10 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all"
-              style={{ background: C.card, border: `1px solid ${C.border}`, color: C.text }}
-              onFocus={e => (e.target.style.borderColor = C.borderHover)}
-              onBlur={e => (e.target.style.borderColor = C.border)}
+              style={{ background:C.card, border:`1px solid ${C.border}`, color:C.text, fontFamily:'Inter,sans-serif' }}
+              onFocus={e => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
+              onBlur={e  => (e.target.style.borderColor = C.border)}
             />
             {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: C.textDim }}>
-                <X className="w-4 h-4" />
+              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color:C.textDim }}>
+                <X className="w-4 h-4"/>
               </button>
             )}
           </div>
@@ -264,32 +307,32 @@ export default function EventsPage() {
           <div className="flex flex-wrap gap-2">
             <button onClick={() => setLiveOnly(l => !l)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-              style={{ background: liveOnly ? C.redDim : C.card, color: liveOnly ? C.red : C.textMuted, border: `1px solid ${liveOnly ? 'rgba(239,68,68,0.3)' : C.border}` }}>
-              <Radio className="w-3 h-3" /> Live Only
+              style={{ background:liveOnly?C.redDim:C.card, color:liveOnly?C.red:C.textMuted, border:`1px solid ${liveOnly?'rgba(239,68,68,0.3)':C.border}` }}>
+              <Radio className="w-3 h-3"/> Live Only
             </button>
             <button onClick={() => setFreeOnly(f => !f)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-              style={{ background: freeOnly ? C.greenDim : C.card, color: freeOnly ? C.green : C.textMuted, border: `1px solid ${freeOnly ? 'rgba(16,185,129,0.3)' : C.border}` }}>
-              <Tag className="w-3 h-3" /> Free Only
+              style={{ background:freeOnly?C.greenDim:C.card, color:freeOnly?C.green:C.textMuted, border:`1px solid ${freeOnly?'rgba(34,197,94,0.3)':C.border}` }}>
+              <Tag className="w-3 h-3"/> Free Only
             </button>
             {CATEGORIES.map(cat => (
               <button key={cat} onClick={() => setCategory(cat)}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                style={{ background: category === cat ? C.blue : C.card, color: category === cat ? '#fff' : C.textMuted, border: `1px solid ${category === cat ? C.blue : C.border}` }}>
+                style={{ background:category===cat?C.indigoDim:C.card, color:category===cat?C.indigoL:C.textMuted, border:`1px solid ${category===cat?'rgba(99,102,241,0.3)':C.border}` }}>
                 {cat}
               </button>
             ))}
           </div>
 
-          {/* Results count + clear */}
+          {/* Results count */}
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium" style={{ color: C.textDim }}>
+            <p className="text-xs font-medium" style={{ color:C.textDim }}>
               {filtered.length} event{filtered.length !== 1 ? 's' : ''} found
             </p>
             {(search || category !== 'All' || liveOnly || freeOnly) && (
               <button onClick={() => { setSearch(''); setCategory('All'); setLiveOnly(false); setFreeOnly(false) }}
-                className="flex items-center gap-1 text-xs font-medium" style={{ color: C.red }}>
-                <X className="w-3 h-3" /> Clear filters
+                className="flex items-center gap-1 text-xs font-medium" style={{ color:C.red }}>
+                <X className="w-3 h-3"/> Clear filters
               </button>
             )}
           </div>
@@ -298,20 +341,18 @@ export default function EventsPage() {
           {loading ? (
             <div className="grid md:grid-cols-2 gap-4">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-80 rounded-2xl animate-pulse" style={{ background: C.card }} />
+                <div key={i} className="h-80 rounded-2xl animate-pulse" style={{ background:C.card }}/>
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="rounded-2xl p-12 text-center" style={{ background: C.card, border: `1px solid ${C.border}` }}>
-              <Calendar className="w-10 h-10 mx-auto mb-3" style={{ color: C.textDim }} />
-              <p className="font-semibold" style={{ color: C.textMuted }}>No events found</p>
-              <p className="text-sm mt-1" style={{ color: C.textDim }}>Try adjusting your filters</p>
+            <div className="rounded-2xl p-12 text-center" style={{ background:C.card, border:`1px solid ${C.border}` }}>
+              <Calendar className="w-10 h-10 mx-auto mb-3" style={{ color:C.textDim }}/>
+              <p className="font-semibold" style={{ color:C.textMuted }}>No events found</p>
+              <p className="text-sm mt-1" style={{ color:C.textDim }}>Try adjusting your filters</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
-              {filtered.map(e => (
-                <EventCard key={e.id} event={e} currentUserId={currentUser?.id || null} />
-              ))}
+              {filtered.map(e => <EventCard key={e.id} event={e}/>)}
             </div>
           )}
         </div>
