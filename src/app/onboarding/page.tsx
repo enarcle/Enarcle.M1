@@ -7,20 +7,20 @@ import { Upload, Check, X, AlertCircle, User, AtSign, ChevronRight, Loader2 } fr
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg:        '#0B0B0C',
-  surface:   '#121214',
-  card:      '#121214',
+  bg:        '#09090b',
+  surface:   '#18181b',
+  card:      '#18181b',
   border:    'rgba(255,255,255,0.06)',
   borderFocus:'rgba(255,255,255,0.12)',
   text:      '#FFFFFF',
-  textMuted: '#C7C7CC',
-  textDim:   '#C7C7CC',
-  blue:      '#C7C7CC',
-  blueLight: '#C7C7CC',
+  textMuted: '#a1a1aa',
+  textDim:   '#71717a',
+  blue:      '#6366f1',
+  blueLight: '#818cf8',
   blueDim:   'rgba(255,255,255,0.06)',
-  gold:      '#C7C7CC',
+  gold:      '#f59e0b',
   goldDim:   'rgba(199,199,204,0.08)',
-  red:       '#FF453A',
+  red:       '#ef4444',
   redDim:    'rgba(239,68,68,0.1)',
   green:     '#32D74B',
   greenDim:  'rgba(52,211,153,0.12)',
@@ -469,12 +469,12 @@ export default function OnboardingPage() {
                   onClick={handleFinish}
                   disabled={saving || uploading || availStatus === 'taken' || availStatus === 'checking' || !username || !!userError}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
-                  style={{ background: C.gold, color: '#0B0B0C' }}
+                  style={{ background: C.gold, color: '#09090b' }}
                 >
                   {saving ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
                   ) : (
-                    <>Enter GritClub <ChevronRight className="w-4 h-4" /></>
+                    <>Enter Enarcle <ChevronRight className="w-4 h-4" /></>
                   )}
                 </button>
               </div>
