@@ -7,13 +7,13 @@ import Link from 'next/link'
 import { Calendar, Users, Clock, Search, Filter, Radio } from 'lucide-react'
 
 const C = {
-  bg:'#0B0B0C', surface:'#121214', card:'#121214',
+  bg:'#09090b', surface:'#18181b', card:'#18181b',
   border:'rgba(255,255,255,0.06)', text:'#FFFFFF',
-  textMuted:'#C7C7CC', textDim:'#8A8A8F',
-  blue:'#C7C7CC', blueL:'#C7C7CC', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#C7C7CC', goldDim:'rgba(199,199,204,0.08)',
+  textMuted:'#a1a1aa', textDim:'#71717a',
+  blue:'#6366f1', blueL:'#818cf8', blueDim:'rgba(99,102,241,0.12)',
+  gold:'#f59e0b', goldDim:'rgba(245,158,11,0.10)',
   red:'#EF4444', redDim:'rgba(239,68,68,0.12)',
-  green:'#34D399',
+  green:'#22c55e',
 }
 
 const CATEGORIES = ['All','AI & Tech','SaaS','FinTech','Growth','Product','Fundraising','HealthTech','Web3','Media']
@@ -63,13 +63,13 @@ export default function EventsPage() {
       {/* Nav */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(10,15,30,0.95)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${C.border}`, padding: '0 clamp(16px,4vw,48px)', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-          <div style={{ width: 30, height: 30, background: '#C7C7CC', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, color: '#fff', fontFamily: 'Sora,sans-serif' }}>G</div>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 17, color: C.text }}>Grit<span style={{ color: '#C7C7CC' }}>Club</span></span>
+          <div style={{ width: 30, height: 30, background:`linear-gradient(135deg,#6366f1,#8b5cf6)`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, color: '#fff', fontFamily: 'Sora,sans-serif' }}>G</div>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 17, color: C.text }}>Grit<span style={{ color: '#6366f1' }}>Club</span></span>
         </Link>
         <div style={{ display: 'flex', gap: 12 }}>
           {isLoggedIn ? (
             <Link href="/dashboard">
-              <button style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: C.blue, color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Dashboard</button>
+              <button style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background:`linear-gradient(135deg,${C.blue},#8b5cf6)`, color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Dashboard</button>
             </Link>
           ) : (
             <>
@@ -77,7 +77,7 @@ export default function EventsPage() {
                 <button style={{ padding: '8px 18px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: C.textMuted, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Sign In</button>
               </Link>
               <Link href="/auth/login">
-                <button style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: C.blue, color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Join Free</button>
+                <button style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background:`linear-gradient(135deg,${C.blue},#8b5cf6)`, color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Join Free</button>
               </Link>
             </>
           )}
@@ -187,7 +187,7 @@ export default function EventsPage() {
             <h3 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 22, marginBottom: 10 }}>Want to attend an event?</h3>
             <p style={{ fontSize: 15, color: C.textMuted, marginBottom: 24 }}>Sign up free in 30 seconds with Google. No credit card needed.</p>
             <Link href="/auth/login">
-              <button style={{ padding: '12px 32px', borderRadius: 12, border: 'none', background: C.blue, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>Join GritClub Free →</button>
+              <button style={{ padding: '12px 32px', borderRadius: 12, border: 'none', background:`linear-gradient(135deg,${C.blue},#8b5cf6)`, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>Join Enarcle Free →</button>
             </Link>
           </div>
         )}
