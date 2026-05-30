@@ -11,13 +11,13 @@ import {
 } from 'lucide-react'
 
 const C = {
-  bg:'#0B0B0C', surface:'#121214', card:'#121214',
+  bg:'#09090b', surface:'#18181b', card:'#18181b',
   border:'rgba(255,255,255,0.06)', borderFocus:'rgba(255,255,255,0.12)',
-  text:'#FFFFFF', textMuted:'#C7C7CC', textDim:'#C7C7CC',
-  blue:'#C7C7CC', blueLight:'#C7C7CC', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#C7C7CC', goldDim:'rgba(199,199,204,0.08)',
-  red:'#FF453A', redDim:'rgba(239,68,68,0.1)',
-  green:'#32D74B', greenDim:'rgba(52,211,153,0.12)',
+  text:'#f4f4f5', textMuted:'#a1a1aa', textDim:'#a1a1aa',
+  blue:'#a1a1aa', blueLight:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
+  gold:'#a1a1aa', goldDim:'rgba(161,161,170,0.08)',
+  red:'#ef4444', redDim:'rgba(239,68,68,0.1)',
+  green:'#22c55e', greenDim:'rgba(34,197,94,0.12)',
 }
 
 const SQL_KEYWORDS = ['select','insert','update','delete','drop','union','script','exec']
@@ -102,7 +102,7 @@ function SignOutModal({ onConfirm, onCancel }: any) {
             <LogOut style={{ width:20, height:20, color:C.red }} />
           </div>
           <div>
-            <p style={{ fontWeight:700, color:C.text, fontFamily:'Sora,sans-serif', marginBottom:6 }}>Sign out of GritClub?</p>
+            <p style={{ fontWeight:700, color:C.text, fontFamily:'Sora,sans-serif', marginBottom:6 }}>Sign out of Enarcle?</p>
             <p style={{ fontSize:13, color:C.textMuted, fontFamily:'Inter,sans-serif' }}>You'll need to sign back in to continue.</p>
           </div>
           <div style={{ display:'flex', gap:12, width:'100%' }}>
@@ -297,7 +297,7 @@ export default function ProfilePage() {
               <h1 style={{ fontSize:24, fontWeight:800, color:C.text, fontFamily:'Sora,sans-serif', letterSpacing:'-0.02em' }}>Your Profile</h1>
             </div>
             <button onClick={handleSave} disabled={saving||uploadingPhoto}
-              style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius:12, border:saved?'1px solid rgba(50,215,75,0.3)':'1px solid rgba(255,255,255,0.15)', cursor:'pointer', background:saved?'rgba(50,215,75,0.1)':'transparent', color:saved?'#32D74B':'#FFFFFF', fontFamily:'Inter,sans-serif', fontWeight:600, fontSize:14, opacity:(saving||uploadingPhoto)?0.5:1, transition:'all 0.2s' }}>
+              style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius:12, border:saved?'1px solid rgba(34,197,94,0.3)':'1px solid rgba(255,255,255,0.15)', cursor:'pointer', background:saved?'rgba(34,197,94,0.1)':'transparent', color:saved?'#22c55e':'#f4f4f5', fontFamily:'Inter,sans-serif', fontWeight:600, fontSize:14, opacity:(saving||uploadingPhoto)?0.5:1, transition:'all 0.2s' }}>
               {saving?<><Loader2 style={{ width:15, height:15, animation:'spin 1s linear infinite' }} /> Saving...</>:saved?<><Check style={{ width:15, height:15 }} /> Saved!</>:'Save Changes'}
             </button>
           </div>
@@ -454,7 +454,7 @@ export default function ProfilePage() {
 
           {/* Save button */}
           <button onClick={handleSave} disabled={saving||uploadingPhoto}
-            style={{ width:'100%', padding:'14px', borderRadius:14, border:saved?'1px solid rgba(50,215,75,0.3)':'1px solid rgba(255,255,255,0.12)', cursor:'pointer', background:saved?'rgba(50,215,75,0.1)':'rgba(255,255,255,0.06)', color:saved?'#32D74B':'#FFFFFF', fontFamily:'Inter,sans-serif', fontWeight:600, fontSize:15, display:'flex', alignItems:'center', justifyContent:'center', gap:8, opacity:saving?0.5:1, transition:'all 0.2s' }}>
+            style={{ width:'100%', padding:'14px', borderRadius:14, border:saved?'1px solid rgba(34,197,94,0.3)':'1px solid rgba(255,255,255,0.12)', cursor:'pointer', background:saved?'rgba(34,197,94,0.1)':'rgba(255,255,255,0.06)', color:saved?'#22c55e':'#f4f4f5', fontFamily:'Inter,sans-serif', fontWeight:600, fontSize:15, display:'flex', alignItems:'center', justifyContent:'center', gap:8, opacity:saving?0.5:1, transition:'all 0.2s' }}>
             {saving?<><Loader2 style={{ width:16, height:16, animation:'spin 1s linear infinite' }} /> Saving...</>:saved?<><Check style={{ width:16, height:16 }} /> Saved!</>:'Save Profile'}
           </button>
 
