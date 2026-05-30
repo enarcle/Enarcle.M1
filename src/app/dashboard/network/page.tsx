@@ -10,17 +10,17 @@ import {
 } from 'lucide-react'
 
 const C = {
-  bg:'#0B0B0C', surface:'#121214', card:'#121214', cardHover:'#1C1C1F',
+  bg:'#09090b', surface:'#18181b', card:'#18181b', cardHover:'#1f2937',
   border:'rgba(255,255,255,0.06)', borderHover:'rgba(255,255,255,0.12)',
-  text:'#FFFFFF', textMuted:'#C7C7CC', textDim:'#C7C7CC',
-  blue:'#C7C7CC', blueLight:'#C7C7CC', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#C7C7CC', goldDim:'rgba(199,199,204,0.08)',
-  red:'#FF453A', redDim:'rgba(239,68,68,0.1)',
-  green:'#32D74B', greenDim:'rgba(52,211,153,0.12)',
-  purple:'#C7C7CC', purpleDim:'rgba(199,199,204,0.08)',
+  text:'#f4f4f5', textMuted:'#a1a1aa', textDim:'#a1a1aa',
+  blue:'#a1a1aa', blueLight:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
+  gold:'#a1a1aa', goldDim:'rgba(161,161,170,0.08)',
+  red:'#ef4444', redDim:'rgba(239,68,68,0.1)',
+  green:'#22c55e', greenDim:'rgba(34,197,94,0.12)',
+  purple:'#a1a1aa', purpleDim:'rgba(161,161,170,0.08)',
 }
 
-const AVATAR_COLORS = ['#C7C7CC','#C7C7CC','#DB2777','#D97706','#059669','#0891B2']
+const AVATAR_COLORS = ['#6366f1','#8b5cf6','#DB2777','#D97706','#059669','#0891B2']
 const avatarColor = (id: string) => AVATAR_COLORS[(id?.charCodeAt(0)||0) % AVATAR_COLORS.length]
 const getName = (u: any) => u?.full_name || u?.email?.split('@')[0] || 'User'
 const getInitials = (u: any) => getName(u).slice(0,2).toUpperCase()
@@ -68,7 +68,7 @@ function SuggestionCard({ user, onConnect, onDismiss, actionState }: any) {
 
       {/* Reason */}
       {user.suggestion_reason && (
-        <div style={{ display:'flex', alignItems:'center', gap:6, padding:'6px 10px', borderRadius:8, background:C.blueDim, border:'1px solid rgba(37,99,235,0.15)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6, padding:'6px 10px', borderRadius:8, background:C.blueDim, border:'1px solid rgba(99,102,241,0.15)' }}>
           <Zap style={{ width:12, height:12, color:C.blueLight, flexShrink:0 }} />
           <p style={{ fontSize:11, color:C.blueLight, fontFamily:'Inter,sans-serif' }}>{user.suggestion_reason}</p>
         </div>
@@ -215,7 +215,7 @@ export default function NetworkPage() {
       .neq('role', 'admin')
       .limit(20)
 
-    const enriched = (users||[]).map((u:any) => ({ ...u, suggestion_reason: 'New member on GritClub' }))
+    const enriched = (users||[]).map((u:any) => ({ ...u, suggestion_reason: 'New member on Enarcle' }))
     setSuggestions(enriched)
   }
 
@@ -324,7 +324,7 @@ export default function NetworkPage() {
           <div>
             <p style={{ fontSize:11, fontWeight:600, letterSpacing:'0.15em', textTransform:'uppercase', color:C.blueLight, fontFamily:'Inter,sans-serif', marginBottom:4 }}>Network</p>
             <h1 style={{ fontSize:24, fontWeight:800, color:C.text, fontFamily:'Sora,sans-serif', letterSpacing:'-0.02em', marginBottom:4 }}>Your Network</h1>
-            <p style={{ fontSize:13, color:C.textMuted, fontFamily:'Inter,sans-serif' }}>Connect and follow anyone on GritClub — not just founders</p>
+            <p style={{ fontSize:13, color:C.textMuted, fontFamily:'Inter,sans-serif' }}>Connect and follow anyone on Enarcle — not just founders</p>
           </div>
 
           {/* Tabs */}
