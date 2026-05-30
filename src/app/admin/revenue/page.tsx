@@ -55,7 +55,7 @@ export default function AdminRevenuePage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Total Revenue', value: fmt(stats.total), icon: DollarSign, color: '#FFD700' },
-            { label: 'Platform (20%)', value: fmt(stats.platform), icon: TrendingUp, color: '#38BDF8' },
+            { label: 'Platform (20%)', value: fmt(stats.platform), icon: TrendingUp, color: '#818cf8' },
             { label: 'Host Payouts (80%)', value: fmt(stats.hosts), icon: DollarSign, color: '#4ADE80' },
             { label: 'Total Members', value: stats.users, icon: Users, color: '#A855F7' },
           ].map(s => (
