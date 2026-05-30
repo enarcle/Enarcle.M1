@@ -68,10 +68,10 @@ export default function AdminHostsPage() {
                 <h2 className="text-xs font-semibold text-slate-400 mb-3 uppercase tracking-widest">Pending Review ({pending.length})</h2>
                 <div className="space-y-3">
                   {pending.map(app => (
-                    <div key={app.id} className="rounded-2xl p-5" style={{ background: '#1E293B', border: '1px solid rgba(56,189,248,0.2)' }}>
+                    <div key={app.id} className="rounded-2xl p-5" style={{ background: '#1E293B', border: '1px solid rgba(99,102,241,0.2)' }}>
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: 'linear-gradient(135deg, #38BDF8, #0EA5E9)', color: '#0F172A' }}>
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: 'linear-gradient(135deg, #818cf8, #0EA5E9)', color: '#0F172A' }}>
                             <User className="w-5 h-5" />
                           </div>
                           <div>
