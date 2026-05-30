@@ -8,13 +8,13 @@ import { Check, X, Crown, Zap, Building2, Users, Video, Lock, Radio, Star } from
 import Link from 'next/link'
 
 const C = {
-  bg:'#0B0B0C', surface:'#121214', card:'#121214',
+  bg:'#09090b', surface:'#18181b', card:'#18181b',
   cardHover:'#1C1C1F', border:'rgba(255,255,255,0.06)',
-  text:'#FFFFFF', textMuted:'#C7C7CC', textDim:'#C7C7CC',
-  blue:'#C7C7CC', blueL:'#C7C7CC',
-  purple:'#C7C7CC', purpleL:'#C7C7CC',
-  gold:'#C7C7CC', goldL:'#C7C7CC',
-  red:'#FF453A', green:'#32D74B',
+  text:'#FFFFFF', textMuted:'#a1a1aa', textDim:'#71717a',
+  blue:'#6366f1', blueL:'#818cf8',
+  purple:'#8b5cf6', purpleL:'#a78bfa',
+  gold:'#f59e0b', goldL:'#fbbf24',
+  red:'#ef4444', green:'#32D74B',
 }
 
 const PLANS = [
@@ -29,7 +29,7 @@ const PLANS = [
     borderColor: 'rgba(167,141,120,0.2)',
     highlight: false,
     badge: null,
-    description: 'Start exploring GritClub',
+    description: 'Start exploring Enarcle',
     cta: 'Get Started Free',
     ctaStyle: 'outline',
     features: [
@@ -90,7 +90,7 @@ const PLANS = [
     borderColor: 'rgba(245,158,11,0.5)',
     highlight: true,
     badge: '★ Most Popular',
-    description: 'Total freedom on GritClub',
+    description: 'Total freedom on Enarcle',
     cta: 'Get Premium Plus',
     ctaStyle: 'gold',
     features: [
@@ -113,7 +113,7 @@ const PLANS = [
     icon: Building2,
     monthlyPrice: null,
     yearlyPrice: null,
-    color: '#C7C7CC',
+    color: '#6366f1',
     glow: 'rgba(59,130,246,0.15)',
     borderColor: 'rgba(167,139,250,0.3)',
     highlight: false,
@@ -193,7 +193,7 @@ export default function PricingPage() {
       return
     }
     if(plan.id === 'enterprise'){
-      window.location.href = 'mailto:gritclubhq@gmail.com?subject=Enterprise Inquiry'
+      window.location.href = 'mailto:enarclehq@gmail.com?subject=Enterprise Inquiry'
       return
     }
 
@@ -239,8 +239,8 @@ export default function PricingPage() {
       {/* Nav */}
       <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,height:60,background:'rgba(7,11,20,0.9)',backdropFilter:'blur(16px)',borderBottom:'1px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 24px'}}>
         <Link href="/" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:8}}>
-          <div style={{width:28,height:28,background:'#C7C7CC',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Syne',fontWeight:800,fontSize:13,color:'#fff',clipPath:'polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%)'}}>G</div>
-          <span style={{fontFamily:'Syne',fontWeight:800,fontSize:17,letterSpacing:'-0.02em'}}>GRIT<span style={{color:'#C7C7CC'}}>CLUB</span></span>
+          <div style={{width:28,height:28,background:`linear-gradient(135deg,#6366f1,#8b5cf6)`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Syne',fontWeight:800,fontSize:13,color:'#fff',clipPath:'polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%)'}}>G</div>
+          <span style={{fontFamily:'Syne',fontWeight:800,fontSize:17,letterSpacing:'-0.02em'}}>ENARCLE</span>
         </Link>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <PricingNavButtons />
@@ -256,7 +256,7 @@ export default function PricingPage() {
             <span style={{fontSize:11,fontWeight:700,color:C.gold,letterSpacing:'0.1em',textTransform:'uppercase'}}>Simple, Transparent Pricing</span>
           </div>
           <h1 style={{fontSize:'clamp(28px,5vw,52px)',fontWeight:800,fontFamily:'Syne',letterSpacing:'-0.02em',marginBottom:14,lineHeight:1.1}}>
-            Choose your <span style={{color:C.gold}}>GritClub</span> plan
+            Choose your <span style={{color:C.gold}}>Enarcle</span> plan
           </h1>
           <p style={{fontSize:16,color:C.textMuted,maxWidth:520,margin:'0 auto',lineHeight:1.7}}>
             Start free. Upgrade when you're ready to host, record, and access every event without buying tickets.
@@ -408,7 +408,7 @@ export default function PricingPage() {
         {/* FAQ strip */}
         <div style={{textAlign:'center',padding:'40px 0',borderTop:`1px solid ${C.border}`}}>
           <p style={{fontSize:14,color:C.textMuted,marginBottom:8}}>Questions about pricing?</p>
-          <a href="mailto:gritclubhq@gmail.com" style={{fontSize:14,color:C.blueL,textDecoration:'none',fontWeight:600}}>gritclubhq@gmail.com →</a>
+          <a href="mailto:enarclehq@gmail.com" style={{fontSize:14,color:C.blueL,textDecoration:'none',fontWeight:600}}>enarclehq@gmail.com →</a>
         </div>
 
       </div>
