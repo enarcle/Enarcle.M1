@@ -8,7 +8,7 @@ import { Search, X, Loader2, Check, Shield, Crown } from 'lucide-react'
 const C = {
   bg:'#0A0F1E', surface:'#0D1428', card:'#111827',
   border:'rgba(255,255,255,0.06)', text:'#F0F4FF', textMuted:'#7B8DB0', textDim:'#3D4F6E',
-  blue:'#2563EB', blueLight:'#3B82F6', blueDim:'rgba(37,99,235,0.12)',
+  blue:'#6366f1', blueLight:'#818cf8', blueDim:'rgba(99,102,241,0.12)',
   gold:'#F59E0B', goldDim:'rgba(245,158,11,0.1)',
   red:'#EF4444', redDim:'rgba(239,68,68,0.1)',
   green:'#10B981', greenDim:'rgba(16,185,129,0.1)',
@@ -101,7 +101,7 @@ export default function AdminUsersPage() {
             <Search style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: C.textDim }} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, email, or username..."
               style={{ width: '100%', padding: '11px 14px 11px 42px', borderRadius: 12, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontFamily: 'DM Sans,sans-serif', fontSize: 13, outline: 'none' }}
-              onFocus={e => (e.target.style.borderColor = 'rgba(37,99,235,0.4)')}
+              onFocus={e => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
               onBlur={e => (e.target.style.borderColor = C.border)} />
             {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: C.textDim }}><X style={{ width: 14, height: 14 }} /></button>}
           </div>
