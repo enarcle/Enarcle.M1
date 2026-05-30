@@ -22,7 +22,7 @@ const C = {
   text:        '#E8EAF0',
   textMuted:   '#8A9BBF',
   textDim:     '#3D4F6E',
-  red:         '#FF3B3B',
+  red:         '#ef4444',
   redDim:      'rgba(255,59,59,0.12)',
   gold:        '#FFD700',
   goldDim:     'rgba(255,215,0,0.10)',
@@ -30,8 +30,8 @@ const C = {
   greenDim:    'rgba(34,197,94,0.12)',
   purple:      '#A78BFA',
   purpleDim:   'rgba(167,139,250,0.12)',
-  sky:         '#38BDF8',
-  skyDim:      'rgba(56,189,248,0.10)',
+  sky:         '#818cf8',
+  skyDim:      'rgba(99,102,241,0.10)',
 }
 
 const CATEGORIES = [
@@ -255,7 +255,7 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
             </div>
           ))}
         </div>
-        <button style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: C.gold, color: '#0B0B0C', fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: 14, cursor: 'pointer', marginBottom: 8 }}>Upgrade Now →</button>
+        <button style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: C.gold, color: '#09090b', fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: 14, cursor: 'pointer', marginBottom: 8 }}>Upgrade Now →</button>
         <button onClick={onClose} style={{ width: '100%', padding: '10px', borderRadius: 12, border: 'none', background: 'transparent', color: C.textMuted, fontFamily: 'DM Sans,sans-serif', fontSize: 13, cursor: 'pointer' }}>Maybe later</button>
       </div>
     </div>
@@ -272,7 +272,7 @@ function GroupCard({ group, uid, onJoin }: { group: any; uid: string; onJoin: (g
   const fill      = Math.min(((group.member_count || 0) / (group.max_members || FREE_MEMBER_LIMIT)) * 100, 100)
 
   const catColors: Record<string, string> = {
-    'AI & Tech': '#38BDF8', 'SaaS': '#A78BFA', 'FinTech': '#22C55E',
+    'AI & Tech': '#818cf8', 'SaaS': '#A78BFA', 'FinTech': '#22C55E',
     'HealthTech': '#F472B6', 'Growth': '#FB923C', 'Fundraising': '#FFD700',
     'Product': '#34D399', 'Web3': '#818CF8', 'EdTech': '#60A5FA',
   }
