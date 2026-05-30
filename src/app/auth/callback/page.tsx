@@ -9,7 +9,7 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const handle = async () => {
-      // Wait a moment for Supabase to process the URL hash automatically
+      // Allow Supabase to process the URL hash fragment automatically
       await new Promise(r => setTimeout(r, 500))
 
       const { data: { session } } = await supabase.auth.getSession()
@@ -17,7 +17,7 @@ export default function AuthCallbackPage() {
       if (session) {
         router.replace('/dashboard')
       } else {
-        // Try exchanging a code if present
+        // PKCE: exchange auth code for session
         const code = new URLSearchParams(window.location.search).get('code')
         if (code) {
           await supabase.auth.exchangeCodeForSession(code)
@@ -33,15 +33,26 @@ export default function AuthCallbackPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#0B0B0C',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      minHeight: '100vh',
+      background: '#09090b',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 16,
     }}>
+      {/* Indigo spinner — Enarcle brand */}
       <div style={{
-        width: 32, height: 32, borderRadius: '50%',
-        border: '3px solid rgba(255,255,255,0.1)',
-        borderTopColor: '#C7C7CC',
+        width: 36,
+        height: 36,
+        borderRadius: '50%',
+        border: '3px solid rgba(99,102,241,0.15)',
+        borderTopColor: '#6366f1',
         animation: 'spin 0.8s linear infinite',
-      }} />
+      }}/>
+      <p style={{ color: '#71717a', fontFamily: 'Inter,sans-serif', fontSize: 14, margin: 0 }}>
+        Signing you in…
+      </p>
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   )
