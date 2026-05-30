@@ -15,11 +15,11 @@ const C = {
   bg:       '#0A0F1E', surface:  '#0D1428', card:     '#111827', cardHover: '#141E35',
   border:   'rgba(255,255,255,0.06)', borderHover: 'rgba(37,99,235,0.3)',
   text:     '#F0F4FF', textMuted:'#7B8DB0', textDim:  '#3D4F6E',
-  blue:     '#2563EB', blueLight:'#3B82F6', blueDim:  'rgba(37,99,235,0.12)',
+  blue:     '#6366f1', blueLight:'#818cf8', blueDim:  'rgba(99,102,241,0.12)',
   gold:     '#F59E0B', goldDim:  'rgba(245,158,11,0.1)',
   red:      '#EF4444', redDim:   'rgba(239,68,68,0.1)',
   green:    '#10B981', greenDim: 'rgba(16,185,129,0.1)',
-  purple:   '#7C3AED', purpleDim:'rgba(124,58,237,0.1)',
+  purple:   '#8b5cf6', purpleDim:'rgba(139,92,246,0.12)',
 }
 
 type AdminTab = 'overview'|'users'|'hosts'|'events'|'revenue'|'content'|'audit'|'announce'
@@ -352,7 +352,7 @@ export default function AdminPage() {
           {activeTab === 'overview' && (
             <div className="space-y-5">
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                <StatCard label="Total Members" value={initialized ? stats.users : '...'} icon={Users} color={C.blueLight} bg={C.blueDim} border="rgba(37,99,235,0.2)" />
+                <StatCard label="Total Members" value={initialized ? stats.users : '...'} icon={Users} color={C.blueLight} bg={C.blueDim} border="rgba(99,102,241,0.2)" />
                 <StatCard label="Pending Hosts" value={initialized ? stats.pendingHosts : '...'} icon={Shield} color={C.gold} bg={C.goldDim} border="rgba(245,158,11,0.2)" alert={stats.pendingHosts>0} sub={stats.pendingHosts>0?`${stats.pendingHosts} need review`:undefined} />
                 <StatCard label="Live Events" value={initialized ? stats.liveEvents : '...'} icon={Radio} color={C.red} bg={C.redDim} border="rgba(239,68,68,0.2)" pulse={stats.liveEvents>0} />
                 <StatCard label="Total Revenue" value={initialized ? fmt(stats.revenue) : '...'} icon={DollarSign} color={C.green} bg={C.greenDim} border="rgba(16,185,129,0.2)" sub="All time" />
