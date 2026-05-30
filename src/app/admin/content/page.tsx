@@ -12,13 +12,13 @@ const C = {
   bg:'#0A0F1E', surface:'#0D1428', card:'#111827',
   border:'rgba(255,255,255,0.06)', text:'#F0F4FF',
   textMuted:'#7B8DB0', textDim:'#3D4F6E',
-  blue:'#2563EB', blueLight:'#3B82F6', blueDim:'rgba(37,99,235,0.12)',
+  blue:'#6366f1', blueLight:'#818cf8', blueDim:'rgba(99,102,241,0.12)',
   gold:'#F59E0B', goldDim:'rgba(245,158,11,0.1)',
   red:'#EF4444', redDim:'rgba(239,68,68,0.1)',
   green:'#10B981', greenDim:'rgba(16,185,129,0.1)',
 }
 
-const AVATAR_COLORS = ['#2563EB','#7C3AED','#DB2777','#D97706','#059669','#0891B2']
+const AVATAR_COLORS = ['#6366f1','#8b5cf6','#DB2777','#D97706','#059669','#0891B2']
 const avatarColor = (id: string) => AVATAR_COLORS[(id?.charCodeAt(0)||0) % AVATAR_COLORS.length]
 const getName = (u: any) => u?.full_name || u?.email?.split('@')[0] || 'User'
 const timeAgo = (ts: string) => {
