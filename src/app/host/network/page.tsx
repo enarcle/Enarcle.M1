@@ -49,7 +49,7 @@ export default function HostNetworkPage() {
     <DashboardLayout>
       <div className="p-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(56,189,248,0.15)' }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)' }}>
             <Users className="w-5 h-5 text-sky-400" />
           </div>
           <div>
@@ -59,11 +59,11 @@ export default function HostNetworkPage() {
         </div>
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
-            { label: 'Total Attendees', value: stats.total, icon: Users, color: '#38BDF8' },
+            { label: 'Total Attendees', value: stats.total, icon: Users, color: '#818cf8' },
             { label: 'Repeat Buyers', value: stats.repeat, icon: TrendingUp, color: '#4ADE80' },
-            { label: 'Your Earnings', value: fmt(stats.revenue), icon: Ticket, color: '#C7C7CC' },
+            { label: 'Your Earnings', value: fmt(stats.revenue), icon: Ticket, color: '#a1a1aa' },
           ].map(s => (
-            <div key={s.label} className="rounded-2xl p-4" style={{ background: '#1C1C1F' }}>
+            <div key={s.label} className="rounded-2xl p-4" style={{ background: '#1f2937' }}>
               <div className="flex items-center gap-2 mb-2">
                 <s.icon className="w-4 h-4" style={{ color: s.color }} />
                 <span className="text-xs text-slate-400">{s.label}</span>
@@ -74,9 +74,9 @@ export default function HostNetworkPage() {
         </div>
         <h2 className="text-xs font-semibold text-slate-400 mb-3 uppercase tracking-widest">Attendees</h2>
         {loading ? (
-          <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: '#1C1C1F' }} />)}</div>
+          <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: '#1f2937' }} />)}</div>
         ) : attendees.length === 0 ? (
-          <div className="rounded-2xl p-10 text-center" style={{ background: '#1C1C1F' }}>
+          <div className="rounded-2xl p-10 text-center" style={{ background: '#1f2937' }}>
             <Users className="w-10 h-10 mx-auto mb-3 text-slate-600" />
             <p className="text-slate-500 mb-1">No attendees yet</p>
             <p className="text-slate-600 text-xs">Your audience will appear here after your first event</p>
@@ -84,9 +84,9 @@ export default function HostNetworkPage() {
         ) : (
           <div className="space-y-3">
             {attendees.map((person: any, i: number) => (
-              <div key={i} className="rounded-xl p-4 flex items-center justify-between gap-4" style={{ background: '#1C1C1F' }}>
+              <div key={i} className="rounded-xl p-4 flex items-center justify-between gap-4" style={{ background: '#1f2937' }}>
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(135deg, #38BDF8, #0EA5E9)', color: '#121214' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(135deg, #818cf8, #0EA5E9)', color: '#18181b' }}>
                     {person.photo_url ? <img src={person.photo_url} alt="" className="w-full h-full object-cover" /> : getInitials(person.email)}
                   </div>
                   <div className="min-w-0">
@@ -99,7 +99,7 @@ export default function HostNetworkPage() {
                     <div className="text-sm font-semibold" style={{ color: '#4ADE80' }}>{fmt(person.spent)}</div>
                     <div className="text-xs text-slate-500">{person.tickets} ticket{person.tickets !== 1 ? 's' : ''}</div>
                   </div>
-                  <a href={`mailto:${person.email}`} className="p-2 rounded-lg" style={{ color: '#38BDF8' }}>
+                  <a href={`mailto:${person.email}`} className="p-2 rounded-lg" style={{ color: '#818cf8' }}>
                     <Mail className="w-4 h-4" />
                   </a>
                 </div>
