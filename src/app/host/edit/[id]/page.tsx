@@ -157,7 +157,7 @@ export default function EditEventPage() {
             onClick={handleSave}
             disabled={saving || !form.title}
             className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50"
-            style={{ background: saved ? 'rgba(74,222,128,0.2)' : '#38BDF8', color: saved ? '#4ADE80' : '#0F172A' }}
+            style={{ background: saved ? 'rgba(74,222,128,0.2)' : '#818cf8', color: saved ? '#4ADE80' : '#0F172A' }}
           >
             {saved ? <><CheckCircle className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Changes'}</>}
           </button>
