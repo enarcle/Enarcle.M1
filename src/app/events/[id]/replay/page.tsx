@@ -8,12 +8,12 @@ import DashboardLayout from '@/components/DashboardLayout'
 import Link from 'next/link'
 
 const C = {
-  bg:'#0B0B0C', surface:'#121214', card:'#121214',
-  border:'rgba(255,255,255,0.07)', text:'#FFFFFF',
-  textMuted:'#C7C7CC', textDim:'#8A8A8F',
-  blue:'#C7C7CC', blueL:'#C7C7CC', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#C7C7CC', goldDim:'rgba(199,199,204,0.08)',
-  red:'#EF4444', purple:'#C7C7CC', purpleDim:'rgba(199,199,204,0.08)',
+  bg:'#09090b', surface:'#18181b', card:'#18181b',
+  border:'rgba(255,255,255,0.07)', text:'#f4f4f5',
+  textMuted:'#a1a1aa', textDim:'#8A8A8F',
+  blue:'#a1a1aa', blueL:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
+  gold:'#a1a1aa', goldDim:'rgba(161,161,170,0.08)',
+  red:'#EF4444', purple:'#a1a1aa', purpleDim:'rgba(161,161,170,0.08)',
   green:'#10B981',
 }
 
@@ -163,8 +163,8 @@ export default function EventReplayPage() {
   if(!canWatch) return(
     <DashboardLayout>
       <div style={{background:C.bg,minHeight:'100%',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
-        <div style={{maxWidth:420,width:'100%',borderRadius:24,padding:40,textAlign:'center',background:C.card,border:'1px solid rgba(124,58,237,0.3)'}}>
-          <div style={{width:72,height:72,borderRadius:'50%',background:C.purpleDim,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',border:'2px solid rgba(124,58,237,0.3)'}}>
+        <div style={{maxWidth:420,width:'100%',borderRadius:24,padding:40,textAlign:'center',background:C.card,border:'1px solid rgba(139,92,246,0.3)'}}>
+          <div style={{width:72,height:72,borderRadius:'50%',background:C.purpleDim,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',border:'2px solid rgba(139,92,246,0.3)'}}>
             <Lock style={{width:28,height:28,color:C.purple}}/>
           </div>
           <h2 style={{fontSize:22,fontWeight:800,color:C.text,fontFamily:'Syne,sans-serif',letterSpacing:'-0.02em',marginBottom:8}}>Premium Access Required</h2>
@@ -185,7 +185,7 @@ export default function EventReplayPage() {
             </div>
           ))}
           <Link href="/pricing" style={{textDecoration:'none',display:'block',marginTop:20}}>
-            <button style={{width:'100%',padding:'14px',borderRadius:14,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#7C3AED,#6D28D9)',color:'#fff',fontFamily:'DM Sans,sans-serif',fontWeight:700,fontSize:15,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+            <button style={{width:'100%',padding:'14px',borderRadius:14,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#8b5cf6,#7c3aed)',color:'#fff',fontFamily:'DM Sans,sans-serif',fontWeight:700,fontSize:15,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
               <Crown style={{width:16,height:16}}/> Upgrade to Premium Plus →
             </button>
           </Link>
@@ -349,7 +349,7 @@ export default function EventReplayPage() {
 
                     {/* Big play button in center when paused */}
                     {!playing && (
-                      <button onClick={togglePlay} style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:64,height:64,borderRadius:'50%',border:'none',background:'rgba(37,99,235,0.9)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxShadow:'0 4px 24px rgba(37,99,235,0.5)'}}>
+                      <button onClick={togglePlay} style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:64,height:64,borderRadius:'50%',border:'none',background:'rgba(99,102,241,0.9)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxShadow:'0 4px 24px rgba(99,102,241,0.5)'}}>
                         <Play style={{width:28,height:28,marginLeft:4}}/>
                       </button>
                     )}
@@ -372,7 +372,7 @@ export default function EventReplayPage() {
                 <h1 style={{fontSize:20,fontWeight:800,color:C.text,fontFamily:'Syne,sans-serif',letterSpacing:'-0.02em',marginBottom:8}}>{event?.title}</h1>
                 <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
                   <div style={{display:'flex',alignItems:'center',gap:8}}>
-                    <div style={{width:28,height:28,borderRadius:'50%',overflow:'hidden',background:'rgba(37,99,235,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:C.blueL}}>
+                    <div style={{width:28,height:28,borderRadius:'50%',overflow:'hidden',background:'rgba(99,102,241,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:C.blueL}}>
                       {event?.users?.photo_url?<img src={event.users.photo_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>:getName(event?.users).slice(0,2).toUpperCase()}
                     </div>
                     <span style={{fontSize:13,color:C.textMuted,fontFamily:'DM Sans,sans-serif'}}>Hosted by {getName(event?.users)}</span>
