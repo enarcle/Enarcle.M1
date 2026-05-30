@@ -11,24 +11,24 @@ import {
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-export const viewport = { themeColor: '#0B0B0C' }
+export const viewport = { themeColor: '#6366f1' }
 
 // ── Unified brand colors — no more grey replacing red ────────────────────────
 const C = {
-  bg:        '#0B0B0C',
+  bg:        '#09090b',
   surface:   '#111113',
-  card:      '#1C1C1F',
+  card:      '#1f2937',
   border:    'rgba(255,255,255,0.07)',
-  text:      '#FFFFFF',
+  text:      '#f4f4f5',
   textMuted: '#A0A0A8',
   textDim:   '#5A5A62',
-  red:       '#FF453A',       // ← brand red, not grey
-  redDim:    'rgba(255,69,58,0.12)',
-  green:     '#32D74B',
-  greenDim:  'rgba(50,215,75,0.12)',
+  red:       '#ef4444', indigo: '#6366f1', indigoL: '#818cf8',       // ← brand red, not grey
+  redDim:    'rgba(239,68,68,0.12)',
+  green:     '#22c55e',
+  greenDim:  'rgba(34,197,94,0.12)',
 }
 
-const ACOLORS = ['#FF453A', '#A78BFA', '#38BDF8', '#22C55E', '#FFD700', '#F97316']
+const ACOLORS = ['#ef4444', '#A78BFA', '#818cf8', '#22C55E', '#FFD700', '#F97316']
 const aBg     = (id: string) => ACOLORS[(id?.charCodeAt(0) || 0) % ACOLORS.length]
 const getName = (u: any)     => u?.full_name || u?.email?.split('@')[0] || 'User'
 const getInit = (u: any)     => getName(u).slice(0, 2).toUpperCase()
@@ -85,7 +85,7 @@ function ConvoList({
           <button onClick={onToggleSearch} style={{
             width: 32, height: 32, borderRadius: 8, border: 'none',
             background: showSearch ? C.redDim : 'rgba(255,255,255,0.06)',
-            color: showSearch ? C.red : C.textMuted,
+            color: showSearch ? C.indigoL : C.textMuted,
             display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
             transition: 'all .15s',
           }}>
@@ -143,7 +143,7 @@ function ConvoList({
               padding: '11px 16px',
               background: isActive ? C.redDim : 'transparent',
               border: 'none', cursor: 'pointer', textAlign: 'left',
-              borderLeft: `3px solid ${isActive ? C.red : 'transparent'}`,
+              borderLeft: `3px solid ${isActive ? C.indigo : 'transparent'}`,
               transition: 'background 0.15s',
             }}
               onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)' }}
@@ -153,7 +153,7 @@ function ConvoList({
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: isActive ? C.red : C.text, fontFamily: 'Inter,sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: isActive ? C.indigoL : C.text, fontFamily: 'Inter,sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {getName(conv.partner)}
                   </span>
                   <span style={{ fontSize: 10, color: C.textDim, flexShrink: 0, marginLeft: 6 }}>
@@ -264,8 +264,8 @@ function ChatWindow({
                   padding: '10px 14px',
                   borderRadius: isOwn ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                   // ← FIXED: own messages use brand red, received messages use visible card bg
-                  background: isOwn ? C.red : '#1C1C1F',
-                  color: '#FFFFFF',   // ← FIXED: always white text, visible on both backgrounds
+                  background: isOwn ? C.red : '#1f2937',
+                  color: '#f4f4f5',   // ← FIXED: always white text, visible on both backgrounds
                   fontSize: 14, lineHeight: 1.55,
                   wordBreak: 'break-word', fontFamily: 'Inter,sans-serif',
                   border: isOwn ? 'none' : `1px solid rgba(255,255,255,0.08)`,
@@ -325,7 +325,7 @@ function EmptyState({ onNewChat }: { onNewChat: () => void }) {
       </div>
       <h3 style={{ fontSize: 17, fontWeight: 700, color: C.text, fontFamily: 'Syne,sans-serif', margin: 0 }}>Your Messages</h3>
       <p style={{ fontSize: 13, color: C.textMuted, textAlign: 'center', maxWidth: 260, fontFamily: 'Inter,sans-serif', lineHeight: 1.65, margin: 0 }}>
-        Connect privately with anyone on GritClub.
+        Connect privately with anyone on Enarcle.
       </p>
       <button onClick={onNewChat} style={{
         display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px',
@@ -533,8 +533,8 @@ function DMPage() {
 export default function MessagesPage() {
   return (
     <Suspense fallback={
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0B0B0C' }}>
-        <div style={{ width: 28, height: 28, border: '3px solid rgba(255,69,58,0.2)', borderTopColor: '#FF453A', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#09090b' }}>
+        <div style={{ width: 28, height: 28, border: '3px solid rgba(239,68,68,0.2)', borderTopColor: '#ef4444', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
       </div>
     }>
