@@ -33,7 +33,7 @@ export default function AdminEventsPage() {
   }
 
   const statusColor: Record<string, string> = {
-    live: '#EF4444', scheduled: '#38BDF8', ended: '#64748B', draft: '#A855F7'
+    live: '#EF4444', scheduled: '#818cf8', ended: '#64748B', draft: '#A855F7'
   }
 
   const filtered = filter === 'all' ? events : events.filter(e => e.status === filter)
@@ -42,7 +42,7 @@ export default function AdminEventsPage() {
     <DashboardLayout>
       <div className="p-6 max-w-5xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(56,189,248,0.15)' }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)' }}>
             <Calendar className="w-5 h-5 text-sky-400" />
           </div>
           <div>
@@ -59,9 +59,9 @@ export default function AdminEventsPage() {
               onClick={() => setFilter(f)}
               className="px-4 py-2 rounded-xl text-sm font-medium transition-all capitalize"
               style={{
-                background: filter === f ? 'rgba(56,189,248,0.15)' : '#1E293B',
-                color: filter === f ? '#38BDF8' : '#64748B',
-                border: filter === f ? '1px solid rgba(56,189,248,0.3)' : '1px solid transparent'
+                background: filter === f ? 'rgba(99,102,241,0.15)' : '#1E293B',
+                color: filter === f ? '#818cf8' : '#64748B',
+                border: filter === f ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent'
               }}
             >
               {f === 'all' ? `All (${events.length})` : `${f} (${events.filter(e => e.status === f).length})`}
