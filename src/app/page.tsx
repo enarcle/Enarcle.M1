@@ -15,7 +15,7 @@ const P = {
   border:     'rgba(255,255,255,0.06)',
   borderStr:  'rgba(255,255,255,0.12)',
   text:       '#FFFFFF',
-  textMuted:  '#C7C7CC',
+  textMuted:  '#a1a1aa',
   textDim:    '#8A8A8F',
 }
 
@@ -148,7 +148,7 @@ const Navbar = ({ visible }: { visible: boolean }) => {
                           </Link>
                         ))}
                         <div style={{ borderTop: `1px solid ${P.border}` }}>
-                          <button onClick={() => { setDropOpen(false); logout() }} style={{ width: '100%', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10, color: '#FF453A', cursor: 'pointer', fontSize: 13, background: 'transparent', border: 'none', fontFamily: "'Inter', sans-serif" }}
+                          <button onClick={() => { setDropOpen(false); logout() }} style={{ width: '100%', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10, color: '#ef4444', cursor: 'pointer', fontSize: 13, background: 'transparent', border: 'none', fontFamily: "'Inter', sans-serif" }}
                             onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,69,58,0.06)')}
                             onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}>
                             <LogOut size={14} /> Sign Out
@@ -191,7 +191,7 @@ const Navbar = ({ visible }: { visible: boolean }) => {
                       <LayoutDashboard size={14} /> Dashboard
                     </button>
                   </Link>
-                  <button onClick={() => { setMobileOpen(false); logout() }} style={{ padding: '10px', background: 'transparent', border: `1px solid rgba(255,69,58,0.3)`, color: '#FF453A', fontFamily: "'Sora', sans-serif", fontSize: 13, borderRadius: 8, cursor: 'pointer' }}>Sign Out</button>
+                  <button onClick={() => { setMobileOpen(false); logout() }} style={{ padding: '10px', background: 'transparent', border: `1px solid rgba(239,68,68,0.3)`, color: '#ef4444', fontFamily: "'Sora', sans-serif", fontSize: 13, borderRadius: 8, cursor: 'pointer' }}>Sign Out</button>
                 </>
               ) : (
                 <Link href="/auth/login" onClick={() => setMobileOpen(false)}>
@@ -280,7 +280,7 @@ function LiveEventsPreview() {
                   <motion.div whileHover={{ y: -3 }} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: 18, cursor: 'pointer', transition: 'border-color 0.2s' }}
                     onMouseEnter={(e:any) => e.currentTarget.style.borderColor = P.borderStr}
                     onMouseLeave={(e:any) => e.currentTarget.style.borderColor = P.border}>
-                    {ev.status === 'live' && <span style={{ display:'inline-block', padding:'2px 8px', borderRadius:4, background:'rgba(255,69,58,0.12)', color:'#FF453A', fontSize:10, fontWeight:700, marginBottom:10, letterSpacing:'0.1em' }}>● LIVE</span>}
+                    {ev.status === 'live' && <span style={{ display:'inline-block', padding:'2px 8px', borderRadius:4, background:'rgba(239,68,68,0.12)', color:'#ef4444', fontSize:10, fontWeight:700, marginBottom:10, letterSpacing:'0.1em' }}>● LIVE</span>}
                     <p style={{ fontFamily:"'Sora',sans-serif", fontSize:14, fontWeight:600, color:P.text, marginBottom:6, lineHeight:1.4 }}>{ev.title}</p>
                     <p style={{ fontFamily:"'Inter',sans-serif", fontSize:12, color:P.textDim }}>{ev.is_free||!ev.price ? 'Free' : `$${ev.price}`} · {ev.users?.full_name||'Host'}</p>
                   </motion.div>
