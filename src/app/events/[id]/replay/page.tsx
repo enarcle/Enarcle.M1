@@ -7,15 +7,7 @@ import { Lock, Play, Pause, Loader2, ChevronLeft, Crown, Clock, Maximize, Minimi
 import DashboardLayout from '@/components/DashboardLayout'
 import Link from 'next/link'
 
-const C = {
-  bg:'#09090b', surface:'#18181b', card:'#18181b',
-  border:'rgba(255,255,255,0.07)', text:'#f4f4f5',
-  textMuted:'#a1a1aa', textDim:'#8A8A8F',
-  blue:'#a1a1aa', blueL:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#a1a1aa', goldDim:'rgba(161,161,170,0.08)',
-  red:'#EF4444', purple:'#a1a1aa', purpleDim:'rgba(161,161,170,0.08)',
-  green:'#10B981',
-}
+import { C } from '@/lib/theme'
 
 const getName = (u:any) => u?.full_name||u?.email?.split('@')[0]||'Host'
 
