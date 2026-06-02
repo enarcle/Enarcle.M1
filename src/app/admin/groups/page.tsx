@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase/client'
 import DashboardLayout from '@/components/DashboardLayout'
 import { Loader2, Trash2, Users, Lock, Globe } from 'lucide-react'
 
-const C = { bg:'#0A0F1E', card:'#111827', border:'rgba(255,255,255,0.06)', text:'#F0F4FF', textMuted:'#7B8DB0', textDim:'#3D4F6E', blue:'#3B82F6', blueDim:'rgba(37,99,235,0.12)', gold:'#F59E0B', red:'#EF4444', redDim:'rgba(239,68,68,0.1)', green:'#10B981' }
+import { C } from '@/lib/theme'
 const timeAgo = (ts: string) => { const d = Date.now()-new Date(ts).getTime(), m = Math.floor(d/60000); if (m<1) return 'now'; if (m<60) return `${m}m`; const h=Math.floor(m/60); if (h<24) return `${h}h`; return `${Math.floor(h/24)}d` }
 
 export default function AdminGroupsPage() {
