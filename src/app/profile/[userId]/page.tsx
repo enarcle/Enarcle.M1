@@ -11,16 +11,7 @@ import {
   Share2, Users, Calendar, MessageSquare
 } from 'lucide-react'
 
-const C = {
-  bg:'#09090b', surface:'#18181b', card:'#18181b',
-  border:'rgba(255,255,255,0.06)',
-  text:'#f4f4f5', textMuted:'#a1a1aa', textDim:'#8A8A8F',
-  blue:'#a1a1aa', blueLight:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#a1a1aa', goldDim:'rgba(161,161,170,0.08)',
-  red:'#EF4444', redDim:'rgba(239,68,68,0.1)',
-  green:'#34D399', greenDim:'rgba(34,197,94,0.12)',
-  purple:'#a1a1aa', purpleDim:'rgba(161,161,170,0.08)',
-}
+import { C } from '@/lib/theme'
 
 const AVATAR_COLORS = ['#6366f1','#8b5cf6','#DB2777','#D97706','#059669','#0891B2']
 const avatarColor = (id: string) => AVATAR_COLORS[(id?.charCodeAt(0)||0) % AVATAR_COLORS.length]
