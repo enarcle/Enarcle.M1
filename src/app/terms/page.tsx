@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export const metadata = { title: 'Terms of Service | Enarcle', description: 'Enarcle Terms of Service' }
 
-const C = { bg: '#09090b', card: '#18181b', border: 'rgba(255,255,255,0.06)', text: '#FFFFFF', muted: '#a1a1aa', dim: '#8A8A8F', blue: '#a1a1aa', gold: '#a1a1aa' }
+import { C } from '@/lib/theme'
 
 const Section = ({ n, title, children }: { n: number; title: string; children: React.ReactNode }) => (
   <section style={{ marginBottom: 32 }}>
