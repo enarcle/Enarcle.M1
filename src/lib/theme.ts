@@ -1,115 +1,114 @@
 /**
- * ENARCLE UNIVERSAL COLOR SYSTEM
+ * Enarcle Design System — Universal Color Token Object
  *
- * Every page/component imports C from here instead of defining its own palette.
- * All values are CSS custom properties — they automatically switch between
- * dark and light mode when `data-theme` changes on <html>.
+ * Dark mode:  black (#09090b) bg  +  #1772FF brand blue
+ * Light mode: white (#ffffff) bg  +  #1772FF brand blue
  *
- * Brand blue (#1772FF) is the ONLY accent color.
- * Dark mode:  obsidian black  + chromatic white + brand blue
- * Light mode: pure white      + deep charcoal   + brand blue
+ * All values are CSS variable references so toggling [data-theme="light"]
+ * on <html> instantly repaints every component — zero JS re-renders needed.
+ *
+ * LEGACY ALIASES at the bottom keep old page code compiling without
+ * touching every individual file.
  */
+
 export const C = {
-  // ── Backgrounds ────────────────────────────────────────────────────────────
-  bg:         'var(--bg-base)',
-  surface:    'var(--bg-surface)',
-  card:       'var(--bg-card)',
-  elevated:   'var(--bg-elevated)',
-  overlay:    'var(--bg-overlay)',
+  // ─── Backgrounds ────────────────────────────────────────────────────────────
+  bg:           'var(--bg-base)',
+  surface:      'var(--bg-surface)',
+  card:         'var(--bg-card)',
+  elevated:     'var(--bg-elevated)',
+  overlay:      'var(--bg-overlay)',
 
-  // ── Borders ────────────────────────────────────────────────────────────────
-  border:     'var(--border)',
-  borderMd:   'var(--border-md)',
-  borderLg:   'var(--border-lg)',
+  // ─── Brand Blue (#1772FF) ────────────────────────────────────────────────────
+  blue:         'var(--brand-blue)',
+  blueHover:    'var(--brand-blue-hover)',
+  blueActive:   'var(--brand-blue-active)',
+  blueLight:    'var(--brand-blue-light)',    // subtle tinted text / badges
+  blueDim:      'var(--brand-blue-dim)',      // very subtle background tint
+  blueBorder:   'var(--brand-blue-border)',   // 20% opacity border
 
-  // ── Typography ─────────────────────────────────────────────────────────────
-  text:       'var(--text-primary)',
-  textMuted:  'var(--text-muted)',
-  textDim:    'var(--text-dim)',
+  // ─── Typography ─────────────────────────────────────────────────────────────
+  text:         'var(--text-primary)',
+  textSub:      'var(--text-secondary)',
+  textDim:      'var(--text-tertiary)',
+  textMuted:    'var(--text-muted)',
+  textInverse:  'var(--text-inverse)',
 
-  // ── Brand blue (constant across modes) ─────────────────────────────────────
-  blue:       'var(--blue)',
-  blueHover:  'var(--blue-hover)',
-  blueDim:    'var(--blue-dim)',
-  blueBorder: 'var(--blue-border)',
+  // ─── Borders & Dividers ──────────────────────────────────────────────────────
+  border:       'var(--border-default)',
+  borderSub:    'var(--border-subtle)',
+  borderFocus:  'var(--border-focus)',
 
-  // ── Semantic ────────────────────────────────────────────────────────────────
-  green:      'var(--green)',
-  greenDim:   'var(--green-dim)',
-  red:        'var(--red)',
-  redDim:     'var(--red-dim)',
-  amber:      'var(--amber)',
-  amberDim:   'var(--amber-dim)',
+  // ─── Semantic ────────────────────────────────────────────────────────────────
+  success:      'var(--semantic-success)',
+  successDim:   'var(--semantic-success-dim)',
+  warning:      'var(--semantic-warning)',
+  warningDim:   'var(--semantic-warning-dim)',
+  red:          'var(--semantic-error)',
+  redDim:       'var(--semantic-error-dim)',
+  live:         'var(--semantic-live)',
+  liveDim:      'var(--semantic-live-dim)',
 
-  // ── Shadows ─────────────────────────────────────────────────────────────────
-  shadowSm:   'var(--shadow-sm)',
-  shadowMd:   'var(--shadow-md)',
-  shadowLg:   'var(--shadow-lg)',
-  shadowXl:   'var(--shadow-xl)',
-  shadowBlue: 'var(--shadow-blue)',
+  // ─── Interactive States ──────────────────────────────────────────────────────
+  activeColor:  'var(--brand-blue)',          // active nav / selected element color
+  activeBg:     'var(--brand-blue-dim)',      // active nav background
+  hoverBg:      'var(--hover-bg)',
+  focusRing:    'var(--focus-ring)',
 
-  // ── Component tokens ────────────────────────────────────────────────────────
-  inputBg:    'var(--input-bg)',
-  inputBorder:'var(--input-border)',
-  navActiveBg:'var(--nav-active-bg)',
+  // ─── Typography Scale ────────────────────────────────────────────────────────
+  fontSans:     "'Inter', 'DM Sans', system-ui, sans-serif",
+  fontDisplay:  "'Sora', 'Inter', sans-serif",
+  fontMono:     "'JetBrains Mono', monospace",
 
-  // ── Typography families ─────────────────────────────────────────────────────
-  fontSans:   "'Inter', system-ui, sans-serif",
-  fontDisplay:"'Sora', system-ui, sans-serif",
-  fontMono:   "'JetBrains Mono', monospace",
+  // ─── LEGACY ALIASES ──────────────────────────────────────────────────────────
+  // These keep old pages compiling after the import swap.
+  // They map old token names → correct new token values.
+
+  // Old indigo tokens (Gritclub used indigo, now brand blue)
+  indigo:       'var(--brand-blue)',
+  indigoHover:  'var(--brand-blue-hover)',
+  indigoL:      'var(--brand-blue-light)',
+  indigoDim:    'var(--brand-blue-dim)',
+  indigoBorder: 'var(--brand-blue-border)',
+
+  // Old violet tokens (mapped to blue-hover as nearest equivalent)
+  violet:       'var(--brand-blue-hover)',
+  violetL:      'var(--brand-blue-light)',
+  violetDim:    'var(--brand-blue-dim)',
+
+  // Old blueL alias
+  blueL:        'var(--brand-blue-light)',
+
+  // Old card/background aliases
+  cardHover:    'var(--bg-elevated)',
+  bgCard:       'var(--bg-card)',
+  bgElevated:   'var(--bg-elevated)',
+  bgSurface:    'var(--bg-surface)',
+
+  // Old text aliases
+  textPrimary:  'var(--text-primary)',
+  textSecondary:'var(--text-secondary)',
+  textTertiary: 'var(--text-tertiary)',
+
+  // Old border aliases
+  borderColor:  'var(--border-default)',
+  borderSubtle: 'var(--border-subtle)',
+
+  // Old semantic aliases
+  error:        'var(--semantic-error)',
+  errorDim:     'var(--semantic-error-dim)',
+  danger:       'var(--semantic-error)',
+  dangerDim:    'var(--semantic-error-dim)',
+  amber:        'var(--semantic-warning)',
+  amberDim:     'var(--semantic-warning-dim)',
+  green:        'var(--semantic-success)',
+  greenDim:     'var(--semantic-success-dim)',
+
+  // Old active/selected aliases
+  selectedBg:   'var(--brand-blue-dim)',
+  selectedColor:'var(--brand-blue)',
+  navActive:    'var(--brand-blue)',
+  navActiveBg:  'var(--brand-blue-dim)',
 } as const
 
-/**
- * Returns inline styles for a primary CTA button using brand blue
- */
-export const btnPrimary = (disabled = false): React.CSSProperties => ({
-  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-  padding: '11px 22px', borderRadius: 10, border: 'none',
-  background: disabled ? 'var(--bg-elevated)' : 'var(--blue)',
-  color: disabled ? 'var(--text-dim)' : '#ffffff',
-  fontFamily: C.fontSans, fontWeight: 700, fontSize: 14,
-  cursor: disabled ? 'not-allowed' : 'pointer',
-  opacity: disabled ? 0.5 : 1,
-  boxShadow: disabled ? 'none' : 'var(--shadow-blue)',
-  transition: 'opacity 0.15s, box-shadow 0.15s',
-})
-
-export const btnSecondary = (): React.CSSProperties => ({
-  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-  padding: '10px 18px', borderRadius: 10,
-  background: 'var(--bg-elevated)',
-  color: 'var(--text-primary)',
-  border: '1px solid var(--border-md)',
-  fontFamily: C.fontSans, fontWeight: 500, fontSize: 14,
-  cursor: 'pointer', transition: 'background 0.15s, border-color 0.15s',
-})
-
-export const btnGhost = (): React.CSSProperties => ({
-  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-  padding: '10px 18px', borderRadius: 10,
-  background: 'transparent',
-  color: 'var(--text-muted)',
-  border: '1px solid transparent',
-  fontFamily: C.fontSans, fontWeight: 500, fontSize: 14,
-  cursor: 'pointer', transition: 'background 0.15s, color 0.15s',
-})
-
-export const inputStyle = (focused = false, error = false): React.CSSProperties => ({
-  width: '100%',
-  padding: '11px 14px',
-  borderRadius: 10,
-  background: 'var(--input-bg)',
-  color: 'var(--text-primary)',
-  border: `1px solid ${error ? 'var(--red)' : focused ? 'var(--blue)' : 'var(--input-border)'}`,
-  fontFamily: C.fontSans, fontSize: 14,
-  outline: 'none',
-  boxShadow: focused ? '0 0 0 3px var(--blue-dim)' : 'none',
-  transition: 'border-color 0.15s, box-shadow 0.15s',
-})
-
-export const cardStyle = (elevated = false): React.CSSProperties => ({
-  background: elevated ? 'var(--bg-elevated)' : 'var(--bg-card)',
-  border: `1px solid ${elevated ? 'var(--border-md)' : 'var(--border)'}`,
-  borderRadius: 12,
-  boxShadow: elevated ? 'var(--shadow-md)' : 'none',
-})
+export type ThemeColor = typeof C[keyof typeof C]
