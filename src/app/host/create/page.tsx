@@ -6,14 +6,7 @@ import DashboardLayout from '@/components/DashboardLayout'
 import { useRouter } from 'next/navigation'
 import { Radio, AlertCircle, X, Image } from 'lucide-react'
 
-const C = {
-  bg:'#09090b', surface:'#18181b', card:'#18181b',
-  border:'rgba(255,255,255,0.06)', text:'#FFFFFF',
-  textMuted:'#a1a1aa', textDim:'#a1a1aa',
-  blue:'#a1a1aa', blueL:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#a1a1aa', red:'#ef4444', redDim:'rgba(239,68,68,0.12)',
-  green:'#32D74B',
-}
+import { C } from '@/lib/theme'
 
 function Label({ children }: { children: React.ReactNode }) {
   return <label style={{ fontSize:13, fontWeight:600, color:C.textMuted, marginBottom:6, display:'block', fontFamily:'Inter,sans-serif' }}>{children}</label>
