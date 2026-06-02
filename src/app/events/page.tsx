@@ -6,15 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, Users, Clock, Search, Filter, Radio } from 'lucide-react'
 
-const C = {
-  bg:'#09090b', surface:'#18181b', card:'#18181b',
-  border:'rgba(255,255,255,0.06)', text:'#FFFFFF',
-  textMuted:'#a1a1aa', textDim:'#71717a',
-  blue:'#6366f1', blueL:'#818cf8', blueDim:'rgba(99,102,241,0.12)',
-  gold:'#f59e0b', goldDim:'rgba(245,158,11,0.10)',
-  red:'#EF4444', redDim:'rgba(239,68,68,0.12)',
-  green:'#22c55e',
-}
+import { C } from '@/lib/theme'
 
 const CATEGORIES = ['All','AI & Tech','SaaS','FinTech','Growth','Product','Fundraising','HealthTech','Web3','Media']
 
