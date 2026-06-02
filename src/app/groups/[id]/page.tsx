@@ -13,26 +13,7 @@ import {
   UserCheck, AlertCircle, Star
 } from 'lucide-react'
 
-const C = {
-  bg:       '#09090b',
-  surface:  '#18181b',
-  card:     '#18181b',
-  border:   'rgba(255,255,255,0.07)',
-  borderF:  'rgba(255,255,255,0.14)',
-  text:     '#f4f4f5',
-  textMuted:'#a1a1aa',
-  textDim:  '#71717a',
-  red:      '#ef4444',
-  redDim:   'rgba(239,68,68,0.12)',
-  gold:     '#FFD700',
-  goldDim:  'rgba(255,215,0,0.10)',
-  green:    '#22C55E',
-  greenDim: 'rgba(34,197,94,0.12)',
-  purple:   '#A78BFA',
-  purpleDim:'rgba(167,139,250,0.12)',
-  sky:      '#818cf8',
-  skyDim:   'rgba(56,189,248,0.10)',
-}
+import { C } from '@/lib/theme'
 
 const ICE: RTCIceServer[] = [
   { urls: 'stun:stun.l.google.com:19302' },
