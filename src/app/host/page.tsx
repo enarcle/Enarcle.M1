@@ -11,26 +11,7 @@ import {
   Calendar, ChevronRight, Flame
 } from 'lucide-react'
 
-const C = {
-  bg:       '#09090b',
-  surface:  '#18181b',
-  card:     '#18181b',
-  elevated: '#1f2937',
-  border:   'rgba(255,255,255,0.06)',
-  text:     '#f4f4f5',
-  textMuted:'#a1a1aa',
-  textDim:  '#71717a',
-  indigo:   '#6366f1',
-  indigoL:  '#818cf8',
-  indigoDim:'rgba(99,102,241,0.12)',
-  violet:   '#8b5cf6',
-  gold:     '#f59e0b',
-  goldDim:  'rgba(245,158,11,0.10)',
-  red:      '#ef4444',
-  redDim:   'rgba(239,68,68,0.12)',
-  green:    '#22c55e',
-  greenDim: 'rgba(34,197,94,0.12)',
-}
+import { C } from '@/lib/theme'
 
 interface Event {
   id: string
