@@ -52,27 +52,7 @@ interface Announcement {
 }
 
 // ─── Enarcle Design Tokens ────────────────────────────────────────────────────
-const C = {
-  bg:        '#09090b',
-  card:      '#18181b',
-  surface:   '#1f1f23',
-  border:    'rgba(255,255,255,0.06)',
-  borderF:   'rgba(255,255,255,0.14)',
-  text:      '#f4f4f5',
-  textMuted: '#a1a1aa',
-  textDim:   '#71717a',
-  indigo:    '#6366f1',
-  indigoL:   '#818cf8',
-  indigoDim: 'rgba(99,102,241,0.12)',
-  violet:    '#8b5cf6',
-  violetDim: 'rgba(139,92,246,0.12)',
-  gold:      '#f59e0b',
-  goldDim:   'rgba(245,158,11,0.10)',
-  red:       '#ef4444',
-  redDim:    'rgba(239,68,68,0.10)',
-  green:     '#22c55e',
-  greenDim:  'rgba(34,197,94,0.10)',
-}
+import { C } from '@/lib/theme'
 
 const AVATAR_COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#22c55e', '#3b82f6']
 const avatarColor = (id: string) => AVATAR_COLORS[(id?.charCodeAt(0) || 0) % AVATAR_COLORS.length]
