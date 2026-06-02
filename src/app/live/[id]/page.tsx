@@ -12,32 +12,7 @@ import {
 } from 'lucide-react'
 
 // ── Enarcle design tokens ─────────────────────────────────────────────────────
-const C = {
-  bg:       '#09090b',
-  surface:  '#18181b',
-  card:     '#18181b',
-  elevated: '#1f2937',
-  border:   'rgba(255,255,255,0.06)',
-  text:     '#f4f4f5',
-  textMuted:'#a1a1aa',
-  textDim:  '#71717a',
-  // Enarcle accents
-  indigo:   '#6366f1',
-  indigoL:  '#818cf8',
-  indigoDim:'rgba(99,102,241,0.12)',
-  violet:   '#8b5cf6',
-  violetDim:'rgba(139,92,246,0.12)',
-  // Semantic
-  gold:     '#f59e0b',
-  goldDim:  'rgba(245,158,11,0.10)',
-  red:      '#ef4444',
-  redDim:   'rgba(239,68,68,0.12)',
-  green:    '#22c55e',
-  // Typography
-  fontSans: 'Inter,system-ui,sans-serif',
-  fontHead: 'Sora,Inter,sans-serif',
-}
-
+import { C } from '@/lib/theme'
 // ── ICE servers ───────────────────────────────────────────────────────────────
 const ICE: RTCIceServer[] = [
   { urls: 'stun:stun.l.google.com:19302' },
