@@ -12,27 +12,7 @@ import {
 } from 'lucide-react'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
-const C = {
-  bg:          '#070B14',
-  surface:     '#0D1420',
-  card:        '#0F1A2E',
-  cardHover:   '#131F35',
-  border:      'rgba(255,255,255,0.07)',
-  borderHover: 'rgba(255,255,255,0.14)',
-  text:        '#E8EAF0',
-  textMuted:   '#8A9BBF',
-  textDim:     '#3D4F6E',
-  red:         '#ef4444',
-  redDim:      'rgba(255,59,59,0.12)',
-  gold:        '#FFD700',
-  goldDim:     'rgba(255,215,0,0.10)',
-  green:       '#22C55E',
-  greenDim:    'rgba(34,197,94,0.12)',
-  purple:      '#A78BFA',
-  purpleDim:   'rgba(167,139,250,0.12)',
-  sky:         '#818cf8',
-  skyDim:      'rgba(99,102,241,0.10)',
-}
+import { C } from '@/lib/theme'
 
 const CATEGORIES = [
   'All', 'AI & Tech', 'SaaS', 'FinTech', 'HealthTech', 'EdTech',
