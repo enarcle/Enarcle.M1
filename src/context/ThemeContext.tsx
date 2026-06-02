@@ -1,51 +1,73 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
 type Theme = 'dark' | 'light'
 
-interface ThemeContextType {
-  theme:       Theme
+interface ThemeContextValue {
+  theme: Theme
   toggleTheme: () => void
-  isDark:      boolean
+  setTheme: (t: Theme) => void
 }
 
-const ThemeContext = createContext<ThemeContextType>({
-  theme:       'dark',
+const ThemeContext = createContext<ThemeContextValue>({
+  theme: 'dark',
   toggleTheme: () => {},
-  isDark:      true,
+  setTheme: () => {},
 })
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Start with dark — avoids flash before localStorage is read
-  const [theme, setTheme] = useState<Theme>('dark')
+  const [theme, setThemeState] = useState<Theme>('dark')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // Read saved preference on mount
-    const saved = localStorage.getItem('enarcle-theme') as Theme | null
-    const preferred = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
-    setTheme(preferred)
-    document.documentElement.setAttribute('data-theme', preferred)
+    // Read persisted preference
+    let saved: Theme = 'dark'
+    try {
+      const stored = localStorage.getItem('enarcle-theme') as Theme | null
+      if (stored === 'light' || stored === 'dark') {
+        saved = stored
+      } else {
+        // Respect OS preference for first-time visitors
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        saved = prefersDark ? 'dark' : 'light'
+      }
+    } catch {
+      // localStorage unavailable (SSR guard)
+    }
+    setThemeState(saved)
+    document.documentElement.setAttribute('data-theme', saved)
     setMounted(true)
   }, [])
 
-  const toggleTheme = useCallback(() => {
-    setTheme(prev => {
-      const next = prev === 'dark' ? 'light' : 'dark'
-      localStorage.setItem('enarcle-theme', next)
-      document.documentElement.setAttribute('data-theme', next)
-      return next
-    })
+  const setTheme = useCallback((t: Theme) => {
+    setThemeState(t)
+    try {
+      localStorage.setItem('enarcle-theme', t)
+    } catch { /* ignore */ }
+    document.documentElement.setAttribute('data-theme', t)
   }, [])
 
-  // Prevent flash — render children immediately but CSS vars are already set
-  // via the inline script in layout.tsx before React hydrates
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark')
+  }, [theme, setTheme])
+
+  // Prevent flash — render children only after mount (theme is known)
+  if (!mounted) {
+    return (
+      <div style={{ visibility: 'hidden' }}>
+        {children}
+      </div>
+    )
+  }
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark' }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   )
 }
 
-export const useTheme = () => useContext(ThemeContext)
+export function useTheme(): ThemeContextValue {
+  return useContext(ThemeContext)
+}
