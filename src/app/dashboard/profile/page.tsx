@@ -10,15 +10,7 @@ import {
   Trash2, AlertTriangle, Eye, EyeOff
 } from 'lucide-react'
 
-const C = {
-  bg:'#09090b', surface:'#18181b', card:'#18181b',
-  border:'rgba(255,255,255,0.06)', borderFocus:'rgba(255,255,255,0.12)',
-  text:'#f4f4f5', textMuted:'#a1a1aa', textDim:'#a1a1aa',
-  blue:'#a1a1aa', blueLight:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#a1a1aa', goldDim:'rgba(161,161,170,0.08)',
-  red:'#ef4444', redDim:'rgba(239,68,68,0.1)',
-  green:'#22c55e', greenDim:'rgba(34,197,94,0.12)',
-}
+import { C } from '@/lib/theme'
 
 const SQL_KEYWORDS = ['select','insert','update','delete','drop','union','script','exec']
 const sanitize = (s: string) => s.replace(/<[^>]*>/g,'').replace(/[<>'"`;]/g,'').slice(0,1000)
