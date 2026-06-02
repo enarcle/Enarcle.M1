@@ -11,25 +11,7 @@ import {
 } from 'lucide-react'
 
 // ── Enarcle design tokens ─────────────────────────────────────────────────────
-const C = {
-  bg:       '#09090b',
-  surface:  '#111113',
-  card:     '#18181b',
-  border:   'rgba(255,255,255,0.07)',
-  text:     '#f4f4f5',
-  muted:    '#a1a1aa',
-  dim:      '#71717a',
-  indigo:   '#6366f1',
-  indigoL:  '#818cf8',
-  indigoDim:'rgba(99,102,241,0.12)',
-  violet:   '#8b5cf6',
-  red:      '#ef4444',
-  redDim:   'rgba(239,68,68,0.12)',
-  green:    '#22c55e',
-  greenDim: 'rgba(34,197,94,0.12)',
-  gold:     '#f59e0b',
-  goldDim:  'rgba(245,158,11,0.10)',
-}
+import { C } from '@/lib/theme'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 interface UserRecord { id?: string; full_name?: string; email?: string; photo_url?: string; role?: string }
