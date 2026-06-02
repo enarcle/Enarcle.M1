@@ -14,19 +14,7 @@ export const dynamic = 'force-dynamic'
 export const viewport = { themeColor: '#6366f1' }
 
 // ── Unified brand colors — no more grey replacing red ────────────────────────
-const C = {
-  bg:        '#09090b',
-  surface:   '#111113',
-  card:      '#1f2937',
-  border:    'rgba(255,255,255,0.07)',
-  text:      '#f4f4f5',
-  textMuted: '#A0A0A8',
-  textDim:   '#5A5A62',
-  red:       '#ef4444', indigo: '#6366f1', indigoL: '#818cf8',       // ← brand red, not grey
-  redDim:    'rgba(239,68,68,0.12)',
-  green:     '#22c55e',
-  greenDim:  'rgba(34,197,94,0.12)',
-}
+import { C } from '@/lib/theme'
 
 const ACOLORS = ['#ef4444', '#A78BFA', '#818cf8', '#22C55E', '#FFD700', '#F97316']
 const aBg     = (id: string) => ACOLORS[(id?.charCodeAt(0) || 0) % ACOLORS.length]
