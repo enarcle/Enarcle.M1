@@ -6,14 +6,7 @@ import DashboardLayout from '@/components/DashboardLayout'
 import Link from 'next/link'
 import { Ticket, Calendar, Clock, Radio, Check, Loader2, ExternalLink } from 'lucide-react'
 
-const C = {
-  bg:'#09090b', surface:'#111113', card:'#18181b',
-  border:'rgba(255,255,255,0.06)',
-  text:'#f4f4f5', textMuted:'#a1a1aa', textDim:'#8A8A8F',
-  blue:'#f4f4f5', blueLight:'#a1a1aa', blueDim:'rgba(255,255,255,0.06)',
-  gold:'#a1a1aa', goldDim:'rgba(255,215,0,0.1)',
-  red:'#ef4444', redDim:'rgba(239,68,68,0.08)', green:'#22c55e', greenDim:'rgba(34,197,94,0.08)',
-}
+import { C } from '@/lib/theme'
 
 const AVATAR_COLORS = ['#ef4444','#a1a1aa','#DB2777','#D97706','#059669']
 const avatarColor = (id: string) => AVATAR_COLORS[(id?.charCodeAt(0)||0) % AVATAR_COLORS.length]
