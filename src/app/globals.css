@@ -1,25 +1,24 @@
 /* ============================================================
-   ENARCLE DESIGN SYSTEM — Global CSS
-   Dark mode:  #09090b bg  +  #1772FF brand blue
-   Light mode: #ffffff bg  +  #1772FF brand blue
+   ENARCLE DESIGN SYSTEM — globals.css
+   Dark mode:  #09090b black  +  #1772FF brand blue  (default)
+   Light mode: #ffffff white  +  #1772FF brand blue
    ============================================================ */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Google Fonts ─────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
 
 /* ─── DARK MODE (default) ──────────────────────────────────── */
 :root,
 [data-theme="dark"] {
-  /* Backgrounds */
+  /* Backgrounds — pure obsidian black */
   --bg-base:              #09090b;
   --bg-surface:           #111113;
   --bg-card:              #18181b;
   --bg-elevated:          #1f1f23;
-  --bg-overlay:           rgba(0, 0, 0, 0.75);
+  --bg-overlay:           rgba(0, 0, 0, 0.80);
 
   /* Brand Blue — #1772FF */
   --brand-blue:           #1772FF;
@@ -27,9 +26,9 @@
   --brand-blue-active:    #0f5fd4;
   --brand-blue-light:     #5ba3ff;
   --brand-blue-dim:       rgba(23, 114, 255, 0.12);
-  --brand-blue-border:    rgba(23, 114, 255, 0.25);
+  --brand-blue-border:    rgba(23, 114, 255, 0.28);
 
-  /* Typography */
+  /* Typography — chromic white scale */
   --text-primary:         #f4f4f5;
   --text-secondary:       #a1a1aa;
   --text-tertiary:        #71717a;
@@ -45,7 +44,7 @@
   --semantic-success:     #22c55e;
   --semantic-success-dim: rgba(34, 197, 94, 0.12);
   --semantic-warning:     #f59e0b;
-  --semantic-warning-dim: rgba(245, 158, 11, 0.12);
+  --semantic-warning-dim: rgba(245, 158, 11, 0.13);
   --semantic-error:       #ef4444;
   --semantic-error-dim:   rgba(239, 68, 68, 0.12);
   --semantic-live:        #22c55e;
@@ -53,30 +52,33 @@
 
   /* Interactive */
   --hover-bg:             rgba(255, 255, 255, 0.04);
-  --focus-ring:           rgba(23, 114, 255, 0.4);
+  --focus-ring:           rgba(23, 114, 255, 0.35);
 
-  /* Scrollbar */
+  /* Shadows */
+  --shadow-blue:          0 4px 24px rgba(23, 114, 255, 0.35);
+  --shadow-xl:            0 20px 60px rgba(0, 0, 0, 0.6);
+
   color-scheme: dark;
 }
 
 /* ─── LIGHT MODE ───────────────────────────────────────────── */
 [data-theme="light"] {
-  /* Backgrounds */
+  /* Backgrounds — pure white */
   --bg-base:              #ffffff;
   --bg-surface:           #f9fafb;
   --bg-card:              #f3f4f6;
   --bg-elevated:          #e5e7eb;
-  --bg-overlay:           rgba(0, 0, 0, 0.4);
+  --bg-overlay:           rgba(0, 0, 0, 0.40);
 
-  /* Brand Blue stays the same */
+  /* Brand Blue stays identical */
   --brand-blue:           #1772FF;
   --brand-blue-hover:     #0f5fd4;
   --brand-blue-active:    #0d4fb0;
   --brand-blue-light:     #1772FF;
-  --brand-blue-dim:       rgba(23, 114, 255, 0.08);
-  --brand-blue-border:    rgba(23, 114, 255, 0.2);
+  --brand-blue-dim:       rgba(23, 114, 255, 0.09);
+  --brand-blue-border:    rgba(23, 114, 255, 0.22);
 
-  /* Typography */
+  /* Typography — chromic black scale */
   --text-primary:         #09090b;
   --text-secondary:       #3f3f46;
   --text-tertiary:        #71717a;
@@ -84,23 +86,27 @@
   --text-inverse:         #ffffff;
 
   /* Borders */
-  --border-default:       rgba(0, 0, 0, 0.1);
+  --border-default:       rgba(0, 0, 0, 0.09);
   --border-subtle:        rgba(0, 0, 0, 0.05);
   --border-focus:         #1772FF;
 
   /* Semantic */
   --semantic-success:     #16a34a;
-  --semantic-success-dim: rgba(22, 163, 74, 0.1);
+  --semantic-success-dim: rgba(22, 163, 74, 0.10);
   --semantic-warning:     #d97706;
-  --semantic-warning-dim: rgba(217, 119, 6, 0.1);
+  --semantic-warning-dim: rgba(217, 119, 6, 0.10);
   --semantic-error:       #dc2626;
-  --semantic-error-dim:   rgba(220, 38, 38, 0.1);
+  --semantic-error-dim:   rgba(220, 38, 38, 0.10);
   --semantic-live:        #16a34a;
   --semantic-live-dim:    rgba(22, 163, 74, 0.12);
 
   /* Interactive */
   --hover-bg:             rgba(0, 0, 0, 0.04);
-  --focus-ring:           rgba(23, 114, 255, 0.3);
+  --focus-ring:           rgba(23, 114, 255, 0.25);
+
+  /* Shadows */
+  --shadow-blue:          0 4px 20px rgba(23, 114, 255, 0.22);
+  --shadow-xl:            0 20px 50px rgba(0, 0, 0, 0.12);
 
   color-scheme: light;
 }
@@ -133,23 +139,16 @@ body {
 }
 
 /* ─── Scrollbar ────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  {
+  background: rgba(255, 255, 255, 0.09);
   border-radius: 3px;
 }
 [data-theme="light"] ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.14);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-blue-dim);
-}
+::-webkit-scrollbar-thumb:hover { background: var(--brand-blue-dim); }
 
 /* ─── Typography ───────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
@@ -159,17 +158,11 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
 }
 
-p, span, li {
-  color: var(--text-primary);
-}
-
 a {
   color: var(--brand-blue);
   text-decoration: none;
 }
-a:hover {
-  color: var(--brand-blue-hover);
-}
+a:hover { color: var(--brand-blue-hover); }
 
 code, pre, kbd {
   font-family: 'JetBrains Mono', monospace;
@@ -183,9 +176,7 @@ code, pre, kbd {
   border-radius: 4px;
 }
 
-/* ─── Utility Classes ──────────────────────────────────────── */
-
-/* Buttons */
+/* ─── Buttons ──────────────────────────────────────────────── */
 .en-btn {
   display: inline-flex;
   align-items: center;
@@ -202,10 +193,7 @@ code, pre, kbd {
   white-space: nowrap;
   user-select: none;
 }
-.en-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
+.en-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .en-btn-primary {
   background: var(--brand-blue);
@@ -214,10 +202,6 @@ code, pre, kbd {
 .en-btn-primary:hover:not(:disabled) {
   background: var(--brand-blue-hover);
   transform: translateY(-1px);
-}
-.en-btn-primary:active:not(:disabled) {
-  transform: translateY(0);
-  background: var(--brand-blue-active);
 }
 
 .en-btn-secondary {
@@ -251,24 +235,21 @@ code, pre, kbd {
   color: #ffffff;
 }
 
-/* Cards */
+/* ─── Cards ────────────────────────────────────────────────── */
 .en-card {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: 12px;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
-.en-card:hover {
-  border-color: var(--brand-blue-border);
-}
-
+.en-card:hover { border-color: var(--brand-blue-border); }
 .en-card-elevated {
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
 }
 
-/* Inputs */
+/* ─── Inputs ───────────────────────────────────────────────── */
 .en-input {
   width: 100%;
   background: var(--bg-card);
@@ -281,18 +262,13 @@ code, pre, kbd {
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.en-input::placeholder {
-  color: var(--text-muted);
-}
+.en-input::placeholder { color: var(--text-muted); }
 .en-input:focus {
   border-color: var(--brand-blue);
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
-.en-input:hover:not(:focus) {
-  border-color: var(--border-default);
-}
 
-/* Badges */
+/* ─── Badges ───────────────────────────────────────────────── */
 .en-badge {
   display: inline-flex;
   align-items: center;
@@ -304,7 +280,6 @@ code, pre, kbd {
   font-family: 'Inter', sans-serif;
   letter-spacing: 0.02em;
 }
-
 .en-badge-live {
   background: var(--semantic-live-dim);
   color: var(--semantic-live);
@@ -319,26 +294,23 @@ code, pre, kbd {
   background: var(--semantic-live);
   animation: en-pulse 1.4s ease infinite;
 }
-
 .en-badge-blue {
   background: var(--brand-blue-dim);
   color: var(--brand-blue);
   border: 1px solid var(--brand-blue-border);
 }
-
 .en-badge-error {
   background: var(--semantic-error-dim);
   color: var(--semantic-error);
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
-
 .en-badge-warning {
   background: var(--semantic-warning-dim);
   color: var(--semantic-warning);
   border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
-/* Nav items */
+/* ─── Nav items ────────────────────────────────────────────── */
 .en-nav-item {
   display: flex;
   align-items: center;
@@ -364,43 +336,7 @@ code, pre, kbd {
   font-weight: 600;
 }
 
-/* ─── Animations ───────────────────────────────────────────── */
-@keyframes en-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.5; transform: scale(0.8); }
-}
-
-@keyframes en-fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes en-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes en-scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes en-shimmer {
-  from { background-position: -200% 0; }
-  to   { background-position: 200% 0; }
-}
-
-@keyframes en-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-.en-animate-fade-up    { animation: en-fade-up 0.3s ease both; }
-.en-animate-fade-in    { animation: en-fade-in 0.25s ease both; }
-.en-animate-scale-in   { animation: en-scale-in 0.2s ease both; }
-.en-animate-spin       { animation: en-spin 0.8s linear infinite; }
-
-/* Skeleton shimmer */
+/* ─── Skeleton ─────────────────────────────────────────────── */
 .en-skeleton {
   background: linear-gradient(
     90deg,
@@ -413,14 +349,44 @@ code, pre, kbd {
   border-radius: 6px;
 }
 
-/* ─── Layout Helpers ───────────────────────────────────────── */
+/* ─── Animations ───────────────────────────────────────────── */
+@keyframes en-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+@keyframes en-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes en-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes en-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes en-shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+@keyframes en-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.en-animate-fade-up  { animation: en-fade-up  0.3s ease both; }
+.en-animate-fade-in  { animation: en-fade-in  0.25s ease both; }
+.en-animate-scale-in { animation: en-scale-in 0.2s ease both; }
+.en-animate-spin     { animation: en-spin     0.8s linear infinite; }
+
+/* ─── Layout ───────────────────────────────────────────────── */
 .en-container {
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 24px;
 }
-
 .en-divider {
   width: 100%;
   height: 1px;
@@ -429,44 +395,5 @@ code, pre, kbd {
 
 /* ─── Mobile safe area ─────────────────────────────────────── */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .en-mobile-safe {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
-
-/* ─── Prose (for content areas) ───────────────────────────── */
-.en-prose {
-  color: var(--text-primary);
-  line-height: 1.7;
-  font-size: 15px;
-}
-.en-prose h1 { font-size: 2rem; margin-bottom: 1rem; }
-.en-prose h2 { font-size: 1.5rem; margin-bottom: 0.75rem; margin-top: 2rem; }
-.en-prose h3 { font-size: 1.25rem; margin-bottom: 0.5rem; margin-top: 1.5rem; }
-.en-prose p  { margin-bottom: 1rem; color: var(--text-secondary); }
-.en-prose ul, .en-prose ol { padding-left: 1.5rem; margin-bottom: 1rem; }
-.en-prose li { margin-bottom: 0.25rem; color: var(--text-secondary); }
-.en-prose a  { color: var(--brand-blue); }
-.en-prose a:hover { color: var(--brand-blue-hover); }
-.en-prose code {
-  background: var(--bg-elevated);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.875em;
-  color: var(--brand-blue-light);
-}
-.en-prose pre {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  padding: 16px;
-  overflow-x: auto;
-  margin-bottom: 1rem;
-}
-.en-prose blockquote {
-  border-left: 3px solid var(--brand-blue);
-  padding-left: 1rem;
-  color: var(--text-secondary);
-  font-style: italic;
-  margin-bottom: 1rem;
+  .en-mobile-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
