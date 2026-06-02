@@ -9,16 +9,7 @@ import {
   Loader2, Video, Calendar, ChevronRight
 } from 'lucide-react'
 
-const C = {
-  bg:'#09090b', surface:'#18181b', card:'#18181b',
-  border:'rgba(255,255,255,0.07)', text:'#E8EAF0',
-  textMuted:'#8A9BBF', textDim:'#8A8A8F',
-  blue:'#6366f1', blueL:'#818cf8', blueDim:'rgba(99,102,241,0.12)',
-  gold:'#a1a1aa', goldDim:'rgba(255,215,0,0.1)',
-  red:'#EF4444', redDim:'rgba(239,68,68,0.12)',
-  purple:'#a1a1aa', purpleDim:'rgba(161,161,170,0.08)',
-  green:'#10B981',
-}
+import { C } from '@/lib/theme'
 
 const getName = (u: any) => u?.full_name || u?.email?.split('@')[0] || 'Host'
 const fmtDur  = (sec: number) => {
