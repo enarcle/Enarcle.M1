@@ -8,21 +8,7 @@ import {
   UserPlus, Megaphone, Loader2,
 } from 'lucide-react'
 
-const C = {
-  bg:       '#09090b',
-  surface:  '#18181b',
-  card:     '#18181b',
-  elevated: '#1f2937',
-  border:   'rgba(255,255,255,0.06)',
-  text:     '#f4f4f5',
-  textMuted:'#a1a1aa',
-  textDim:  '#71717a',
-  indigo:   '#6366f1',
-  indigoL:  '#818cf8',
-  indigoDim:'rgba(99,102,241,0.12)',
-  red:      '#ef4444',
-  green:    '#22c55e',
-}
+import { C } from '@/lib/theme'
 
 const AVATAR_COLORS = ['#6366f1','#8b5cf6','#db2777','#d97706','#059669','#0891b2']
 const avatarColor = (id: string) => AVATAR_COLORS[(id?.charCodeAt(0) || 0) % AVATAR_COLORS.length]
