@@ -7,15 +7,7 @@ import { supabase } from '@/lib/supabase/client'
 import { Check, X, Crown, Zap, Building2, Users, Video, Lock, Radio, Star } from 'lucide-react'
 import Link from 'next/link'
 
-const C = {
-  bg:'#09090b', surface:'#18181b', card:'#18181b',
-  cardHover:'#1C1C1F', border:'rgba(255,255,255,0.06)',
-  text:'#FFFFFF', textMuted:'#a1a1aa', textDim:'#71717a',
-  blue:'#6366f1', blueL:'#818cf8',
-  purple:'#8b5cf6', purpleL:'#a78bfa',
-  gold:'#f59e0b', goldL:'#fbbf24',
-  red:'#ef4444', green:'#32D74B',
-}
+import { C } from '@/lib/theme'
 
 const PLANS = [
   {
