@@ -11,16 +11,7 @@ import {
   BarChart2, FileText, Clock, Check
 , Megaphone } from 'lucide-react'
 
-const C = {
-  bg:       '#0A0F1E', surface:  '#0D1428', card:     '#111827', cardHover: '#141E35',
-  border:   'rgba(255,255,255,0.06)', borderHover: 'rgba(37,99,235,0.3)',
-  text:     '#F0F4FF', textMuted:'#7B8DB0', textDim:  '#3D4F6E',
-  blue:     '#6366f1', blueLight:'#818cf8', blueDim:  'rgba(99,102,241,0.12)',
-  gold:     '#F59E0B', goldDim:  'rgba(245,158,11,0.1)',
-  red:      '#EF4444', redDim:   'rgba(239,68,68,0.1)',
-  green:    '#10B981', greenDim: 'rgba(16,185,129,0.1)',
-  purple:   '#8b5cf6', purpleDim:'rgba(139,92,246,0.12)',
-}
+import { C } from '@/lib/theme'
 
 type AdminTab = 'overview'|'users'|'hosts'|'events'|'revenue'|'content'|'audit'|'announce'
 
