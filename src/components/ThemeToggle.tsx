@@ -8,7 +8,7 @@ interface ThemeToggleProps {
   className?: string
 }
 
-function ThemeToggle({ variant = 'icon', size = 15, className = '' }: ThemeToggleProps) {
+export function ThemeToggle({ variant = 'icon', size = 15, className = '' }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
 
