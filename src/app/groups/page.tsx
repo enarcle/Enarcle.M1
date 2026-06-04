@@ -415,8 +415,11 @@ export default function GroupsPage() {
     if (group.is_member) { router.push(`/groups/${group.id}`); return }
     if (group.member_count >= FREE_MEMBER_LIMIT && !group.is_premium) { setShowUpgrade(true); return }
 
-    const needsApproval = group.is_private || group.require_approval
-    const status = needsApproval ? 'pending' : 'active'
+    // Explicit boolean coercion — null/undefined must be treated as false.
+    // A DB column returning null (e.g. groups created before require_approval
+    // was added) must never accidentally trigger the pending path.
+    const needsApproval = group.is_private === true || group.require_approval === true
+    const status: 'active' | 'pending' = needsApproval ? 'pending' : 'active'
 
     const { error } = await supabase.from('group_members').insert({ group_id: group.id, user_id: me.id, role: 'member', status })
     if (error) { console.error(error); return }
