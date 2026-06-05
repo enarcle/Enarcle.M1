@@ -75,15 +75,31 @@ function ChatTab({ groupId, currentUser }: { groupId: string; currentUser: any }
   const bottomRef = useRef<HTMLDivElement>(null)
   const loadedRef = useRef(false)
   const taRef = useRef<HTMLTextAreaElement>(null)
+  // Track real IDs we inserted ourselves so realtime doesn't double-add them
+  const myInsertedIds = useRef<Set<string>>(new Set())
 
   useEffect(() => {
-    supabase.from('group_messages').select('*,users(id,email,full_name,photo_url)').eq('group_id', groupId).order('created_at', { ascending: true }).limit(100)
-      .then(({ data }) => { if (data) { setMessages(data); loadedRef.current = true } })
+    supabase.from('group_messages').select('*,users(id,email,full_name,photo_url)')
+      .eq('group_id', groupId).order('created_at', { ascending: true }).limit(100)
+      .then(({ data }) => {
+        if (data) {
+          setMessages(data)
+          // Seed the known-IDs set so existing messages are never re-added
+          data.forEach((m: any) => myInsertedIds.current.add(m.id))
+          loadedRef.current = true
+        }
+      })
     const ch = supabase.channel(`grp-chat-${groupId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` }, payload => {
         if (!loadedRef.current) return
+        const incomingId: string = payload.new.id
+        // If we already have this ID (either from initial load or from our own insert), skip it
+        if (myInsertedIds.current.has(incomingId)) return
+        myInsertedIds.current.add(incomingId)
         supabase.from('users').select('id,email,full_name,photo_url').eq('id', payload.new.user_id).single()
-          .then(({ data: u }) => setMessages(prev => prev.find(m => m.id === payload.new.id) ? prev : [...prev, { ...payload.new, users: u }]))
+          .then(({ data: u }) => {
+            setMessages(prev => prev.find(m => m.id === incomingId) ? prev : [...prev, { ...payload.new, users: u }])
+          })
       }).subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [groupId])
@@ -93,10 +109,22 @@ function ChatTab({ groupId, currentUser }: { groupId: string; currentUser: any }
   const send = async () => {
     if (!text.trim() || sending || !currentUser) return
     const msg = text.trim().slice(0, 2000)
+    const tmpId = `tmp-${Date.now()}`
     setText(''); setSending(true)
     if (taRef.current) { taRef.current.style.height = 'auto'; taRef.current.focus() }
-    setMessages(prev => [...prev, { id: `tmp-${Date.now()}`, group_id: groupId, user_id: currentUser.id, text: msg, created_at: new Date().toISOString(), users: currentUser }])
-    await supabase.from('group_messages').insert({ group_id: groupId, user_id: currentUser.id, text: msg, user_name: currentUser.full_name || currentUser.email?.split('@')[0] || 'User', user_avatar: currentUser.photo_url || '' })
+    // Add optimistic message with tmp id
+    setMessages(prev => [...prev, { id: tmpId, group_id: groupId, user_id: currentUser.id, text: msg, created_at: new Date().toISOString(), users: currentUser }])
+    const { data: inserted } = await supabase
+      .from('group_messages')
+      .insert({ group_id: groupId, user_id: currentUser.id, text: msg, user_name: currentUser.full_name || currentUser.email?.split('@')[0] || 'User', user_avatar: currentUser.photo_url || '' })
+      .select('id')
+      .single()
+    if (inserted?.id) {
+      // Register the real ID so realtime ignores this insert
+      myInsertedIds.current.add(inserted.id)
+      // Swap the tmp row for the real one (correct id for dedup)
+      setMessages(prev => prev.map(m => m.id === tmpId ? { ...m, id: inserted.id } : m))
+    }
     setSending(false)
   }
 
@@ -112,7 +140,7 @@ function ChatTab({ groupId, currentUser }: { groupId: string; currentUser: any }
               {!isMe && <Av user={u} size={26} />}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: '70%', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
                 {!isMe && <span style={{ fontSize: 11, fontWeight: 600, color: C.textMuted, marginLeft: 2, fontFamily: 'DM Sans,sans-serif' }}>{getName(u)}</span>}
-                <div style={{ padding: '9px 13px', borderRadius: isMe ? '14px 14px 4px 14px' : '4px 14px 14px 14px', background: isMe ? C.red : C.card, color: '#fff', fontSize: 13, lineHeight: 1.55, wordBreak: 'break-word', fontFamily: 'DM Sans,sans-serif', border: isMe ? 'none' : `1px solid ${C.border}` }}>
+                <div style={{ padding: '9px 13px', borderRadius: isMe ? '14px 14px 4px 14px' : '4px 14px 14px 14px', background: isMe ? C.blue : C.card, color: '#fff', fontSize: 13, lineHeight: 1.55, wordBreak: 'break-word', fontFamily: 'DM Sans,sans-serif', border: isMe ? 'none' : `1px solid ${C.border}` }}>
                   {m.text}
                 </div>
                 <span style={{ fontSize: 10, color: C.textDim, fontFamily: 'DM Mono,monospace' }}>{ago(m.created_at)}</span>
@@ -132,7 +160,7 @@ function ChatTab({ groupId, currentUser }: { groupId: string; currentUser: any }
           onFocus={e => (e.target.style.borderColor = C.borderF)}
           onBlur={e => (e.target.style.borderColor = C.border)} />
         <button onClick={send} disabled={!text.trim() || sending} type="button"
-          style={{ width: 40, height: 40, borderRadius: 10, border: 'none', background: text.trim() ? C.red : C.border, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: text.trim() ? 'pointer' : 'default', flexShrink: 0, opacity: !text.trim() || sending ? 0.5 : 1, transition: 'all .15s' }}>
+          style={{ width: 40, height: 40, borderRadius: 10, border: 'none', background: text.trim() ? C.blue : C.border, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: text.trim() ? 'pointer' : 'default', flexShrink: 0, opacity: !text.trim() || sending ? 0.5 : 1, transition: 'all .15s' }}>
           {sending ? <Loader2 style={{ width: 15, height: 15, animation: 'spin 1s linear infinite' }} /> : <Send style={{ width: 15, height: 15 }} />}
         </button>
       </div>
@@ -553,6 +581,7 @@ function CallTab({ groupId, currentUser, isCtrl, activeTab }: { groupId: string;
 function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: {
   groupId: string; currentUser: any; myRole: string; members: any[]; onMembersChange: () => void
 }) {
+  const router = useRouter()
   const [acting, setActing] = useState<string | null>(null)
   const isCtrl = myRole === 'owner' || myRole === 'admin'
   // Owners are never pending — only show genuine member requests
@@ -664,6 +693,15 @@ function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: 
                   <p style={{ fontSize: 11, color: C.textDim, fontFamily: 'DM Mono,monospace', textTransform: 'capitalize' }}>{mRole}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
+                  {!isMe && (
+                    <button
+                      onClick={() => router.push(`/dashboard/messages?dm=${m.users?.id || m.user_id}`)}
+                      title={`Message ${getName(m.users)}`}
+                      style={{ padding: '5px 10px', borderRadius: 7, border: 'none', background: C.blueDim, color: C.blueLight, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <MessageSquare style={{ width: 10, height: 10 }} />
+                      DM
+                    </button>
+                  )}
                   {canPromote && (
                     <button onClick={() => promote(m, mRole === 'admin' ? 'member' : 'admin')} disabled={acting === m.id}
                       title={mRole === 'admin' ? 'Remove admin' : 'Make admin'}
@@ -800,15 +838,14 @@ export default function GroupRoomPage() {
         if (!dead) { setMyRole('owner'); setAccess(true) }
       } else {
         // Non-creator: must have a valid active member row
-        if (!mem || dead) { router.push('/groups'); return }
+        if (!mem) { if (!dead) router.push('/groups'); return }
+        if (dead) return
         const role = mem.role === 'host' ? 'owner' : (mem.role || 'member')
         // Pending members get redirected unless they are admin/owner
         if (mem.status === 'pending' && role !== 'owner' && role !== 'admin') {
           router.push('/groups?pending=1'); return
         }
-        // No member row at all → not allowed in
-        if (!mem) { router.push('/groups'); return }
-        if (!dead) { setMyRole(role); setAccess(true) }
+        setMyRole(role); setAccess(true)
       }
 
       const { data: mems } = await supabase
@@ -823,8 +860,9 @@ export default function GroupRoomPage() {
         setPendingCount((mems || []).filter((m: any) =>
           m.status === 'pending' && m.role !== 'owner'
         ).length)
+        // setLoading AFTER members are in state — prevents 0-count flash
+        setLoading(false)
       }
-      setLoading(false)
     })
     return () => { dead = true }
   }, [groupId, router])
