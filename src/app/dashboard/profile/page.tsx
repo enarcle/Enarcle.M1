@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import {
   Camera, Upload, Loader2, Check, AlertCircle,
   Mail, Shield, LogOut, X, ExternalLink,
-  Trash2, AlertTriangle, Eye, EyeOff
+  Trash2, AlertTriangle, Eye, EyeOff, Mic, Clock, CheckCircle
 } from 'lucide-react'
 
 import { C } from '@/lib/theme'
@@ -156,6 +156,11 @@ export default function ProfilePage() {
   const [photoUrl,   setPhotoUrl]   = useState<string|null>(null)
   const [usernameStatus, setUsernameStatus] = useState<'idle'|'checking'|'available'|'taken'>('idle')
   const checkTimeout = useRef<NodeJS.Timeout>()
+  const [hostApp,      setHostApp]      = useState<any>(null)
+  const [hostForm,     setHostForm]     = useState({ expertise:'', reason:'', social_url:'' })
+  const [hostSubmitting, setHostSubmitting] = useState(false)
+  const [hostDone,     setHostDone]     = useState(false)
+  const [hostError,    setHostError]    = useState('')
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
@@ -174,6 +179,9 @@ export default function ProfilePage() {
         setShowEmail(prof.show_email || false)
         setPhotoUrl(prof.photo_url || u.user_metadata?.avatar_url || null)
       }
+      // Load any existing host application
+      const { data: app } = await supabase.from('host_applications').select('*').eq('user_id', u.id).maybeSingle()
+      setHostApp(app || null)
       setLoading(false)
     })
   }, [])
@@ -206,6 +214,30 @@ export default function ProfilePage() {
     setUploadingPhoto(true)
     const url = await uploadImage(file, `${user.id}/avatar.${file.name.split('.').pop()}`)
     if (url) setPhotoUrl(url); setUploadingPhoto(false)
+  }
+
+  const handleHostApply = async () => {
+    if (!user || hostSubmitting) return
+    if (!hostForm.expertise.trim()) { setHostError('Please describe your expertise'); return }
+    if (!hostForm.reason.trim())    { setHostError('Please tell us why you want to host'); return }
+    setHostSubmitting(true); setHostError('')
+    const { data, error: err } = await supabase.from('host_applications').insert({
+      user_id:   user.id,
+      email:     user.email,
+      expertise: hostForm.expertise.trim(),
+      reason:    hostForm.reason.trim(),
+      social_url: hostForm.social_url.trim() || null,
+      status:    'pending',
+    }).select().single()
+    if (err) { setHostError(err.message); setHostSubmitting(false); return }
+    setHostApp(data); setHostDone(true); setHostSubmitting(false)
+  }
+
+  const handleHostWithdraw = async () => {
+    if (!hostApp || !confirm('Withdraw your host application?')) return
+    await supabase.from('host_applications').delete().eq('id', hostApp.id)
+    setHostApp(null); setHostDone(false)
+    setHostForm({ expertise:'', reason:'', social_url:'' })
   }
 
   const handleSave = async () => {
@@ -429,6 +461,95 @@ export default function ProfilePage() {
               <LogOut style={{ width:15, height:15 }} /> Sign Out
             </button>
           </div>
+
+          {/* ── Host Application ── Only show if not already a host or admin */}
+          {profile?.role !== 'host' && profile?.role !== 'admin' && (
+            <div style={{ borderRadius:20, padding:20, background:C.card, border:`1px solid ${hostApp?.status==='pending'?'rgba(245,158,11,0.35)':hostApp?.status==='approved'?'rgba(34,197,94,0.35)':hostApp?.status==='rejected'?'rgba(239,68,68,0.35)':C.border}` }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
+                <div style={{ width:36, height:36, borderRadius:10, background:C.blueDim, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <Mic style={{ width:18, height:18, color:C.blueLight }} />
+                </div>
+                <div>
+                  <p style={{ fontSize:14, fontWeight:700, color:C.text, fontFamily:'Sora,sans-serif' }}>Become a Host</p>
+                  <p style={{ fontSize:12, color:C.textMuted, fontFamily:'Inter,sans-serif' }}>Apply to host live events, workshops and sessions on Enarcle.</p>
+                </div>
+              </div>
+
+              {/* Already applied — show status */}
+              {hostApp ? (
+                <div>
+                  <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 14px', borderRadius:12, background:
+                    hostApp.status==='pending'  ? C.warningDim :
+                    hostApp.status==='approved' ? C.successDim :
+                    C.redDim, border:`1px solid ${
+                    hostApp.status==='pending'  ? 'rgba(245,158,11,0.3)' :
+                    hostApp.status==='approved' ? 'rgba(34,197,94,0.3)' :
+                    'rgba(239,68,68,0.3)'}`, marginBottom:12 }}>
+                    {hostApp.status==='pending'  && <Clock       style={{ width:16, height:16, color:C.warning,  flexShrink:0 }} />}
+                    {hostApp.status==='approved' && <CheckCircle style={{ width:16, height:16, color:C.success,  flexShrink:0 }} />}
+                    {hostApp.status==='rejected' && <AlertCircle style={{ width:16, height:16, color:C.red,      flexShrink:0 }} />}
+                    <div>
+                      <p style={{ fontSize:13, fontWeight:700, color:
+                        hostApp.status==='pending'  ? C.warning :
+                        hostApp.status==='approved' ? C.success  : C.red,
+                        fontFamily:'Inter,sans-serif' }}>
+                        {hostApp.status==='pending'  ? 'Application under review' :
+                         hostApp.status==='approved' ? 'Application approved! 🎉' :
+                         'Application not approved'}
+                      </p>
+                      <p style={{ fontSize:11, color:C.textMuted, fontFamily:'Inter,sans-serif', marginTop:2 }}>
+                        {hostApp.status==='pending'  ? 'We usually respond within 2–3 business days.' :
+                         hostApp.status==='approved' ? 'Your account has been upgraded to Host.' :
+                         'You can reapply after making changes to your profile.'}
+                      </p>
+                    </div>
+                  </div>
+                  {/* Withdraw — only if still pending */}
+                  {hostApp.status === 'pending' && (
+                    <button onClick={handleHostWithdraw}
+                      style={{ fontSize:12, color:C.textDim, background:'none', border:'none', cursor:'pointer', fontFamily:'Inter,sans-serif', textDecoration:'underline', padding:0 }}>
+                      Withdraw application
+                    </button>
+                  )}
+                </div>
+              ) : (
+                /* Application form */
+                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                  <div>
+                    <label style={{ display:'block', fontSize:11, fontWeight:600, color:C.textMuted, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em', fontFamily:'Inter,sans-serif' }}>Your Expertise *</label>
+                    <input value={hostForm.expertise} onChange={e=>setHostForm(f=>({...f,expertise:e.target.value}))} maxLength={200}
+                      placeholder="e.g. SaaS growth, DeFi, product design..."
+                      style={{ width:'100%', padding:'11px 14px', borderRadius:10, background:C.surface, border:`1px solid ${C.border}`, color:C.text, fontFamily:'Inter,sans-serif', fontSize:13, outline:'none', boxSizing:'border-box' }}
+                      onFocus={e=>(e.target.style.borderColor=C.borderFocus)} onBlur={e=>(e.target.style.borderColor=C.border)} />
+                  </div>
+                  <div>
+                    <label style={{ display:'block', fontSize:11, fontWeight:600, color:C.textMuted, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em', fontFamily:'Inter,sans-serif' }}>Why do you want to host? *</label>
+                    <textarea value={hostForm.reason} onChange={e=>setHostForm(f=>({...f,reason:e.target.value}))} rows={3} maxLength={600}
+                      placeholder="Tell us about the events or workshops you want to run..."
+                      style={{ width:'100%', padding:'11px 14px', borderRadius:10, background:C.surface, border:`1px solid ${C.border}`, color:C.text, fontFamily:'Inter,sans-serif', fontSize:13, outline:'none', resize:'none', lineHeight:1.5, boxSizing:'border-box' }}
+                      onFocus={e=>(e.target.style.borderColor=C.borderFocus)} onBlur={e=>(e.target.style.borderColor=C.border)} />
+                  </div>
+                  <div>
+                    <label style={{ display:'block', fontSize:11, fontWeight:600, color:C.textMuted, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em', fontFamily:'Inter,sans-serif' }}>Social / Portfolio link</label>
+                    <input value={hostForm.social_url} onChange={e=>setHostForm(f=>({...f,social_url:e.target.value}))} maxLength={300}
+                      placeholder="https://linkedin.com/in/you or https://twitter.com/you"
+                      style={{ width:'100%', padding:'11px 14px', borderRadius:10, background:C.surface, border:`1px solid ${C.border}`, color:C.text, fontFamily:'Inter,sans-serif', fontSize:13, outline:'none', boxSizing:'border-box' }}
+                      onFocus={e=>(e.target.style.borderColor=C.borderFocus)} onBlur={e=>(e.target.style.borderColor=C.border)} />
+                  </div>
+                  {hostError && (
+                    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderRadius:10, background:C.redDim, border:'1px solid rgba(239,68,68,0.25)' }}>
+                      <AlertCircle style={{ width:14, height:14, color:C.red, flexShrink:0 }} />
+                      <p style={{ fontSize:12, color:C.red, fontFamily:'Inter,sans-serif' }}>{hostError}</p>
+                    </div>
+                  )}
+                  <button onClick={handleHostApply} disabled={hostSubmitting}
+                    style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'12px', borderRadius:12, border:'none', background:C.blue, color:'#fff', fontFamily:'Inter,sans-serif', fontWeight:700, fontSize:14, cursor:hostSubmitting?'not-allowed':'pointer', opacity:hostSubmitting?0.6:1, transition:'all 0.15s' }}>
+                    {hostSubmitting ? <><Loader2 style={{ width:15, height:15, animation:'spin 1s linear infinite' }} /> Submitting...</> : <><Mic style={{ width:15, height:15 }} /> Apply to Host</>}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Danger Zone */}
           <div style={{ borderRadius:20, padding:20, background:'rgba(239,68,68,0.04)', border:`1px solid rgba(239,68,68,0.2)`, display:'flex', flexDirection:'column', gap:14 }}>
