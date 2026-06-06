@@ -220,7 +220,7 @@ export default function ProfilePage() {
     try {
       const updates: Record<string,any> = {
         full_name: sanitize(fullName.trim()), username: username||null,
-        bio: sanitize(bio.trim()), profile_bio: sanitize(bio.trim()),
+        bio: sanitize(bio.trim()),
         instagram: sanitize(instagram.trim())||null, twitter: sanitize(twitter.trim())||null,
         linkedin: sanitize(linkedin.trim())||null, website_url: sanitize(websiteUrl.trim())||null,
         show_email: showEmail, updated_at: new Date().toISOString(),
@@ -385,13 +385,13 @@ export default function ProfilePage() {
           {/* Privacy */}
           <div style={{ borderRadius:20, padding:20, background:C.card, border:`1px solid ${C.border}`, display:'flex', flexDirection:'column', gap:10 }}>
             <p style={{ fontSize:11, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:C.textMuted, fontFamily:'Inter,sans-serif' }}>Privacy</p>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px', borderRadius:12, background:C.surface, border:`1px solid ${showEmail?'rgba(59,130,246,0.25)':C.border}`, cursor:'pointer' }}
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px', borderRadius:12, background:C.surface, border:`1px solid ${showEmail?C.blueBorder:C.border}`, cursor:'pointer' }}
               onClick={() => setShowEmail(!showEmail)}>
               <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                <Mail style={{ width:15, height:15, color:showEmail?C.red:C.textDim }} />
+                <Mail style={{ width:15, height:15, color:showEmail?C.blue:C.textDim }} />
                 <span style={{ fontSize:13, color:C.text, fontFamily:'Inter,sans-serif' }}>Show Email on Profile</span>
               </div>
-              <div style={{ width:40, height:22, borderRadius:11, background:showEmail?C.red:C.border, position:'relative', flexShrink:0, transition:'background 0.2s' }}>
+              <div style={{ width:40, height:22, borderRadius:11, background:showEmail?C.blue:C.border, position:'relative', flexShrink:0, transition:'background 0.2s' }}>
                 <div style={{ position:'absolute', top:2, width:18, height:18, borderRadius:'50%', background:'#fff', left:showEmail?20:2, transition:'left 0.2s', boxShadow:'0 1px 3px rgba(0,0,0,0.3)' }} />
               </div>
             </div>
