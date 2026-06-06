@@ -10,7 +10,7 @@ import {
   Loader2, Lock, Globe, ChevronLeft, Shield, Zap,
   Phone, PhoneCall, X, Settings, AlertTriangle, Check, UserMinus, Hand,
   Maximize2, Minimize2, Bell, CheckCircle, XCircle, Clock,
-  UserCheck, AlertCircle, Star
+  UserCheck, AlertCircle, Star, LogOut, Info, Share2
 } from 'lucide-react'
 
 import { C } from '@/lib/theme'
@@ -607,13 +607,26 @@ function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: 
     if (!confirm(`Remove ${getName(m.users)} from the circle?`)) return
     setActing(m.id)
     await supabase.from('group_members').delete().eq('id', m.id)
-    // Only decrement if the kicked member was active (not pending)
     if (m.status !== 'pending') {
       const { data: grp } = await supabase.from('groups').select('member_count').eq('id', groupId).single()
       const newCount = Math.max((grp?.member_count || 1) - 1, 0)
       await supabase.from('groups').update({ member_count: newCount }).eq('id', groupId)
     }
     await onMembersChange(); setActing(null)
+  }
+
+  const leaveGroup = async () => {
+    if (!confirm('Leave this circle? You can rejoin later if it is public.')) return
+    const myRow = members.find(m => m.user_id === currentUser?.id)
+    if (!myRow) return
+    await supabase.from('group_members').delete().eq('id', myRow.id)
+    // Decrement count if active
+    if (myRow.status !== 'pending') {
+      const { data: grp } = await supabase.from('groups').select('member_count').eq('id', groupId).single()
+      const newCount = Math.max((grp?.member_count || 1) - 1, 0)
+      await supabase.from('groups').update({ member_count: newCount }).eq('id', groupId)
+    }
+    router.push('/groups')
   }
 
   return (
@@ -723,6 +736,76 @@ function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: 
           })}
         </div>
       </div>
+
+      {/* ── Member Features: useful actions for regular members ── */}
+      <div style={{ borderRadius:14, overflow:'hidden', border:`1px solid ${C.border}`, background:C.surface }}>
+        <div style={{ padding:'12px 14px', borderBottom:`1px solid ${C.border}` }}>
+          <p style={{ fontSize:11, fontWeight:700, color:C.textDim, textTransform:'uppercase', letterSpacing:'0.1em', fontFamily:'DM Mono,monospace' }}>Circle Actions</p>
+        </div>
+        <div style={{ display:'flex', flexDirection:'column' }}>
+
+          {/* Share the group */}
+          <button
+            onClick={() => { navigator.clipboard.writeText(window.location.href); alert('Link copied!') }}
+            style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 16px', background:'none', border:'none', borderBottom:`1px solid ${C.border}`, cursor:'pointer', textAlign:'left', width:'100%' }}
+            onMouseEnter={e=>(e.currentTarget.style.background=C.hoverBg)}
+            onMouseLeave={e=>(e.currentTarget.style.background='none')}>
+            <div style={{ width:32, height:32, borderRadius:8, background:C.blueDim, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <Share2 style={{ width:14, height:14, color:C.blueLight }} />
+            </div>
+            <div>
+              <p style={{ fontSize:13, fontWeight:600, color:C.text, fontFamily:'DM Sans,sans-serif' }}>Share Circle</p>
+              <p style={{ fontSize:11, color:C.textMuted, fontFamily:'DM Mono,monospace' }}>Copy invite link to clipboard</p>
+            </div>
+          </button>
+
+          {/* Circle info */}
+          <div
+            style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 16px', borderBottom:`1px solid ${C.border}` }}>
+            <div style={{ width:32, height:32, borderRadius:8, background:C.blueDim, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <Users style={{ width:14, height:14, color:C.blueLight }} />
+            </div>
+            <div>
+              <p style={{ fontSize:13, fontWeight:600, color:C.text, fontFamily:'DM Sans,sans-serif' }}>{active.length} Active Member{active.length !== 1 ? 's' : ''}</p>
+              <p style={{ fontSize:11, color:C.textMuted, fontFamily:'DM Mono,monospace' }}>
+                {pending.length > 0 ? `${pending.length} request${pending.length!==1?'s':''} waiting` : 'No pending requests'}
+              </p>
+            </div>
+          </div>
+
+          {/* Leave group — only shown to non-owner members */}
+          {myRole !== 'owner' && (
+            <button
+              onClick={leaveGroup}
+              style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 16px', background:'none', border:'none', cursor:'pointer', textAlign:'left', width:'100%' }}
+              onMouseEnter={e=>{e.currentTarget.style.background='rgba(239,68,68,0.06)'}}
+              onMouseLeave={e=>{e.currentTarget.style.background='none'}}>
+              <div style={{ width:32, height:32, borderRadius:8, background:C.redDim, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <LogOut style={{ width:14, height:14, color:C.red }} />
+              </div>
+              <div>
+                <p style={{ fontSize:13, fontWeight:600, color:C.red, fontFamily:'DM Sans,sans-serif' }}>Leave Circle</p>
+                <p style={{ fontSize:11, color:C.textMuted, fontFamily:'DM Mono,monospace' }}>You can rejoin later if the circle is public</p>
+              </div>
+            </button>
+          )}
+
+          {/* Owner note */}
+          {myRole === 'owner' && (
+            <div style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 16px' }}>
+              <div style={{ width:32, height:32, borderRadius:8, background:C.goldDim, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <Crown style={{ width:14, height:14, color:C.gold }} />
+              </div>
+              <div>
+                <p style={{ fontSize:13, fontWeight:600, color:C.gold, fontFamily:'DM Sans,sans-serif' }}>You own this circle</p>
+                <p style={{ fontSize:11, color:C.textMuted, fontFamily:'DM Mono,monospace' }}>To leave, delete the circle from Settings or transfer ownership</p>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+
     </div>
   )
 }
