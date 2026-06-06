@@ -75,16 +75,15 @@ function ChatTab({ groupId, currentUser }: { groupId: string; currentUser: any }
   const bottomRef = useRef<HTMLDivElement>(null)
   const loadedRef = useRef(false)
   const taRef = useRef<HTMLTextAreaElement>(null)
-  // Track real IDs we inserted ourselves so realtime doesn't double-add them
+
+  // Track IDs we inserted ourselves so realtime doesn't double-add them
   const myInsertedIds = useRef<Set<string>>(new Set())
 
   useEffect(() => {
-    supabase.from('group_messages').select('*,users(id,email,full_name,photo_url)')
-      .eq('group_id', groupId).order('created_at', { ascending: true }).limit(100)
+    supabase.from('group_messages').select('*,users(id,email,full_name,photo_url)').eq('group_id', groupId).order('created_at', { ascending: true }).limit(100)
       .then(({ data }) => {
         if (data) {
           setMessages(data)
-          // Seed the known-IDs set so existing messages are never re-added
           data.forEach((m: any) => myInsertedIds.current.add(m.id))
           loadedRef.current = true
         }
@@ -93,13 +92,11 @@ function ChatTab({ groupId, currentUser }: { groupId: string; currentUser: any }
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` }, payload => {
         if (!loadedRef.current) return
         const incomingId: string = payload.new.id
-        // If we already have this ID (either from initial load or from our own insert), skip it
+        // Skip if we already have this message (own insert or initial load)
         if (myInsertedIds.current.has(incomingId)) return
         myInsertedIds.current.add(incomingId)
         supabase.from('users').select('id,email,full_name,photo_url').eq('id', payload.new.user_id).single()
-          .then(({ data: u }) => {
-            setMessages(prev => prev.find(m => m.id === incomingId) ? prev : [...prev, { ...payload.new, users: u }])
-          })
+          .then(({ data: u }) => setMessages(prev => prev.find(m => m.id === incomingId) ? prev : [...prev, { ...payload.new, users: u }]))
       }).subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [groupId])
@@ -109,20 +106,17 @@ function ChatTab({ groupId, currentUser }: { groupId: string; currentUser: any }
   const send = async () => {
     if (!text.trim() || sending || !currentUser) return
     const msg = text.trim().slice(0, 2000)
-    const tmpId = `tmp-${Date.now()}`
     setText(''); setSending(true)
     if (taRef.current) { taRef.current.style.height = 'auto'; taRef.current.focus() }
-    // Add optimistic message with tmp id
+    const tmpId = `tmp-${Date.now()}`
     setMessages(prev => [...prev, { id: tmpId, group_id: groupId, user_id: currentUser.id, text: msg, created_at: new Date().toISOString(), users: currentUser }])
-    const { data: inserted } = await supabase
-      .from('group_messages')
+    const { data: inserted } = await supabase.from('group_messages')
       .insert({ group_id: groupId, user_id: currentUser.id, text: msg, user_name: currentUser.full_name || currentUser.email?.split('@')[0] || 'User', user_avatar: currentUser.photo_url || '' })
-      .select('id')
-      .single()
+      .select('id').single()
     if (inserted?.id) {
-      // Register the real ID so realtime ignores this insert
+      // Register real id so realtime ignores this insert
       myInsertedIds.current.add(inserted.id)
-      // Swap the tmp row for the real one (correct id for dedup)
+      // Swap tmp row with real id
       setMessages(prev => prev.map(m => m.id === tmpId ? { ...m, id: inserted.id } : m))
     }
     setSending(false)
@@ -693,10 +687,11 @@ function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: 
                   <p style={{ fontSize: 11, color: C.textDim, fontFamily: 'DM Mono,monospace', textTransform: 'capitalize' }}>{mRole}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
+                  {/* DM — shown for every member except yourself */}
                   {!isMe && (
                     <button
                       onClick={() => router.push(`/dashboard/messages?dm=${m.users?.id || m.user_id}`)}
-                      title={`Message ${getName(m.users)}`}
+                      title="Send direct message"
                       style={{ padding: '5px 10px', borderRadius: 7, border: 'none', background: C.blueDim, color: C.blueLight, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
                       <MessageSquare style={{ width: 10, height: 10 }} />
                       DM
@@ -856,7 +851,6 @@ export default function GroupRoomPage() {
 
       if (!dead) {
         setMembers(mems || [])
-        // Only count pending from non-owners as requests
         setPendingCount((mems || []).filter((m: any) =>
           m.status === 'pending' && m.role !== 'owner'
         ).length)
