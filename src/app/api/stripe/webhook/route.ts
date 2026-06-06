@@ -2,29 +2,25 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
-// Tell Next.js NOT to parse the body — Stripe needs the raw bytes to verify signature
-export const config = {
-  api: { bodyParser: false },
-}
+// App Router equivalents — replaces the deprecated `export const config = {}`
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2024-04-10' as any,
   })
-
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Read raw body as text — critical for signature verification
+  // Read raw body as text — critical for Stripe signature verification
   const body = await req.text()
   const sig  = req.headers.get('stripe-signature')
-
   if (!sig) {
     return NextResponse.json({ error: 'No signature' }, { status: 400 })
   }
-
   if (!process.env.STRIPE_WEBHOOK_SECRET) {
     console.error('STRIPE_WEBHOOK_SECRET is not set')
     return NextResponse.json({ error: 'Webhook secret missing' }, { status: 500 })
@@ -44,7 +40,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Invalid signature: ${message}` }, { status: 400 })
   }
 
-  // ── checkout.session.completed ────────────────────────────────────────────
+  // ── checkout.session.completed ─────────────────────────────────────────────
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
     const meta    = session.metadata || {}
@@ -61,16 +57,15 @@ export async function POST(req: NextRequest) {
           stripe_customer_id: session.customer as string,
         })
         .eq('id', meta.userId)
-
       if (error) console.error('Failed to grant premium:', error)
       else console.log(`Premium granted to ${meta.userId} — plan: ${meta.planId}`)
     }
 
     // TICKET purchase
     if (type === 'ticket' && meta.eventId && meta.userId) {
-      const userId    = meta.userId
-      const eventId   = meta.eventId
-      const amount    = session.amount_total || 0
+      const userId  = meta.userId
+      const eventId = meta.eventId
+      const amount  = session.amount_total || 0
 
       await supabase
         .from('tickets')
@@ -91,7 +86,6 @@ export async function POST(req: NextRequest) {
         .select('current_attendees, total_sold')
         .eq('id', eventId)
         .single()
-
       if (ev) {
         await supabase
           .from('events')
@@ -104,16 +98,14 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Subscription cancelled — revoke premium
+  // ── Subscription cancelled — revoke premium ────────────────────────────────
   if (event.type === 'customer.subscription.deleted') {
     const sub        = event.data.object as Stripe.Subscription
     const customerId = sub.customer as string
-
     await supabase
       .from('users')
       .update({ is_premium: false, premium_tier: null })
       .eq('stripe_customer_id', customerId)
-
     console.log(`Premium revoked for Stripe customer: ${customerId}`)
   }
 
