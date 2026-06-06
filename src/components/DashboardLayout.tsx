@@ -194,16 +194,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileOpen,  setMobileOpen]  = useState(false)
 
   useEffect(() => {
+    let cancelled = false
     ;(async () => {
       try {
-        const { data: { user: u } } = await supabase.auth.getUser()
-        if (!u) { router.push('/auth/login'); return }
+        // 1. Read session from cookies first — instant, no network call.
+        //    This prevents the reload-redirect flash caused by getUser()'s
+        //    async JWT verification arriving after the first render.
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          // No session in cookies at all — truly not logged in
+          if (!cancelled) router.push('/auth/login')
+          return
+        }
+        // 2. Use session.user directly — already verified via cookie
+        const u = session.user
+        if (cancelled) return
         setUser(u as AuthUser)
         try {
           const { data: prof, error: profErr } = await supabase
             .from('users')
             .select('id,full_name,email,username,photo_url,role,is_premium,onboarding_done')
             .eq('id', u.id).single()
+          if (cancelled) return
           if (profErr) { console.warn('[Layout] profile:', profErr.message); return }
           if (prof) {
             const p = prof as UserProfile
@@ -212,8 +224,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             if (!p.username && !p.onboarding_done && pathname !== '/onboarding') router.push('/onboarding')
           }
         } catch (e) { console.warn('[Layout] non-fatal:', e) }
-      } catch { router.push('/auth/login') }
+      } catch (e) {
+        // Only redirect on a real auth failure, not a transient network error
+        console.warn('[Layout] auth error:', e)
+        if (!cancelled) router.push('/auth/login')
+      }
     })()
+    return () => { cancelled = true }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
