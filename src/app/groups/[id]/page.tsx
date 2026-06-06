@@ -677,14 +677,19 @@ function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: 
               <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, transition: 'border-color .15s' }}
                 onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = C.borderF}
                 onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = C.border}>
-                <Av user={m.users} size={34} />
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ cursor: 'pointer' }} onClick={() => router.push(`/profile/${m.users?.id || m.user_id}`)}>
+                  <Av user={m.users} size={34} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}
+                  onClick={() => router.push(`/profile/${m.users?.id || m.user_id}`)}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: C.text, fontFamily: 'DM Sans,sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getName(m.users)}{isMe ? ' (you)' : ''}</p>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: C.text, fontFamily: 'DM Sans,sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {getName(m.users)}{isMe ? ' (you)' : ''}
+                    </p>
                     {mRole === 'owner' && <Crown style={{ width: 12, height: 12, color: C.gold, flexShrink: 0 }} />}
                     {mRole === 'admin' && <Shield style={{ width: 12, height: 12, color: C.purple, flexShrink: 0 }} />}
                   </div>
-                  <p style={{ fontSize: 11, color: C.textDim, fontFamily: 'DM Mono,monospace', textTransform: 'capitalize' }}>{mRole}</p>
+                  <p style={{ fontSize: 11, color: C.blueLight, fontFamily: 'DM Mono,monospace' }}>View profile →</p>
                 </div>
                 <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
                   {/* DM — shown for every member except yourself */}
@@ -798,8 +803,12 @@ export default function GroupRoomPage() {
 
   useEffect(() => {
     let dead = false
-    supabase.auth.getUser().then(async ({ data: { user: u } }) => {
-      if (!u) { router.push('/auth/login'); return }
+    ;(async () => {
+      // Use getSession (cookie-based, instant) to avoid reload-redirect flash
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { router.push('/auth/login'); return }
+      const u = session.user
+      if (dead) return
       setCurrentUser(u)
 
       const { data: g } = await supabase.from('groups').select('*').eq('id', groupId).single()
@@ -807,7 +816,8 @@ export default function GroupRoomPage() {
       setGroup(g)
 
       // Check if this user is the group creator — they are always owner regardless of member row
-      const isCreator = g.created_by === u.id
+      // Check both columns — create page saves owner_id, schema may use created_by
+      const isCreator = g.owner_id === u.id || g.created_by === u.id
 
       const { data: mem } = await supabase
         .from('group_members')
@@ -857,15 +867,19 @@ export default function GroupRoomPage() {
         // setLoading AFTER members are in state — prevents 0-count flash
         setLoading(false)
       }
-    })
+    })()
     return () => { dead = true }
-  }, [groupId, router])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupId])
 
   const loadMembers = useCallback(async () => {
     const { data } = await supabase.from('group_members').select('*,users(id,email,full_name,photo_url,role)').eq('group_id', groupId).order('created_at', { ascending: true })
-    setMembers(data || [])
-    // Only non-owner pending rows count as requests
-    setPendingCount((data || []).filter((m: any) => m.status === 'pending' && m.role !== 'owner').length)
+    const rows = data || []
+    setMembers(rows)
+    setPendingCount(rows.filter((m: any) => m.status === 'pending' && m.role !== 'owner').length)
+    // Sync member_count in DB to actual active count
+    const activeCount = rows.filter((m: any) => m.status !== 'pending' || m.role === 'owner').length
+    await supabase.from('groups').update({ member_count: activeCount }).eq('id', groupId)
   }, [groupId])
 
   const TABS = useMemo((): { id: Tab; label: string; icon: any; badge?: number }[] => {
@@ -910,7 +924,7 @@ export default function GroupRoomPage() {
               {myRole === 'owner' && <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: C.goldDim, color: C.gold, fontFamily: 'DM Mono,monospace' }}><Crown style={{ width: 8, height: 8 }} />Owner</span>}
               {myRole === 'admin' && <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: C.purpleDim, color: C.purple, fontFamily: 'DM Mono,monospace' }}><Shield style={{ width: 8, height: 8 }} />Admin</span>}
             </div>
-            <p style={{ fontSize: 11, color: C.textDim, fontFamily: 'DM Mono,monospace' }}>{activeMemberCount} member{activeMemberCount !== 1 ? 's' : ''} · {group?.category}</p>
+            <p style={{ fontSize: 11, color: C.textDim, fontFamily: 'DM Mono,monospace' }}>{activeMemberCount} member{activeMemberCount !== 1 ? 's' : ''}{group?.category ? ` · ${group.category}` : ''}</p>
           </div>
           {/* Pending badge in header for owner */}
           {isCtrl && pendingCount > 0 && (
