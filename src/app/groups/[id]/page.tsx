@@ -837,7 +837,7 @@ function SettingsTab({ group, myRole, currentUser, onDeleted }: { group: any; my
         <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: C.textDim, fontFamily: 'DM Mono,monospace', marginBottom: 10 }}>Circle Info</p>
         <p style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'Syne,sans-serif', marginBottom: 4 }}>{group?.name}</p>
         <p style={{ fontSize: 12, color: C.textMuted, fontFamily: 'DM Sans,sans-serif', lineHeight: 1.5 }}>{group?.description || 'No description'}</p>
-        {group?.category && <span style={{ display: 'inline-block', marginTop: 8, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: C.redDim, color: C.red, fontFamily: 'DM Mono,monospace' }}>{group.category}</span>}
+        {group?.category && <span style={{ display: 'inline-block', marginTop: 8, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: C.blueDim, color: C.blueLight, fontFamily: 'DM Mono,monospace' }}>{group.category}</span>}
       </div>
       <div style={{ padding: 16, borderRadius: 14, background: C.card, border: `1px solid ${C.border}` }}>
         <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: C.textDim, fontFamily: 'DM Mono,monospace', marginBottom: 8 }}>Your Role</p>
@@ -959,11 +959,31 @@ export default function GroupRoomPage() {
     const { data } = await supabase.from('group_members').select('*,users(id,email,full_name,photo_url,role)').eq('group_id', groupId).order('created_at', { ascending: true })
     const rows = data || []
     setMembers(rows)
-    setPendingCount(rows.filter((m: any) => m.status === 'pending' && m.role !== 'owner').length)
-    // Sync member_count in DB to actual active count
-    const activeCount = rows.filter((m: any) => m.status !== 'pending' || m.role === 'owner').length
-    await supabase.from('groups').update({ member_count: activeCount }).eq('id', groupId)
+    const pending = rows.filter((m: any) => m.status === 'pending' && m.role !== 'owner').length
+    const active  = rows.filter((m: any) => m.status !== 'pending' || m.role === 'owner').length
+    setPendingCount(pending)
+    // Sync member_count in DB so it stays accurate
+    await supabase.from('groups').update({ member_count: active }).eq('id', groupId)
   }, [groupId])
+
+  // Realtime subscription — keeps member count + pending badge live
+  // without needing a full page reload
+  useEffect(() => {
+    if (!groupId) return
+    const ch = supabase
+      .channel(`group-members-${groupId}`)
+      .on('postgres_changes', {
+        event:  '*',
+        schema: 'public',
+        table:  'group_members',
+        filter: `group_id=eq.${groupId}`,
+      }, () => {
+        // Re-fetch on any INSERT / UPDATE / DELETE
+        loadMembers()
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(ch) }
+  }, [groupId, loadMembers])
 
   const TABS = useMemo((): { id: Tab; label: string; icon: any; badge?: number }[] => {
     const base: { id: Tab; label: string; icon: any; badge?: number }[] = [
@@ -979,7 +999,7 @@ export default function GroupRoomPage() {
   if (loading) return (
     <DashboardLayout>
       <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.bg }}>
-        <Loader2 style={{ width: 32, height: 32, color: C.red, animation: 'spin 1s linear infinite' }} />
+        <Loader2 style={{ width: 32, height: 32, color: C.blue, animation: 'spin 1s linear infinite' }} />
       </div>
     </DashboardLayout>
   )
@@ -997,8 +1017,8 @@ export default function GroupRoomPage() {
           <button onClick={() => router.push('/groups')} style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: C.card, color: C.textMuted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
             <ChevronLeft style={{ width: 16, height: 16 }} />
           </button>
-          <div style={{ width: 34, height: 34, borderRadius: 9, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.redDim }}>
-            {group?.banner_url ? <img src={group.banner_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Zap style={{ width: 16, height: 16, color: C.red }} />}
+          <div style={{ width: 34, height: 34, borderRadius: 9, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.blueDim }}>
+            {group?.banner_url ? <img src={group.banner_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Zap style={{ width: 16, height: 16, color: C.blueLight }} />}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
@@ -1009,10 +1029,16 @@ export default function GroupRoomPage() {
             </div>
             <p style={{ fontSize: 11, color: C.textDim, fontFamily: 'DM Mono,monospace' }}>{activeMemberCount} member{activeMemberCount !== 1 ? 's' : ''}{group?.category ? ` · ${group.category}` : ''}</p>
           </div>
-          {/* Pending badge in header for owner */}
-          {isCtrl && pendingCount > 0 && (
-            <button onClick={() => setActiveTab('members')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 8, border: `1px solid rgba(255,215,0,0.3)`, background: C.goldDim, color: C.gold, cursor: 'pointer', fontSize: 11, fontWeight: 700, fontFamily: 'DM Mono,monospace', flexShrink: 0 }}>
-              <Bell style={{ width: 12, height: 12 }} />{pendingCount} request{pendingCount !== 1 ? 's' : ''}
+          {/* Pending badge — clickable for ctrl (goes to members tab), info-only for members */}
+          {pendingCount > 0 && (
+            <button
+              onClick={() => isCtrl ? setActiveTab('members') : undefined}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 8, border: `1px solid ${isCtrl ? 'rgba(255,215,0,0.3)' : C.borderSub}`, background: isCtrl ? C.goldDim : C.blueDim, color: isCtrl ? C.gold : C.blueLight, cursor: isCtrl ? 'pointer' : 'default', fontSize: 11, fontWeight: 700, fontFamily: 'DM Mono,monospace', flexShrink: 0 }}>
+              <Bell style={{ width: 12, height: 12 }} />
+              {isCtrl
+                ? `${pendingCount} request${pendingCount !== 1 ? 's' : ''}`
+                : `${pendingCount} pending`
+              }
             </button>
           )}
         </div>
@@ -1025,7 +1051,7 @@ export default function GroupRoomPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '7px 10px', background: C.surface, borderBottom: `1px solid ${C.border}`, flexShrink: 0, overflowX: 'auto' }}>
               {TABS.map(t => (
                 <button key={t.id} onClick={() => setActiveTab(t.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, border: 'none', background: activeTab === t.id ? C.red : 'transparent', color: activeTab === t.id ? '#fff' : C.textMuted, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', flexShrink: 0, transition: 'all .15s', position: 'relative' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, border: 'none', background: activeTab === t.id ? C.blue : 'transparent', color: activeTab === t.id ? '#fff' : C.textMuted, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', flexShrink: 0, transition: 'all .15s', position: 'relative' }}>
                   <t.icon style={{ width: 13, height: 13 }} />{t.label}
                   {t.badge && <span style={{ marginLeft: 2, background: C.gold, color: '#09090b', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>{t.badge}</span>}
                 </button>
