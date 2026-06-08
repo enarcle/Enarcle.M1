@@ -12,6 +12,7 @@ import {
 import NotificationBell from '@/components/NotificationBell'
 import ThemeToggle     from '@/components/ThemeToggle'
 import { C }           from '@/lib/theme'
+import { usePlatformSettings } from '@/lib/usePlatformSettings'
 
 interface UserProfile {
   id: string; full_name: string | null; email: string | null
@@ -149,7 +150,7 @@ function SidebarContent({ navItems, role, profile, user, displayName, photoUrl, 
               onMouseLeave={e => { if (!profile?.is_premium) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
             >
               <Crown style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.7 }} />
-              {profile?.is_premium ? '✦ Premium' : 'Upgrade Plan'}
+              {role === 'admin' ? '⚙ Admin Panel' : profile?.is_premium ? '✦ Premium' : 'Upgrade Plan'}
             </div>
           </Link>
         </div>
@@ -187,6 +188,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname()
   const router   = useRouter()
 
+  const { settings: platformSettings } = usePlatformSettings()
   const [user,        setUser]        = useState<AuthUser | null>(null)
   const [profile,     setProfile]     = useState<UserProfile | null>(null)
   const [role,        setRole]        = useState('audience')
@@ -245,6 +247,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const initials    = displayName.slice(0, 2).toUpperCase()
 
   const sidebarProps = { navItems, role, profile, user, displayName, photoUrl, initials, pathname, onNavClick: closeMobile, onSignOutClick: openSignOut }
+
+  // Maintenance mode — block non-admins immediately
+  if (!loading && platformSettings.maintenance_mode && role !== 'admin') return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: C.bg, gap: 16, padding: 24 }}>
+      <div style={{ fontSize: 40 }}>🔧</div>
+      <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, fontFamily: 'Sora,sans-serif', textAlign: 'center' }}>Down for maintenance</h1>
+      <p style={{ fontSize: 14, color: C.textMuted, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', maxWidth: 360, lineHeight: 1.6 }}>Enarcle is undergoing scheduled maintenance. We'll be back shortly.</p>
+    </div>
+  )
 
   return (
     <>
