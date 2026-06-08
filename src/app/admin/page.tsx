@@ -125,8 +125,9 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user: u } }) => {
-      if (u) setCurrentUser(u)
+    // getSession reads from cookies instantly — prevents reload redirect
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) setCurrentUser(session.user)
     })
     loadData()
 
@@ -155,9 +156,12 @@ export default function AdminPage() {
     setActionLoading(app.id)
     await Promise.all([
       supabase.from('users').update({ role:'host', host_approved:true }).eq('id', app.user_id),
-      supabase.from('host_applications').update({ status:'approved' }).eq('id', app.id),
+      supabase.from('host_applications').update({ status:'approved', reviewed_at: new Date().toISOString() }).eq('id', app.id),
     ])
     await logAction('approve_host', 'user', app.user_id, { email: app.email })
+    // Remove from pending list immediately — no reload needed
+    setPendingApps(prev => prev.filter(a => a.id !== app.id))
+    setStats(prev => ({ ...prev, pendingHosts: Math.max(0, prev.pendingHosts - 1) }))
     addNotif(`✅ ${app.email} approved as host!`, 'success')
     setActionLoading(null)
     loadData()
@@ -165,8 +169,11 @@ export default function AdminPage() {
 
   const rejectHost = async (app: any) => {
     setActionLoading(app.id+'-reject')
-    await supabase.from('host_applications').update({ status:'rejected' }).eq('id', app.id)
+    await supabase.from('host_applications').update({ status:'rejected', reviewed_at: new Date().toISOString() }).eq('id', app.id)
     await logAction('reject_host', 'user', app.user_id, { email: app.email })
+    // Remove from pending list immediately
+    setPendingApps(prev => prev.filter(a => a.id !== app.id))
+    setStats(prev => ({ ...prev, pendingHosts: Math.max(0, prev.pendingHosts - 1) }))
     addNotif(`❌ ${app.email} rejected`, 'warn')
     setActionLoading(null)
     loadData()
