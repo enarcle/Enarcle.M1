@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 
 import { C } from '@/lib/theme'
+import { usePlatformSettings } from '@/lib/usePlatformSettings'
 
 const SQL_KEYWORDS = ['select','insert','update','delete','drop','union','script','exec']
 const sanitize = (s: string) => s.replace(/<[^>]*>/g,'').replace(/[<>'"`;]/g,'').slice(0,1000)
@@ -135,6 +136,7 @@ function ImageDrop({ current, onFile, loading, rounded, label }: any) {
 export default function ProfilePage() {
   const router = useRouter()
   const [user,    setUser]    = useState<any>(null)
+  const { settings: platformSettings } = usePlatformSettings()
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [saving,  setSaving]  = useState(false)
@@ -463,7 +465,7 @@ export default function ProfilePage() {
           </div>
 
           {/* ── Host Application ── Only show if not already a host or admin */}
-          {profile?.role !== 'host' && profile?.role !== 'admin' && (
+          {profile?.role !== 'host' && profile?.role !== 'admin' && platformSettings.host_applications && (
             <div style={{ borderRadius:20, padding:20, background:C.card, border:`1px solid ${hostApp?.status==='pending'?'rgba(245,158,11,0.35)':hostApp?.status==='approved'?'rgba(34,197,94,0.35)':hostApp?.status==='rejected'?'rgba(239,68,68,0.35)':C.border}` }}>
               <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
                 <div style={{ width:36, height:36, borderRadius:10, background:C.blueDim, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
