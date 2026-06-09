@@ -390,7 +390,7 @@ export default function GroupsPage() {
 
     const ownerIds   = new Set((mems || []).filter((m: any) => m.role === 'owner').map((m: any) => m.group_id))
     const activeIds  = new Set((mems || []).filter((m: any) =>
-      m.status === 'active' || !m.status || m.role === 'owner' || m.role === 'admin'
+      m.status === 'active' || m.role === 'owner' || m.role === 'admin'
     ).map((m: any) => m.group_id))
     const pendingIds = new Set((mems || []).filter((m: any) =>
       m.status === 'pending' && m.role !== 'owner' && m.role !== 'admin'
@@ -399,8 +399,8 @@ export default function GroupsPage() {
     // Also mark groups where uid is the creator (created_by) as owner
     const enriched = (all || []).map(g => ({
       ...g,
-      is_owner:  ownerIds.has(g.id) || (uid && g.created_by === uid),
-      is_member: activeIds.has(g.id) || ownerIds.has(g.id) || (uid && g.created_by === uid),
+      is_owner:  ownerIds.has(g.id) || (uid && (g.created_by === uid || g.owner_id === uid)),
+      is_member: activeIds.has(g.id) || ownerIds.has(g.id) || (uid && (g.created_by === uid || g.owner_id === uid)),
       is_pending: pendingIds.has(g.id),
     }))
     setGroups(enriched)
@@ -410,7 +410,7 @@ export default function GroupsPage() {
   const handleJoin = async (group: any) => {
     if (!me) { router.push('/auth/login?next=/groups'); return }
     // Owner should never be able to join their own group as a member
-    if (group.is_owner || group.created_by === me.id) { router.push(`/groups/${group.id}`); return }
+    if (group.is_owner || group.created_by === me.id || group.owner_id === me.id) { router.push(`/groups/${group.id}`); return }
     // Already a member
     if (group.is_member) { router.push(`/groups/${group.id}`); return }
     if (group.member_count >= FREE_MEMBER_LIMIT && !group.is_premium) { setShowUpgrade(true); return }
