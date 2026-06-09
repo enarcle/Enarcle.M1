@@ -145,20 +145,22 @@ function SidebarContent({ navItems, role, profile, user, displayName, photoUrl, 
         ))}
         <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}` }}>
           <Link href="/pricing" onClick={onNavClick} style={{ textDecoration: 'none', display: 'block' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '8px 10px', borderRadius: 8, color: profile?.is_premium ? C.amber : C.textDim, fontFamily: C.fontSans, fontSize: 13, cursor: 'pointer', transition: 'background 0.15s', background: profile?.is_premium ? C.amberDim : 'transparent', border: profile?.is_premium ? `1px solid rgba(245,158,11,0.2)` : '1px solid transparent' }}
+            {role !== 'admin' && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '8px 10px', borderRadius: 8, color: profile?.is_premium ? C.amber : C.textDim, fontFamily: C.fontSans, fontSize: 13, cursor: 'pointer', transition: 'background 0.15s', background: profile?.is_premium ? C.amberDim : 'transparent', border: profile?.is_premium ? `1px solid rgba(245,158,11,0.2)` : '1px solid transparent' }}
               onMouseEnter={e => { if (!profile?.is_premium) (e.currentTarget as HTMLElement).style.background = C.elevated }}
               onMouseLeave={e => { if (!profile?.is_premium) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
             >
               <Crown style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.7 }} />
-              {role === 'admin' ? '⚙ Admin Panel' : profile?.is_premium ? '✦ Premium' : 'Upgrade Plan'}
+              {profile?.is_premium ? '✦ Premium' : 'Upgrade Plan'}
             </div>
+      )}
           </Link>
         </div>
       </nav>
 
       {/* User footer */}
       <div style={{ flexShrink: 0, padding: '6px 6px 8px', borderTop: `1px solid ${C.border}` }}>
-        <Link href="/dashboard/profile" onClick={onNavClick} style={{ textDecoration: 'none', display: 'block', marginBottom: 2 }}>
+        {role !== 'admin' && <Link href="/dashboard/profile" onClick={onNavClick} style={{ textDecoration: 'none', display: 'block', marginBottom: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 10px', borderRadius: 8, background: C.elevated, cursor: 'pointer', transition: 'background 0.15s' }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = C.overlay}
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.elevated}
@@ -171,7 +173,7 @@ function SidebarContent({ navItems, role, profile, user, displayName, photoUrl, 
               <p style={{ fontSize: 11, color: C.textDim, fontFamily: C.fontSans, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{user?.email}</p>
             </div>
           </div>
-        </Link>
+        </Link>}
         <button onClick={onSignOutClick}
           style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 9, padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'transparent', color: C.textDim, fontFamily: C.fontSans, fontSize: 12, transition: 'background 0.15s, color 0.15s' }}
           onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.redDim; el.style.color = C.red }}
