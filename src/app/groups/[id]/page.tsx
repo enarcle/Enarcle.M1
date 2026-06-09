@@ -943,10 +943,13 @@ export default function GroupRoomPage() {
         .order('created_at', { ascending: true })
 
       if (!dead) {
-        setMembers(mems || [])
-        setPendingCount((mems || []).filter((m: any) =>
-          m.status === 'pending' && m.role !== 'owner'
-        ).length)
+        const rows = mems || []
+        const activeCount = rows.filter((m: any) => m.status !== 'pending' || m.role === 'owner').length
+        setMembers(rows)
+        setPendingCount(rows.filter((m: any) => m.status === 'pending' && m.role !== 'owner').length)
+        // Sync DB count and update group state so header shows correct number
+        setGroup((prev: any) => prev ? { ...prev, member_count: activeCount } : prev)
+        await supabase.from('groups').update({ member_count: activeCount }).eq('id', groupId)
         // setLoading AFTER members are in state — prevents 0-count flash
         setLoading(false)
       }
@@ -962,8 +965,9 @@ export default function GroupRoomPage() {
     const pending = rows.filter((m: any) => m.status === 'pending' && m.role !== 'owner').length
     const active  = rows.filter((m: any) => m.status !== 'pending' || m.role === 'owner').length
     setPendingCount(pending)
-    // Sync member_count in DB so it stays accurate
+    // Sync member_count in DB — also updates the group header count
     await supabase.from('groups').update({ member_count: active }).eq('id', groupId)
+    setGroup((prev: any) => prev ? { ...prev, member_count: active } : prev)
   }, [groupId])
 
   // Realtime subscription — keeps member count + pending badge live
@@ -1005,7 +1009,10 @@ export default function GroupRoomPage() {
   )
   if (!access) return null
 
-  const activeMemberCount = members.filter(m => m.status !== 'pending' || m.role === 'owner').length
+  // Use live computed count from state; fall back to DB value while loading
+  const activeMemberCount = members.length > 0
+    ? members.filter(m => m.status !== 'pending' || m.role === 'owner').length
+    : (group?.member_count || 0)
 
   return (
     <DashboardLayout>
