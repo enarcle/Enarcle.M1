@@ -249,7 +249,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const sidebarProps = { navItems, role, profile, user, displayName, photoUrl, initials, pathname, onNavClick: closeMobile, onSignOutClick: openSignOut }
 
   // Maintenance mode — block non-admins immediately
-  if (!loading && platformSettings.maintenance_mode && role !== 'admin') return (
+  if (platformSettings.maintenance_mode && role !== 'admin') return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: C.bg, gap: 16, padding: 24 }}>
       <div style={{ fontSize: 40 }}>🔧</div>
       <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, fontFamily: 'Sora,sans-serif', textAlign: 'center' }}>Down for maintenance</h1>
