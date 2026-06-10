@@ -2,27 +2,25 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
-// App Router equivalents — replaces the deprecated `export const config = {}`
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
-
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2024-04-10' as any,
   })
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Read raw body as text — critical for Stripe signature verification
   const body = await req.text()
   const sig  = req.headers.get('stripe-signature')
+
   if (!sig) {
     return NextResponse.json({ error: 'No signature' }, { status: 400 })
   }
+
   if (!process.env.STRIPE_WEBHOOK_SECRET) {
-    console.error('STRIPE_WEBHOOK_SECRET is not set')
+    console.error('STRIPE_WEBHOOK_SECRET is not set in environment')
     return NextResponse.json({ error: 'Webhook secret missing' }, { status: 500 })
   }
 
@@ -35,39 +33,59 @@ export async function POST(req: NextRequest) {
     )
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error'
-    console.error('Webhook signature error:', message)
-    console.error('Secret used starts with:', process.env.STRIPE_WEBHOOK_SECRET?.slice(0, 10))
+    console.error('Webhook signature failed:', message)
     return NextResponse.json({ error: `Invalid signature: ${message}` }, { status: 400 })
   }
 
-  // ── checkout.session.completed ─────────────────────────────────────────────
+  // ── checkout.session.completed ────────────────────────────────────────────
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
     const meta    = session.metadata || {}
     const type    = meta.type
 
-    // PLAN purchase — grant premium only after real Stripe payment
+    // ── PLAN purchase — set premium tier based on planId ──────────────────
     if (type === 'plan' && meta.userId && meta.planId) {
+
+      // Map planId to what features they unlock
+      // pro          → is_premium false (just messaging)
+      // premium      → is_premium true (recordings of enrolled events)
+      // premium_pro  → is_premium true (full access + free weekly event)
+      const isPremium = meta.planId === 'premium' || meta.planId === 'premium_pro'
+
+      // Group member limits per plan
+      const GROUP_LIMITS: Record<string, number> = {
+        free:        5,
+        pro:         5,
+        premium:     40,
+        premium_pro: 150,
+      }
+
       const { error } = await supabase
         .from('users')
         .update({
-          is_premium:         true,
-          premium_tier:       meta.planId,
-          premium_since:      new Date().toISOString(),
-          stripe_customer_id: session.customer as string,
+          is_premium:          isPremium,
+          premium_tier:        meta.planId,
+          premium_since:       new Date().toISOString(),
+          stripe_customer_id:  session.customer as string,
+          group_member_limit:  GROUP_LIMITS[meta.planId] || 5,
         })
         .eq('id', meta.userId)
-      if (error) console.error('Failed to grant premium:', error)
-      else console.log(`Premium granted to ${meta.userId} — plan: ${meta.planId}`)
+
+      if (error) {
+        console.error('Failed to update user plan:', error)
+      } else {
+        console.log(`Plan activated: ${meta.planId} for user ${meta.userId}`)
+      }
     }
 
-    // TICKET purchase
+    // ── TICKET purchase ───────────────────────────────────────────────────
     if (type === 'ticket' && meta.eventId && meta.userId) {
       const userId  = meta.userId
       const eventId = meta.eventId
       const amount  = session.amount_total || 0
 
-      await supabase
+      // Create ticket
+      const { error: ticketError } = await supabase
         .from('tickets')
         .upsert(
           {
@@ -81,11 +99,17 @@ export async function POST(req: NextRequest) {
           { onConflict: 'user_id,event_id' }
         )
 
+      if (ticketError) {
+        console.error('Failed to create ticket:', ticketError)
+      }
+
+      // Increment event attendee count
       const { data: ev } = await supabase
         .from('events')
         .select('current_attendees, total_sold')
         .eq('id', eventId)
         .single()
+
       if (ev) {
         await supabase
           .from('events')
@@ -95,18 +119,30 @@ export async function POST(req: NextRequest) {
           })
           .eq('id', eventId)
       }
+
+      console.log(`Ticket created for user ${userId} — event ${eventId}`)
     }
   }
 
-  // ── Subscription cancelled — revoke premium ────────────────────────────────
+  // ── Subscription cancelled — downgrade to free ────────────────────────────
   if (event.type === 'customer.subscription.deleted') {
     const sub        = event.data.object as Stripe.Subscription
     const customerId = sub.customer as string
-    await supabase
+
+    const { error } = await supabase
       .from('users')
-      .update({ is_premium: false, premium_tier: null })
+      .update({
+        is_premium:         false,
+        premium_tier:       'free',
+        group_member_limit: 5,
+      })
       .eq('stripe_customer_id', customerId)
-    console.log(`Premium revoked for Stripe customer: ${customerId}`)
+
+    if (error) {
+      console.error('Failed to revoke subscription:', error)
+    } else {
+      console.log(`Subscription cancelled for Stripe customer: ${customerId}`)
+    }
   }
 
   return NextResponse.json({ received: true })
