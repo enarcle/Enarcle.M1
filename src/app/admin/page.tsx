@@ -93,9 +93,14 @@ export default function AdminPage() {
   }
 
   const loadData = useCallback(async () => {
+    // Get current session to pass admin id to RPC functions
+    const { data: { session } } = await supabase.auth.getSession()
+    const adminId = session?.user?.id || ''
+
     const [usersRes, appsRes, eventsRes, ticketsRes, postsRes, groupsRes, auditRes, annRes] = await Promise.all([
-      supabase.from('users').select('id, email, full_name, role, photo_url, created_at, is_suspended, is_premium').order('created_at', { ascending: false }).limit(50),
-      supabase.from('host_applications').select('*').eq('status','pending').order('created_at',{ascending:false}),
+      // Use RPC to bypass RLS — direct select is blocked for other users' rows
+      supabase.rpc('admin_load_users', { p_admin_id: adminId }),
+      supabase.rpc('admin_load_pending_apps', { p_admin_id: adminId }),
       supabase.from('events').select('*, users(email,full_name)').order('created_at',{ascending:false}).limit(30),
       supabase.from('tickets').select('amount').eq('status','paid'),
       supabase.from('posts').select('id, content, created_at, user_id, users(email,full_name)').order('created_at',{ascending:false}).limit(30),
@@ -154,77 +159,125 @@ export default function AdminPage() {
   // ── Host approval ──
   const approveHost = async (app: any) => {
     setActionLoading(app.id)
-    await Promise.all([
-      supabase.from('users').update({ role:'host', host_approved:true }).eq('id', app.user_id),
-      supabase.from('host_applications').update({ status:'approved', reviewed_at: new Date().toISOString() }).eq('id', app.id),
-    ])
-    await logAction('approve_host', 'user', app.user_id, { email: app.email })
-    // Remove from pending list immediately — no reload needed
-    setPendingApps(prev => prev.filter(a => a.id !== app.id))
-    setStats(prev => ({ ...prev, pendingHosts: Math.max(0, prev.pendingHosts - 1) }))
-    addNotif(`✅ ${app.email} approved as host!`, 'success')
+    const { data, error } = await supabase.rpc('admin_approve_host', {
+      p_admin_id: currentUser.id,
+      p_app_id:   app.id,
+      p_user_id:  app.user_id,
+    })
+    if (error || data?.error) {
+      addNotif(`❌ Error: ${error?.message || data?.error}`, 'warn')
+    } else {
+      await logAction('approve_host', 'user', app.user_id, { email: app.email })
+      setPendingApps(prev => prev.filter(a => a.id !== app.id))
+      setStats(prev => ({ ...prev, pendingHosts: Math.max(0, prev.pendingHosts - 1) }))
+      addNotif(`✅ ${app.email} approved as host!`, 'success')
+      loadData()
+    }
     setActionLoading(null)
-    loadData()
   }
 
   const rejectHost = async (app: any) => {
     setActionLoading(app.id+'-reject')
-    await supabase.from('host_applications').update({ status:'rejected', reviewed_at: new Date().toISOString() }).eq('id', app.id)
-    await logAction('reject_host', 'user', app.user_id, { email: app.email })
-    // Remove from pending list immediately
-    setPendingApps(prev => prev.filter(a => a.id !== app.id))
-    setStats(prev => ({ ...prev, pendingHosts: Math.max(0, prev.pendingHosts - 1) }))
-    addNotif(`❌ ${app.email} rejected`, 'warn')
+    const { data, error } = await supabase.rpc('admin_reject_host', {
+      p_admin_id: currentUser.id,
+      p_app_id:   app.id,
+    })
+    if (error || data?.error) {
+      addNotif(`❌ Error: ${error?.message || data?.error}`, 'warn')
+    } else {
+      await logAction('reject_host', 'user', app.user_id, { email: app.email })
+      setPendingApps(prev => prev.filter(a => a.id !== app.id))
+      setStats(prev => ({ ...prev, pendingHosts: Math.max(0, prev.pendingHosts - 1) }))
+      addNotif(`❌ ${app.email} rejected`, 'warn')
+      loadData()
+    }
     setActionLoading(null)
-    loadData()
   }
 
   // ── User management ──
   const suspendUser = async (user: any) => {
     if (!confirm(`${user.is_suspended ? 'Unsuspend' : 'Suspend'} ${user.email}?`)) return
     setActionLoading('suspend-'+user.id)
-    await supabase.from('users').update({ is_suspended: !user.is_suspended }).eq('id', user.id)
-    await logAction(user.is_suspended ? 'unsuspend_user' : 'suspend_user', 'user', user.id, { email: user.email })
-    addNotif(`${user.is_suspended ? 'Unsuspended' : 'Suspended'}: ${user.email}`, 'warn')
+    const { data, error } = await supabase.rpc('admin_update_user', {
+      p_admin_id: currentUser.id,
+      p_user_id:  user.id,
+      p_updates:  { is_suspended: !user.is_suspended },
+    })
+    if (error || data?.error) {
+      addNotif(`❌ Error: ${error?.message || data?.error}`, 'warn')
+    } else {
+      await logAction(user.is_suspended ? 'unsuspend_user' : 'suspend_user', 'user', user.id, { email: user.email })
+      addNotif(`${user.is_suspended ? 'Unsuspended' : 'Suspended'}: ${user.email}`, 'warn')
+      loadData()
+    }
     setActionLoading(null)
-    loadData()
   }
 
   const changeRole = async (userId: string, email: string, newRole: string) => {
     setActionLoading('role-'+userId)
-    await supabase.from('users').update({ role: newRole }).eq('id', userId)
-    await logAction('change_role', 'user', userId, { email, new_role: newRole })
-    addNotif(`Role updated: ${email} → ${newRole}`, 'info')
+    const { data, error } = await supabase.rpc('admin_update_user', {
+      p_admin_id: currentUser.id,
+      p_user_id:  userId,
+      p_updates:  { role: newRole },
+    })
+    if (error || data?.error) {
+      addNotif(`❌ Error: ${error?.message || data?.error}`, 'warn')
+    } else {
+      await logAction('change_role', 'user', userId, { email, new_role: newRole })
+      addNotif(`Role updated: ${email} → ${newRole}`, 'info')
+      loadData()
+    }
     setActionLoading(null)
-    loadData()
   }
 
   const grantPremium = async (userId: string, email: string, current: boolean) => {
     setActionLoading('premium-'+userId)
-    await supabase.from('users').update({ is_premium: !current }).eq('id', userId)
-    await logAction(!current ? 'grant_premium' : 'revoke_premium', 'user', userId, { email })
-    addNotif(`Premium ${!current ? 'granted' : 'revoked'}: ${email}`, 'success')
+    const { data, error } = await supabase.rpc('admin_update_user', {
+      p_admin_id: currentUser.id,
+      p_user_id:  userId,
+      p_updates:  { is_premium: !current },
+    })
+    if (error || data?.error) {
+      addNotif(`❌ Error: ${error?.message || data?.error}`, 'warn')
+    } else {
+      await logAction(!current ? 'grant_premium' : 'revoke_premium', 'user', userId, { email })
+      addNotif(`Premium ${!current ? 'granted' : 'revoked'}: ${email}`, 'success')
+      loadData()
+    }
     setActionLoading(null)
-    loadData()
   }
 
   // ── Content moderation ──
   const deletePost = async (postId: string, userId: string) => {
     if (!confirm('Delete this post?')) return
     setActionLoading('post-'+postId)
-    await supabase.from('posts').delete().eq('id', postId)
-    await logAction('delete_post', 'post', postId, { user_id: userId })
-    addNotif('🗑 Post deleted', 'warn')
+    const { data, error } = await supabase.rpc('admin_delete_post', {
+      p_admin_id: currentUser.id,
+      p_post_id:  postId,
+    })
+    if (error || data?.error) {
+      addNotif(`❌ Error: ${error?.message || data?.error}`, 'warn')
+    } else {
+      await logAction('delete_post', 'post', postId, { user_id: userId })
+      addNotif('🗑 Post deleted', 'warn')
+      loadData()
+    }
     setActionLoading(null)
-    loadData()
   }
 
   const forceEndEvent = async (eventId: string, title: string) => {
     if (!confirm(`Force end event: "${title}"?`)) return
-    await supabase.from('events').update({ status:'ended', ended_at: new Date().toISOString() }).eq('id', eventId)
-    await logAction('force_end_event', 'event', eventId, { title })
-    addNotif(`⏹ Event ended: ${title}`, 'warn')
-    loadData()
+    const { data, error } = await supabase.rpc('admin_end_event', {
+      p_admin_id: currentUser.id,
+      p_event_id: eventId,
+    })
+    if (error || data?.error) {
+      addNotif(`❌ Error: ${error?.message || data?.error}`, 'warn')
+    } else {
+      await logAction('force_end_event', 'event', eventId, { title })
+      addNotif(`⏹ Event ended: ${title}`, 'warn')
+      loadData()
+    }
   }
 
   // ── Announcement ──
