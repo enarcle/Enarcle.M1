@@ -11,18 +11,23 @@ export async function POST(req: NextRequest) {
     const { planId, billing, userId, userEmail, eventId, amount, eventName } = body
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://enarcle.com'
 
-    // ── PLAN / SUBSCRIPTION purchase ────────────────────────────────────────
+    // ── PLAN purchase ─────────────────────────────────────────────────────────
     if (planId) {
       const PLANS: Record<string, { name: string; monthly: number; yearly: number }> = {
-        basic: {
-          name:    'Enarcle Basic',
-          monthly: 1000,  // $10.00 in cents
-          yearly:  7000,  // $70.00 in cents
+        pro: {
+          name:    'Enarcle Pro',
+          monthly: 250,   // $2.50 in cents
+          yearly:  2400,  // $24.00 in cents
         },
-        premium_plus: {
-          name:    'Enarcle Premium Plus',
-          monthly: 1700,  // $17.00 in cents
-          yearly:  20400, // $204.00 in cents
+        premium: {
+          name:    'Enarcle Premium',
+          monthly: 2000,  // $20.00 in cents
+          yearly:  19200, // $192.00 in cents
+        },
+        premium_pro: {
+          name:    'Enarcle Premium Pro',
+          monthly: 5000,  // $50.00 in cents
+          yearly:  48000, // $480.00 in cents
         },
       }
 
@@ -33,7 +38,6 @@ export async function POST(req: NextRequest) {
 
       const isYearly   = billing === 'yearly'
       const unitAmount = isYearly ? plan.yearly : plan.monthly
-      const interval   = isYearly ? 'year' : 'month'
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -44,12 +48,12 @@ export async function POST(req: NextRequest) {
             currency:     'usd',
             product_data: { name: plan.name },
             unit_amount:  unitAmount,
-            recurring:    { interval },
+            recurring:    { interval: isYearly ? 'year' : 'month' },
           },
           quantity: 1,
         }],
         metadata: {
-          userId:  userId || '',
+          userId:  userId  || '',
           planId,
           billing: isYearly ? 'yearly' : 'monthly',
           type:    'plan',
@@ -61,9 +65,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: session.url })
     }
 
-    // ── EVENT TICKET purchase ────────────────────────────────────────────────
+    // ── EVENT TICKET purchase ─────────────────────────────────────────────────
     if (eventId) {
-      const rawPrice    = amount ?? 0
+      const rawPrice     = amount ?? 0
       const priceInCents = rawPrice < 500
         ? Math.round(rawPrice * 100)
         : Math.round(rawPrice)
