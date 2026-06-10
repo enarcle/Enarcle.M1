@@ -97,7 +97,7 @@ function CreateGroupModal({ uid, onClose, onCreated }: { uid: string; onClose: (
         require_approval: requireApproval,
         banner_url: bannerUrl,
         created_by: uid,
-        max_members: FREE_MEMBER_LIMIT,
+        max_members: 100,
         member_count: 1,
       }).select().single()
       if (error || !g) throw error
@@ -248,7 +248,7 @@ function GroupCard({ group, uid, onJoin }: { group: any; uid: string; onJoin: (g
   const isOwner   = group.is_owner
   const isMember  = group.is_member
   const isPending = group.is_pending
-  const isFull    = group.member_count >= FREE_MEMBER_LIMIT && !group.is_premium
+  const isFull    = group.member_count >= (group.max_members || FREE_MEMBER_LIMIT) && !group.is_premium
   const fill      = Math.min(((group.member_count || 0) / (group.max_members || FREE_MEMBER_LIMIT)) * 100, 100)
 
   const catColors: Record<string, string> = {
@@ -413,7 +413,9 @@ export default function GroupsPage() {
     if (group.is_owner || group.created_by === me.id || group.owner_id === me.id) { router.push(`/groups/${group.id}`); return }
     // Already a member
     if (group.is_member) { router.push(`/groups/${group.id}`); return }
-    if (group.member_count >= FREE_MEMBER_LIMIT && !group.is_premium) { setShowUpgrade(true); return }
+    // Use max_members if set, otherwise use the platform free limit
+    const memberLimit = group.max_members || FREE_MEMBER_LIMIT
+    if (group.member_count >= memberLimit && !group.is_premium) { setShowUpgrade(true); return }
 
     // Explicit boolean coercion — null/undefined must be treated as false.
     // A DB column returning null (e.g. groups created before require_approval
