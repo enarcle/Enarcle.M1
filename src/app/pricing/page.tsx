@@ -1,204 +1,178 @@
 'use client'
-import React from 'react'
-
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
-import { Check, X, Crown, Zap, Building2, Users, Video, Lock, Radio, Star } from 'lucide-react'
+import { Check, X, Users, Zap, Crown, Star, Building2 } from 'lucide-react'
 import Link from 'next/link'
-
 import { C } from '@/lib/theme'
 
+// ── Plans ─────────────────────────────────────────────────────────────────────
 const PLANS = [
   {
-    id: 'free',
-    name: 'Free',
-    icon: Users,
+    id:          'free',
+    name:        'Free',
+    icon:        Users,
     monthlyPrice: 0,
-    yearlyPrice: 0,
-    color: C.blueL,
-    glow: 'rgba(255,255,255,0.06)',
-    borderColor: 'rgba(167,141,120,0.2)',
-    highlight: false,
-    badge: null,
+    yearlyPrice:  0,
+    yearlySaving: null,
+    highlight:   false,
+    badge:       null,
     description: 'Start exploring Enarcle',
-    cta: 'Get Started Free',
-    ctaStyle: 'outline',
+    cta:         'Get Started Free',
+    ctaStyle:    'outline',
     features: [
-      '1 free event per week',
-      'Public chat in events',
+      'Messages kept for 50 days',
       'Groups (max 5 members)',
       'Community feed access',
-      'Basic networking',
+      'Basic networking & DMs',
       'Mobile + desktop',
     ],
     missing: [
+      'Weekly free event credit',
       'Session recordings',
-      'Private groups',
-      'Host events',
-      'No ticket needed for events',
-      'Priority support',
-    ],
-  },
-  {
-    id: 'basic',
-    name: 'Basic',
-    icon: Zap,
-    monthlyPrice: 10,
-    yearlyPrice: 70,
-    yearlySaving: '42%',
-    color: C.blueL,
-    glow: 'rgba(255,255,255,0.06)',
-    borderColor: 'rgba(59,130,246,0.35)',
-    highlight: false,
-    badge: null,
-    description: 'For founders getting started',
-    cta: 'Get Basic',
-    ctaStyle: 'blue',
-    features: [
-      'Unlimited live events',
-      'Unlimited group members',
       'Private group chat',
-      'Premium member badge',
-      'Full networking features',
-      'Community feed + images',
-    ],
-    missing: [
-      'Session recordings',
-      'No ticket needed for events',
       'Host events',
-      'Priority support',
     ],
   },
   {
-    id: 'premium_plus',
-    name: 'Premium Plus',
-    icon: Crown,
-    monthlyPrice: 17,
-    yearlyPrice: 204,
+    id:           'pro',
+    name:         'Pro',
+    icon:         Zap,
+    monthlyPrice: 2.5,
+    yearlyPrice:  24,
     yearlySaving: '20%',
-    color: C.gold,
-    glow: 'rgba(245,158,11,0.18)',
-    borderColor: 'rgba(245,158,11,0.5)',
-    highlight: true,
-    badge: '★ Most Popular',
-    description: 'Total freedom on Enarcle',
-    cta: 'Get Premium Plus',
-    ctaStyle: 'gold',
+    highlight:    false,
+    badge:        null,
+    description:  'Unlimited messaging & networking',
+    cta:          'Get Pro',
+    ctaStyle:     'blue',
     features: [
-      'Everything in Basic',
-      'No event tickets needed — attend all events free',
-      'Full session recordings (30 days)',
-      'Download recordings',
-      'Host events — keep 50% revenue',
-      'VIP badge + priority access',
-      'Private group calls + notes',
+      'Unlimited message history',
+      'Groups (max 5 members)',
+      'Private group chat',
+      'Full networking features',
+      'Community feed',
+      'Priority DMs',
     ],
     missing: [
-      'White-label branding',
-      'Dedicated manager',
+      'Weekly free event credit',
+      'Session recordings',
+      'Larger group size',
     ],
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    icon: Building2,
-    monthlyPrice: null,
-    yearlyPrice: null,
-    color: '#6366f1',
-    glow: 'rgba(59,130,246,0.15)',
-    borderColor: 'rgba(167,139,250,0.3)',
-    highlight: false,
-    badge: null,
-    description: 'Custom for teams & agencies',
-    cta: 'Schedule Demo',
-    ctaStyle: 'purple',
+    id:           'premium',
+    name:         'Premium',
+    icon:         Crown,
+    monthlyPrice: 20,
+    yearlyPrice:  192,
+    yearlySaving: '20%',
+    highlight:    true,
+    badge:        '★ Most Popular',
+    description:  'Recordings + bigger groups',
+    cta:          'Get Premium',
+    ctaStyle:     'gold',
     features: [
-      'Everything in Premium Plus',
+      'Everything in Pro',
+      'Recordings of events you enrolled/paid for',
+      'Recordings of free events you attended',
+      'Groups up to 40 members',
+      'Private group calls',
+      'Shared group notes & files',
+    ],
+    missing: [
+      'Weekly free event credit',
       'Unlimited group members',
-      'White-label event branding',
-      'Custom event creation tools',
+    ],
+  },
+  {
+    id:           'premium_pro',
+    name:         'Premium Pro',
+    icon:         Star,
+    monthlyPrice: 50,
+    yearlyPrice:  480,
+    yearlySaving: '20%',
+    highlight:    false,
+    badge:        '⚡ All Access',
+    description:  'The complete Enarcle experience',
+    cta:          'Get Premium Pro',
+    ctaStyle:     'purple',
+    features: [
+      'Everything in Premium',
+      '1 free event credit every week',
+      'Recordings of all enrolled events',
+      'Groups up to 150 members',
+      'VIP badge + priority access',
+      'Host events — keep 80% revenue',
       'Priority 1:1 support',
-      'Dedicated account manager',
-      'Advanced analytics',
-      'Host referrals — earn 20%',
     ],
     missing: [],
   },
 ]
 
+// ── Comparison table rows ─────────────────────────────────────────────────────
 const TABLE_ROWS = [
-  { label:'5-Member Group Limit',         free:true,    basic:false,  pro:false,    ent:false   },
-  { label:'Unlimited Groups & Members',   free:false,   basic:true,   pro:true,     ent:true    },
-  { label:'Session Recordings',           free:false,   basic:false,  pro:true,     ent:true    },
-  { label:'No Event Tickets Needed',      free:false,   basic:false,  pro:true,     ent:true    },
-  { label:'Unlimited Live Events',        free:false,   basic:true,   pro:true,     ent:true    },
-  { label:'Private Chat',                 free:false,   basic:true,   pro:true,     ent:true    },
-  { label:'Host Events (50% revenue)',    free:false,   basic:false,  pro:true,     ent:true    },
-  { label:'Download Recordings',          free:false,   basic:false,  pro:true,     ent:true    },
-  { label:'Priority Support',             free:false,   basic:false,  pro:false,    ent:true    },
-  { label:'White-label Branding',         free:false,   basic:false,  pro:false,    ent:true    },
-  { label:'Dedicated Manager',            free:false,   basic:false,  pro:false,    ent:true    },
+  { label: 'Message history',           free: '50 days',   pro: 'Unlimited', premium: 'Unlimited', premPro: 'Unlimited' },
+  { label: 'Weekly free event credit',  free: false,       pro: false,       premium: false,       premPro: true        },
+  { label: 'Group member limit',        free: '5',         pro: '5',         premium: '40',        premPro: '150'       },
+  { label: 'Private group chat',        free: false,       pro: true,        premium: true,        premPro: true        },
+  { label: 'Session recordings',        free: false,       pro: false,       premium: 'Enrolled',  premPro: 'Enrolled'  },
+  { label: 'Group video calls',         free: false,       pro: false,       premium: true,        premPro: true        },
+  { label: 'Shared notes & files',      free: false,       pro: false,       premium: true,        premPro: true        },
+  { label: 'Host events',               free: false,       pro: false,       premium: false,       premPro: true        },
+  { label: 'Host keeps 80% revenue',    free: false,       pro: false,       premium: false,       premPro: true        },
+  { label: 'VIP badge',                 free: false,       pro: false,       premium: false,       premPro: true        },
+  { label: 'Priority support',          free: false,       pro: false,       premium: false,       premPro: true        },
 ]
 
 function Cell({ val }: { val: boolean | string }) {
-  if(val === true)  return <span style={{color:C.green,fontSize:18}}>✓</span>
-  if(val === false) return <span style={{color:'rgba(255,255,255,0.09)',fontSize:16}}>—</span>
-  return <span style={{fontSize:12,color:C.textMuted,fontFamily:'Inter,sans-serif'}}>{val}</span>
+  if (val === true)  return <span style={{ color: '#32D74B', fontSize: 17 }}>✓</span>
+  if (val === false) return <span style={{ color: 'rgba(255,255,255,0.1)', fontSize: 15 }}>—</span>
+  return <span style={{ fontSize: 12, color: C.textMuted }}>{val}</span>
 }
 
-
-// Auth-aware nav buttons for pricing page
 function PricingNavButtons() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false)
-  const [checking, setChecking] = React.useState(true)
+  const [checking,   setChecking]   = React.useState(true)
   React.useEffect(() => {
-    import('@/lib/supabase/client').then(({supabase}) => {
-      supabase.auth.getSession().then(({data:{session}}) => {
-        setIsLoggedIn(!!session)
-        setChecking(false)
-      })
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session)
+      setChecking(false)
     })
   }, [])
   if (checking) return null
   if (isLoggedIn) return (
-    <Link href="/dashboard" style={{textDecoration:'none',fontSize:13,fontWeight:700,color:'#000',padding:'7px 18px',borderRadius:8,background:'#FFFFFF',display:'inline-flex',alignItems:'center',gap:6}}>
+    <Link href="/dashboard" style={{ textDecoration: 'none', fontSize: 13, fontWeight: 700, color: '#000', padding: '7px 18px', borderRadius: 8, background: '#FFFFFF', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
       Dashboard
     </Link>
   )
   return (
     <>
-      <Link href="/auth/login" style={{textDecoration:'none',fontSize:13,color:'rgba(255,255,255,0.6)',padding:'7px 16px',borderRadius:8,border:'1px solid rgba(255,255,255,0.12)'}}>Sign In</Link>
-      <Link href="/auth/login" style={{textDecoration:'none',fontSize:13,fontWeight:700,color:'#000',padding:'7px 16px',borderRadius:8,background:'#FFFFFF'}}>Join Free</Link>
+      <Link href="/auth/login" style={{ textDecoration: 'none', fontSize: 13, color: 'rgba(255,255,255,0.6)', padding: '7px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)' }}>Sign In</Link>
+      <Link href="/auth/login" style={{ textDecoration: 'none', fontSize: 13, fontWeight: 700, color: '#000', padding: '7px 16px', borderRadius: 8, background: '#FFFFFF' }}>Join Free</Link>
     </>
   )
 }
 
 export default function PricingPage() {
-  const router = useRouter()
-  const [annual, setAnnual] = useState(false)
-  const [loading, setLoading] = useState<string|null>(null)
+  const router  = useRouter()
+  const [annual,  setAnnual]  = useState(false)
+  const [loading, setLoading] = useState<string | null>(null)
 
   const handleCta = async (plan: typeof PLANS[0]) => {
-    if(plan.id === 'free'){
-      router.push('/auth/login')
-      return
-    }
-    if(plan.id === 'enterprise'){
-      window.location.href = 'mailto:enarclehq@gmail.com?subject=Enterprise Inquiry'
-      return
-    }
+    if (plan.id === 'free') { router.push('/auth/login'); return }
 
     setLoading(plan.id)
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if(!user){
-        router.push(`/auth/login?plan=${plan.id}&billing=${annual?'yearly':'monthly'}`)
+      if (!user) {
+        router.push(`/auth/login?plan=${plan.id}&billing=${annual ? 'yearly' : 'monthly'}`)
+        setLoading(null)
         return
       }
 
       const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           planId:    plan.id,
@@ -208,107 +182,124 @@ export default function PricingPage() {
         }),
       })
       const data = await res.json()
-      if(data.url) window.location.href = data.url
+      if (data.url) window.location.href = data.url
       else alert('Checkout error: ' + (data.error || 'Unknown error'))
-    } catch(e:any) {
+    } catch (e: any) {
       alert('Error: ' + e.message)
     }
     setLoading(null)
   }
 
+  const displayPrice = (plan: typeof PLANS[0]) => {
+    if (plan.monthlyPrice === 0) return 'Free'
+    const price = annual ? (plan.yearlyPrice / 12) : plan.monthlyPrice
+    return `$${price % 1 === 0 ? price : price.toFixed(2)}`
+  }
+
   return (
-    <div style={{minHeight:'100vh',background:C.bg,color:C.text,fontFamily:'Inter,sans-serif'}}>
+    <div style={{ minHeight: '100vh', background: C.bg, color: C.text, fontFamily: 'Inter, sans-serif' }}>
       <style>{`
-        @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-        .plan-card { animation: fadeUp 0.5s ease both; }
-        .plan-card:nth-child(1) { animation-delay: 0.05s }
-        .plan-card:nth-child(2) { animation-delay: 0.15s }
-        .plan-card:nth-child(3) { animation-delay: 0.25s }
-        .plan-card:nth-child(4) { animation-delay: 0.35s }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        .plan-card { animation: fadeUp 0.5s ease both; transition: transform 0.25s, box-shadow 0.25s; }
+        .plan-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.5); }
+        .plan-card:nth-child(1){animation-delay:0.05s}
+        .plan-card:nth-child(2){animation-delay:0.1s}
+        .plan-card:nth-child(3){animation-delay:0.15s}
+        .plan-card:nth-child(4){animation-delay:0.2s}
         * { box-sizing: border-box; }
       `}</style>
 
       {/* Nav */}
-      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,height:60,background:'rgba(7,11,20,0.9)',backdropFilter:'blur(16px)',borderBottom:'1px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 24px'}}>
-        <Link href="/" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:8}}>
-          <div style={{width:28,height:28,background:`linear-gradient(135deg,#6366f1,#8b5cf6)`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Syne',fontWeight:800,fontSize:13,color:'#fff',clipPath:'polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%)'}}>G</div>
-          <span style={{fontFamily:'Syne',fontWeight:800,fontSize:17,letterSpacing:'-0.02em'}}>ENARCLE</span>
-        </Link>
-        <div style={{display:'flex',alignItems:'center',gap:12}}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, height: 60, background: 'rgba(11,11,12,0.95)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 clamp(16px,4vw,48px)' }}>
+        <Link href="/" style={{ textDecoration: 'none', fontWeight: 800, fontSize: 17, color: C.text, fontFamily: 'Sora, sans-serif', letterSpacing: '-0.02em' }}>ENARCLE</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <PricingNavButtons />
         </div>
       </nav>
 
-      <div style={{maxWidth:1100,margin:'0 auto',padding:'100px 16px 60px'}}>
+      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '48px clamp(16px,4vw,32px) 80px' }}>
 
         {/* Header */}
-        <div style={{textAlign:'center',marginBottom:48}}>
-          <div style={{display:'inline-flex',alignItems:'center',gap:6,padding:'5px 14px',borderRadius:20,background:'rgba(199,199,204,0.08)',border:'1px solid rgba(245,158,11,0.3)',marginBottom:20}}>
-            <Star style={{width:12,height:12,color:C.gold}}/>
-            <span style={{fontSize:11,fontWeight:700,color:C.gold,letterSpacing:'0.1em',textTransform:'uppercase'}}>Simple, Transparent Pricing</span>
-          </div>
-          <h1 style={{fontSize:'clamp(28px,5vw,52px)',fontWeight:800,fontFamily:'Syne',letterSpacing:'-0.02em',marginBottom:14,lineHeight:1.1}}>
-            Choose your <span style={{color:C.gold}}>Enarcle</span> plan
+        <div style={{ textAlign: 'center', marginBottom: 44 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: C.textDim, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 14 }}>Simple Pricing</p>
+          <h1 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 800, fontSize: 'clamp(28px,5vw,52px)', letterSpacing: '-0.02em', marginBottom: 14 }}>
+            Choose Your Plan
           </h1>
-          <p style={{fontSize:16,color:C.textMuted,maxWidth:520,margin:'0 auto',lineHeight:1.7}}>
-            Start free. Upgrade when you're ready to host, record, and access every event without buying tickets.
+          <p style={{ fontSize: 16, color: C.textMuted, maxWidth: 480, margin: '0 auto 28px' }}>
+            Start free. Upgrade when you need more history, bigger groups, or recordings.
           </p>
 
           {/* Annual toggle */}
-          <div style={{display:'inline-flex',alignItems:'center',gap:12,marginTop:28,padding:'6px 6px 6px 16px',borderRadius:40,background:C.surface,border:`1px solid ${C.border}`}}>
-            <span style={{fontSize:13,color:annual?C.textMuted:C.text,fontWeight:annual?400:700}}>Monthly</span>
-            <button onClick={()=>setAnnual(p=>!p)}
-              style={{width:44,height:24,borderRadius:12,border:'none',cursor:'pointer',position:'relative',background:annual?C.gold:'rgba(255,255,255,0.1)',transition:'background .2s'}}>
-              <div style={{position:'absolute',top:3,left:annual?22:3,width:18,height:18,borderRadius:'50%',background:'#fff',transition:'left .2s',boxShadow:'0 1px 4px rgba(0,0,0,0.3)'}}/>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '6px 6px 6px 16px', borderRadius: 40, background: C.card, border: `1px solid ${C.border}` }}>
+            <span style={{ fontSize: 13, color: annual ? C.textMuted : C.text, fontWeight: annual ? 400 : 700 }}>Monthly</span>
+            <button onClick={() => setAnnual(p => !p)} style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative', background: annual ? '#C7C7CC' : 'rgba(255,255,255,0.1)', transition: 'background .2s' }}>
+              <div style={{ position: 'absolute', top: 3, left: annual ? 22 : 3, width: 18, height: 18, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }} />
             </button>
-            <span style={{fontSize:13,color:annual?C.text:C.textMuted,fontWeight:annual?700:400}}>Annual</span>
-            {annual && <span style={{fontSize:11,fontWeight:700,color:'#fff',background:C.green,padding:'2px 8px',borderRadius:10}}>Save up to 42%</span>}
+            <span style={{ fontSize: 13, color: annual ? C.text : C.textMuted, fontWeight: annual ? 700 : 400 }}>Annual</span>
+            {annual && <span style={{ fontSize: 11, fontWeight: 700, color: '#000', background: '#32D74B', padding: '2px 8px', borderRadius: 10 }}>Save 20%</span>}
           </div>
         </div>
 
         {/* Plan cards */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:16,marginBottom:64}}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 64 }}>
           {PLANS.map((plan) => {
-            const price = annual ? plan.yearlyPrice : plan.monthlyPrice
             const Icon = plan.icon
+            const isFree = plan.monthlyPrice === 0
             return (
-              <div key={plan.id} className="plan-card"
-                style={{borderRadius:24,padding:24,background:plan.highlight?`linear-gradient(145deg,${C.card},#161f2e)`:C.card,border:`1px solid ${plan.highlight?plan.borderColor:C.border}`,position:'relative',display:'flex',flexDirection:'column',boxShadow:plan.highlight?`0 0 40px ${plan.glow}`:'none',transform:plan.highlight?'scale(1.03)':'scale(1)',transition:'transform .2s,box-shadow .2s'}}>
-
+              <div key={plan.id} className="plan-card" style={{
+                borderRadius: 20,
+                padding: 28,
+                background: plan.highlight ? `linear-gradient(145deg, ${C.card}, #1a1a1c)` : C.card,
+                border: `1px solid ${plan.highlight ? 'rgba(199,199,204,0.4)' : C.border}`,
+                boxShadow: plan.highlight ? '0 0 40px rgba(199,199,204,0.08)' : 'none',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+              }}>
+                {/* Badge */}
                 {plan.badge && (
-                  <div style={{position:'absolute',top:-12,left:'50%',transform:'translateX(-50%)',padding:'4px 14px',borderRadius:20,background:`linear-gradient(135deg,${C.gold},#F97316)`,fontSize:11,fontWeight:800,color:'#fff',whiteSpace:'nowrap',fontFamily:'Syne',letterSpacing:'0.05em'}}>
+                  <div style={{ position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)', padding: '4px 14px', borderRadius: 20, background: plan.id === 'premium_pro' ? 'linear-gradient(135deg,#C7C7CC,#FFFFFF)' : 'linear-gradient(135deg,#C7C7CC,#FFFFFF)', fontSize: 11, fontWeight: 800, color: '#000', whiteSpace: 'nowrap' }}>
                     {plan.badge}
                   </div>
                 )}
 
-                <div style={{marginBottom:16}}>
-                  <div style={{width:40,height:40,borderRadius:12,background:plan.glow||'rgba(255,255,255,0.05)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:12,border:`1px solid ${plan.borderColor}`}}>
-                    <Icon style={{width:20,height:20,color:plan.color}}/>
+                {/* Icon + name */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, marginTop: plan.badge ? 8 : 0 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon style={{ width: 19, height: 19, color: C.text }} />
                   </div>
-                  <h2 style={{fontSize:18,fontWeight:800,color:C.text,fontFamily:'Syne',marginBottom:4}}>{plan.name}</h2>
-                  <p style={{fontSize:12,color:C.textMuted,lineHeight:1.5}}>{plan.description}</p>
+                  <div>
+                    <h2 style={{ fontSize: 17, fontWeight: 700, color: C.text, fontFamily: 'Sora, sans-serif', marginBottom: 2 }}>{plan.name}</h2>
+                    <p style={{ fontSize: 12, color: C.textDim }}>{plan.description}</p>
+                  </div>
                 </div>
 
                 {/* Price */}
-                <div style={{marginBottom:20,paddingBottom:20,borderBottom:`1px solid ${C.border}`}}>
-                  {price === null ? (
-                    <div style={{fontSize:24,fontWeight:800,color:C.text,fontFamily:'Syne'}}>Custom</div>
-                  ) : price === 0 ? (
-                    <div style={{fontSize:30,fontWeight:800,color:C.text,fontFamily:'Syne'}}>Free</div>
+                <div style={{ marginBottom: 20, paddingBottom: 20, borderBottom: `1px solid ${C.border}` }}>
+                  {isFree ? (
+                    <div style={{ fontSize: 38, fontWeight: 800, color: C.text, fontFamily: 'Sora, sans-serif' }}>Free</div>
                   ) : (
                     <div>
-                      <div style={{display:'flex',alignItems:'baseline',gap:4}}>
-                        <span style={{fontSize:13,color:C.textMuted,marginTop:4}}>$</span>
-                        <span style={{fontSize:36,fontWeight:800,color:plan.highlight?C.gold:C.text,fontFamily:'Syne',lineHeight:1}}>{price}</span>
-                        <span style={{fontSize:12,color:C.textMuted}}>/{annual?'yr':'mo'}</span>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
+                        <span style={{ fontSize: 14, color: C.textMuted }}>$</span>
+                        <span style={{ fontSize: 42, fontWeight: 800, color: C.text, fontFamily: 'Sora, sans-serif', lineHeight: 1 }}>
+                          {annual
+                            ? (plan.yearlyPrice / 12) % 1 === 0
+                              ? plan.yearlyPrice / 12
+                              : (plan.yearlyPrice / 12).toFixed(2)
+                            : plan.monthlyPrice % 1 === 0
+                              ? plan.monthlyPrice
+                              : plan.monthlyPrice.toFixed(2)
+                          }
+                        </span>
+                        <span style={{ fontSize: 13, color: C.textMuted }}>/mo</span>
                       </div>
-                      {annual && plan.yearlySaving && (
-                        <div style={{fontSize:11,color:C.green,fontWeight:700,marginTop:4}}>
-                          Save {plan.yearlySaving} vs monthly
+                      {annual && plan.yearlyPrice ? (
+                        <div style={{ fontSize: 12, color: '#32D74B', fontWeight: 600, marginTop: 4 }}>
+                          ${plan.yearlyPrice}/yr — save {plan.yearlySaving}
                         </div>
-                      )}
-                      {!annual && plan.yearlyPrice && (
-                        <div style={{fontSize:11,color:C.textDim,marginTop:4}}>
+                      ) : (
+                        <div style={{ fontSize: 12, color: C.textDim, marginTop: 4 }}>
                           ${plan.yearlyPrice}/yr billed annually
                         </div>
                       )}
@@ -317,78 +308,77 @@ export default function PricingPage() {
                 </div>
 
                 {/* Features */}
-                <div style={{flex:1,display:'flex',flexDirection:'column',gap:8,marginBottom:20}}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 22 }}>
                   {plan.features.map(f => (
-                    <div key={f} style={{display:'flex',alignItems:'flex-start',gap:8}}>
-                      <div style={{width:16,height:16,borderRadius:'50%',background:plan.highlight?'rgba(245,158,11,0.15)':'rgba(52,211,153,0.12)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
-                        <Check style={{width:9,height:9,color:plan.highlight?C.gold:C.green}}/>
+                    <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
+                      <div style={{ width: 17, height: 17, borderRadius: '50%', background: 'rgba(50,215,75,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                        <span style={{ fontSize: 9, color: '#32D74B', fontWeight: 700 }}>✓</span>
                       </div>
-                      <span style={{fontSize:12,color:C.textMuted,lineHeight:1.5}}>{f}</span>
+                      <span style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.5 }}>{f}</span>
                     </div>
                   ))}
-                  {plan.missing.slice(0,2).map(f => (
-                    <div key={f} style={{display:'flex',alignItems:'flex-start',gap:8,opacity:0.4}}>
-                      <div style={{width:16,height:16,borderRadius:'50%',background:'rgba(255,255,255,0.04)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
-                        <X style={{width:9,height:9,color:C.textDim}}/>
+                  {plan.missing.slice(0, 2).map(f => (
+                    <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, opacity: 0.35 }}>
+                      <div style={{ width: 17, height: 17, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                        <X style={{ width: 8, height: 8, color: C.textDim }} />
                       </div>
-                      <span style={{fontSize:12,color:C.textDim,lineHeight:1.5}}>{f}</span>
+                      <span style={{ fontSize: 13, color: C.textDim, lineHeight: 1.5 }}>{f}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* CTA */}
                 <button
-                  onClick={()=>handleCta(plan)}
+                  onClick={() => handleCta(plan)}
                   disabled={loading === plan.id}
                   style={{
-                    width:'100%',padding:'12px',borderRadius:12,cursor:'pointer',
-                    fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:14,
-                    display:'flex',alignItems:'center',justifyContent:'center',gap:6,
-                    transition:'opacity .15s, transform .15s',
-                    opacity: loading===plan.id ? 0.7 : 1,
+                    width: '100%', padding: '12px', borderRadius: 12,
+                    border: plan.ctaStyle === 'outline' ? `1px solid ${C.border}` : 'none',
+                    cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    opacity: loading === plan.id ? 0.7 : 1,
+                    transition: 'opacity .15s, transform .15s',
                     background:
-                      plan.ctaStyle==='gold'   ? `linear-gradient(135deg,${C.gold},#F97316)` :
-                      plan.ctaStyle==='blue'   ? `linear-gradient(135deg,${C.blue},${C.blueL})` :
-                      plan.ctaStyle==='purple' ? `linear-gradient(135deg,${C.purple},#6D28D9)` :
+                      plan.ctaStyle === 'gold'   ? 'linear-gradient(135deg,#C7C7CC,#FFFFFF)' :
+                      plan.ctaStyle === 'blue'   ? 'linear-gradient(135deg,#FFFFFF,#C7C7CC)' :
+                      plan.ctaStyle === 'purple' ? 'linear-gradient(135deg,#C7C7CC,#8A8A8F)' :
                       'transparent',
-                    border: plan.ctaStyle==='outline' ? `1px solid ${C.border}` : 'none',
-                    color: plan.ctaStyle==='outline' ? C.textMuted : '#fff',
+                    color: plan.ctaStyle === 'outline' ? C.textMuted : '#000',
                   }}
-                  onMouseEnter={e=>{if(loading!==plan.id)(e.currentTarget as HTMLElement).style.transform='translateY(-1px)'}}
-                  onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.transform='translateY(0)'}}
+                  onMouseEnter={e => { if (loading !== plan.id) (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)' }}
                 >
-                  {loading===plan.id ? (
-                    <div style={{width:16,height:16,border:'2px solid rgba(255,255,255,0.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin .7s linear infinite'}}/>
-                  ) : (
-                    <>{plan.id!=='free'&&plan.id!=='enterprise'&&<Crown style={{width:14,height:14}}/> }{plan.cta}</>
-                  )}
+                  {loading === plan.id
+                    ? <div style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.3)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin .7s linear infinite' }} />
+                    : plan.cta
+                  }
                 </button>
               </div>
             )
           })}
         </div>
 
-        {/* Feature comparison table */}
-        <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${C.border}`,marginBottom:48}}>
-          <div style={{padding:'16px 20px',background:C.surface,borderBottom:`1px solid ${C.border}`}}>
-            <h2 style={{fontSize:18,fontWeight:800,color:C.text,fontFamily:'Syne',margin:0}}>Full Feature Comparison</h2>
+        {/* Comparison table */}
+        <div style={{ borderRadius: 20, overflow: 'hidden', border: `1px solid ${C.border}` }}>
+          <div style={{ padding: '16px 20px', background: C.card, borderBottom: `1px solid ${C.border}` }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: C.text, fontFamily: 'Sora, sans-serif', margin: 0 }}>Full Comparison</h2>
           </div>
-          <div style={{overflowX:'auto'}}>
-            <table style={{width:'100%',borderCollapse:'collapse'}}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{background:C.surface}}>
-                  <th style={{padding:'12px 20px',textAlign:'left',fontSize:12,fontWeight:700,color:C.textMuted,letterSpacing:'0.08em',textTransform:'uppercase',borderBottom:`1px solid ${C.border}`,width:'40%'}}>Feature</th>
-                  {['Free','Basic','Premium Plus','Enterprise'].map((h,i)=>(
-                    <th key={h} style={{padding:'12px 16px',textAlign:'center',fontSize:12,fontWeight:700,borderBottom:`1px solid ${C.border}`,color:i===2?C.gold:C.textMuted,letterSpacing:'0.05em'}}>{h}</th>
+                <tr style={{ background: C.card }}>
+                  <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: C.textMuted, letterSpacing: '0.08em', textTransform: 'uppercase', borderBottom: `1px solid ${C.border}`, width: '30%' }}>Feature</th>
+                  {['Free', 'Pro', 'Premium', 'Premium Pro'].map((h, i) => (
+                    <th key={h} style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, fontWeight: 700, borderBottom: `1px solid ${C.border}`, color: i === 2 ? '#C7C7CC' : C.textMuted, letterSpacing: '0.05em' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {TABLE_ROWS.map((row,i)=>(
-                  <tr key={row.label} style={{borderBottom:`1px solid ${C.border}`,background:i%2===0?'transparent':'rgba(255,255,255,0.01)'}}>
-                    <td style={{padding:'12px 20px',fontSize:13,color:C.textMuted,fontFamily:'Inter,sans-serif'}}>{row.label}</td>
-                    {[row.free,row.basic,row.pro,row.ent].map((v,j)=>(
-                      <td key={j} style={{padding:'12px 16px',textAlign:'center'}}><Cell val={v}/></td>
+                {TABLE_ROWS.map((row, i) => (
+                  <tr key={row.label} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
+                    <td style={{ padding: '12px 20px', fontSize: 13, color: C.textMuted }}>{row.label}</td>
+                    {[row.free, row.pro, row.premium, row.premPro].map((v, j) => (
+                      <td key={j} style={{ padding: '12px 16px', textAlign: 'center' }}><Cell val={v as any} /></td>
                     ))}
                   </tr>
                 ))}
@@ -397,13 +387,13 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* FAQ strip */}
-        <div style={{textAlign:'center',padding:'40px 0',borderTop:`1px solid ${C.border}`}}>
-          <p style={{fontSize:14,color:C.textMuted,marginBottom:8}}>Questions about pricing?</p>
-          <a href="mailto:enarclehq@gmail.com" style={{fontSize:14,color:C.blueL,textDecoration:'none',fontWeight:600}}>enarclehq@gmail.com →</a>
+        {/* Footer note */}
+        <div style={{ textAlign: 'center', padding: '40px 0 0', borderTop: `1px solid ${C.border}`, marginTop: 48 }}>
+          <p style={{ fontSize: 14, color: C.textMuted, marginBottom: 8 }}>Questions about pricing?</p>
+          <a href="mailto:enarclehq@gmail.com" style={{ fontSize: 14, color: C.text, textDecoration: 'none', fontWeight: 600 }}>enarclehq@gmail.com →</a>
         </div>
-
       </div>
+
       <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
     </div>
   )
