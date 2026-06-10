@@ -160,20 +160,32 @@ function SidebarContent({ navItems, role, profile, user, displayName, photoUrl, 
 
       {/* User footer */}
       <div style={{ flexShrink: 0, padding: '6px 6px 8px', borderTop: `1px solid ${C.border}` }}>
-        {role !== 'admin' && <Link href="/dashboard/profile" onClick={onNavClick} style={{ textDecoration: 'none', display: 'block', marginBottom: 2 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 10px', borderRadius: 8, background: C.elevated, cursor: 'pointer', transition: 'background 0.15s' }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = C.overlay}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.elevated}
-          >
-            <div style={{ width: 30, height: 30, borderRadius: '50%', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.blue, fontFamily: C.fontDisplay, fontWeight: 700, fontSize: 11, color: '#fff' }}>
+        {role !== 'admin' ? (
+          <Link href="/dashboard/profile" onClick={onNavClick} style={{ textDecoration: 'none', display: 'block', marginBottom: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 10px', borderRadius: 8, background: C.elevated, cursor: 'pointer', transition: 'background 0.15s' }}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = C.overlay}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.elevated}
+            >
+              <div style={{ width: 30, height: 30, borderRadius: '50%', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.blue, fontFamily: C.fontDisplay, fontWeight: 700, fontSize: 11, color: '#fff' }}>
+                {photoUrl ? <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 12, fontWeight: 600, color: C.text, fontFamily: C.fontDisplay, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{displayName}</p>
+                <p style={{ fontSize: 11, color: C.textDim, fontFamily: C.fontSans, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{user?.email}</p>
+              </div>
+            </div>
+          </Link>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 10px', borderRadius: 8, background: C.elevated, marginBottom: 2 }}>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.redDim, fontFamily: C.fontDisplay, fontWeight: 700, fontSize: 11, color: C.red }}>
               {photoUrl ? <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ fontSize: 12, fontWeight: 600, color: C.text, fontFamily: C.fontDisplay, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{displayName}</p>
-              <p style={{ fontSize: 11, color: C.textDim, fontFamily: C.fontSans, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{user?.email}</p>
+              <p style={{ fontSize: 11, color: C.red, fontFamily: C.fontSans, margin: 0 }}>Administrator</p>
             </div>
           </div>
-        </Link>}
+        )}
         <button onClick={onSignOutClick}
           style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 9, padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'transparent', color: C.textDim, fontFamily: C.fontSans, fontSize: 12, transition: 'background 0.15s, color 0.15s' }}
           onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.redDim; el.style.color = C.red }}
