@@ -37,13 +37,14 @@ export function usePlatformSettings() {
   const [loading,  setLoading]  = useState(true)
 
   useEffect(() => {
-    // Initial fetch
+    // Initial fetch — gracefully handle missing table (returns DEFAULTS if error)
     supabase
       .from('platform_settings')
       .select('*')
       .eq('id', 1)
-      .single()
-      .then(({ data }) => {
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) console.warn('[PlatformSettings] table may not exist yet:', error.message)
         if (data) setSettings({ ...DEFAULTS, ...data })
         setLoading(false)
       })
