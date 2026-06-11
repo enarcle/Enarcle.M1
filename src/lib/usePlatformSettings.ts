@@ -1,12 +1,3 @@
-/**
- * usePlatformSettings — reads platform_settings from Supabase and
- * subscribes to real-time changes so every component stays in sync
- * the moment an admin saves new values.
- *
- * Usage:
- *   const { settings, loading } = usePlatformSettings()
- *   if (settings.maintenance_mode && role !== 'admin') return <MaintenancePage />
- */
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -37,27 +28,23 @@ export function usePlatformSettings() {
   const [loading,  setLoading]  = useState(true)
 
   useEffect(() => {
-    // Initial fetch — gracefully handle missing table (returns DEFAULTS if error)
+    // maybeSingle() never throws — returns null if table missing or no rows
     supabase
       .from('platform_settings')
       .select('*')
       .eq('id', 1)
       .maybeSingle()
       .then(({ data, error }) => {
-        if (error) console.warn('[PlatformSettings] table may not exist yet:', error.message)
-        if (data) setSettings({ ...DEFAULTS, ...data })
+        if (error) console.warn('[PlatformSettings]', error.message)
+        if (data)  setSettings({ ...DEFAULTS, ...data })
         setLoading(false)
       })
 
-    // Real-time subscription — fires the moment admin saves changes
     const ch = supabase
       .channel('platform-settings-live')
-      .on(
-        'postgres_changes',
+      .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'platform_settings', filter: 'id=eq.1' },
-        ({ new: data }) => {
-          if (data) setSettings({ ...DEFAULTS, ...data })
-        }
+        ({ new: data }) => { if (data) setSettings({ ...DEFAULTS, ...data }) }
       )
       .subscribe()
 
