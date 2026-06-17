@@ -52,15 +52,22 @@ export default function CreateGroupPage() {
 
     if (gErr) { setError(gErr.message); setLoading(false); return }
 
-    // Owner row — always active, never pending
-    await supabase.from('group_members').insert({
+    // Owner row — always active, never pending. This MUST succeed, otherwise
+    // the group page will see 0 members and overwrite member_count to 0.
+    const { error: memErr } = await supabase.from('group_members').insert({
       group_id: group.id,
       user_id:  user.id,
       role:     'owner',
       status:   'active',
     })
+    if (memErr) {
+      console.error('[CreateGroup] owner member_members insert failed:', memErr.message)
+      setError('Circle created but failed to add you as owner: ' + memErr.message + '. Please contact support.')
+      setLoading(false)
+      return
+    }
 
-    // Blank shared note
+    // Blank shared note — non-critical, ignore failure
     await supabase.from('group_notes').insert({
       group_id:   group.id,
       content:    '# Circle Notes\n\nStart collaborating here...',
