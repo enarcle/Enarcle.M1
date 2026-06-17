@@ -947,9 +947,16 @@ export default function GroupRoomPage() {
         const activeCount = rows.filter((m: any) => m.status !== 'pending' || m.role === 'owner').length
         setMembers(rows)
         setPendingCount(rows.filter((m: any) => m.status === 'pending' && m.role !== 'owner').length)
-        // Sync DB count and update group state so header shows correct number
-        setGroup((prev: any) => prev ? { ...prev, member_count: activeCount } : prev)
-        await supabase.from('groups').update({ member_count: activeCount }).eq('id', groupId)
+        // Guard: never sync a 0 count to the DB. A group always has at least
+        // the owner as a member — if rows is empty, the fetch was blocked
+        // (RLS / transient network) rather than the group genuinely being empty.
+        // Writing 0 here is what was silently corrupting member_count permanently.
+        if (activeCount > 0) {
+          setGroup((prev: any) => prev ? { ...prev, member_count: activeCount } : prev)
+          await supabase.from('groups').update({ member_count: activeCount }).eq('id', groupId)
+        } else if (rows.length === 0) {
+          console.warn('[Group] member fetch returned 0 rows — skipping member_count sync to avoid corrupting it')
+        }
         // setLoading AFTER members are in state — prevents 0-count flash
         setLoading(false)
       }
@@ -959,15 +966,20 @@ export default function GroupRoomPage() {
   }, [groupId])
 
   const loadMembers = useCallback(async () => {
-    const { data } = await supabase.from('group_members').select('*,users(id,email,full_name,photo_url,role)').eq('group_id', groupId).order('created_at', { ascending: true })
+    const { data, error } = await supabase.from('group_members').select('*,users(id,email,full_name,photo_url,role)').eq('group_id', groupId).order('created_at', { ascending: true })
+    if (error) { console.warn('[Group] loadMembers error:', error.message); return }
     const rows = data || []
     setMembers(rows)
     const pending = rows.filter((m: any) => m.status === 'pending' && m.role !== 'owner').length
     const active  = rows.filter((m: any) => m.status !== 'pending' || m.role === 'owner').length
     setPendingCount(pending)
-    // Sync member_count in DB — also updates the group header count
-    await supabase.from('groups').update({ member_count: active }).eq('id', groupId)
-    setGroup((prev: any) => prev ? { ...prev, member_count: active } : prev)
+    // Guard: never sync 0 — a real fetch failure should not corrupt the count
+    if (active > 0) {
+      await supabase.from('groups').update({ member_count: active }).eq('id', groupId)
+      setGroup((prev: any) => prev ? { ...prev, member_count: active } : prev)
+    } else if (rows.length === 0) {
+      console.warn('[Group] loadMembers returned 0 rows — skipping member_count sync')
+    }
   }, [groupId])
 
   // Realtime subscription — keeps member count + pending badge live
