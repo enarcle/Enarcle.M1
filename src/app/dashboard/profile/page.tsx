@@ -165,27 +165,52 @@ export default function ProfilePage() {
   const [hostError,    setHostError]    = useState('')
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user: u } }) => {
-      if (!u) { router.push('/auth/login'); return }
-      setUser(u)
-      const { data: prof } = await supabase.from('users').select('*').eq('id', u.id).single()
-      if (prof) {
-        setProfile(prof)
-        setFullName(prof.full_name || u.user_metadata?.full_name || '')
-        setUsername(prof.username || '')
-        setBio(prof.bio || prof.profile_bio || '')
-        setInstagram(prof.instagram || '')
-        setTwitter(prof.twitter || '')
-        setLinkedin(prof.linkedin || '')
-        setWebsiteUrl(prof.website_url || '')
-        setShowEmail(prof.show_email || false)
-        setPhotoUrl(prof.photo_url || u.user_metadata?.avatar_url || null)
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) { if (!cancelled) router.push('/auth/login'); return }
+        const u = session.user
+        if (cancelled) return
+        setUser(u)
+
+        try {
+          // maybeSingle() never throws on 0 rows — single() does and was
+          // the cause of the "Application error" crash on this page.
+          const { data: prof, error: profErr } = await supabase
+            .from('users').select('*').eq('id', u.id).maybeSingle()
+          if (profErr) console.warn('[Profile] load error:', profErr.message)
+          if (prof && !cancelled) {
+            setProfile(prof)
+            setFullName(prof.full_name || u.user_metadata?.full_name || '')
+            setUsername(prof.username || '')
+            setBio(prof.bio || prof.profile_bio || '')
+            setInstagram(prof.instagram || '')
+            setTwitter(prof.twitter || '')
+            setLinkedin(prof.linkedin || '')
+            setWebsiteUrl(prof.website_url || '')
+            setShowEmail(prof.show_email || false)
+            setPhotoUrl(prof.photo_url || u.user_metadata?.avatar_url || null)
+          }
+        } catch (e) {
+          console.warn('[Profile] profile fetch threw:', e)
+        }
+
+        try {
+          const { data: app, error: appErr } = await supabase
+            .from('host_applications').select('*').eq('user_id', u.id).maybeSingle()
+          if (appErr) console.warn('[Profile] host app load error:', appErr.message)
+          if (!cancelled) setHostApp(app || null)
+        } catch (e) {
+          console.warn('[Profile] host app fetch threw:', e)
+        }
+      } catch (e) {
+        console.warn('[Profile] fatal load error:', e)
+      } finally {
+        if (!cancelled) setLoading(false)
       }
-      // Load any existing host application
-      const { data: app } = await supabase.from('host_applications').select('*').eq('user_id', u.id).maybeSingle()
-      setHostApp(app || null)
-      setLoading(false)
-    })
+    })()
+    return () => { cancelled = true }
   }, [])
 
   const handleUsernameChange = (raw: string) => {
