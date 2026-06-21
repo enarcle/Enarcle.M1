@@ -169,44 +169,34 @@ export default function ProfilePage() {
     ;(async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        if (!session) { if (!cancelled) router.push('/auth/login'); return }
+        if (!session) { router.push('/auth/login'); return }
         const u = session.user
         if (cancelled) return
         setUser(u)
 
-        try {
-          // maybeSingle() never throws on 0 rows — single() does and was
-          // the cause of the "Application error" crash on this page.
-          const { data: prof, error: profErr } = await supabase
-            .from('users').select('*').eq('id', u.id).maybeSingle()
-          if (profErr) console.warn('[Profile] load error:', profErr.message)
-          if (prof && !cancelled) {
-            setProfile(prof)
-            setFullName(prof.full_name || u.user_metadata?.full_name || '')
-            setUsername(prof.username || '')
-            setBio(prof.bio || prof.profile_bio || '')
-            setInstagram(prof.instagram || '')
-            setTwitter(prof.twitter || '')
-            setLinkedin(prof.linkedin || '')
-            setWebsiteUrl(prof.website_url || '')
-            setShowEmail(prof.show_email || false)
-            setPhotoUrl(prof.photo_url || u.user_metadata?.avatar_url || null)
-          }
-        } catch (e) {
-          console.warn('[Profile] profile fetch threw:', e)
+        // maybeSingle() returns null on 0 rows — single() was throwing and
+        // crashing the whole page with "Application error" for all users.
+        const { data: prof, error: profErr } = await supabase
+          .from('users').select('*').eq('id', u.id).maybeSingle()
+        if (profErr) console.warn('[Profile] load error:', profErr.message)
+        if (prof && !cancelled) {
+          setProfile(prof)
+          setFullName(prof.full_name || u.user_metadata?.full_name || '')
+          setUsername(prof.username || '')
+          setBio(prof.bio || prof.profile_bio || '')
+          setInstagram(prof.instagram || '')
+          setTwitter(prof.twitter || '')
+          setLinkedin(prof.linkedin || '')
+          setWebsiteUrl(prof.website_url || '')
+          setShowEmail(prof.show_email || false)
+          setPhotoUrl(prof.photo_url || u.user_metadata?.avatar_url || null)
         }
 
-        try {
-          const { data: app, error: appErr } = await supabase
-            .from('host_applications').select('*').eq('user_id', u.id).maybeSingle()
-          if (appErr) console.warn('[Profile] host app load error:', appErr.message)
-          if (!cancelled) setHostApp(app || null)
-        } catch (e) {
-          console.warn('[Profile] host app fetch threw:', e)
-        }
+        const { data: app } = await supabase
+          .from('host_applications').select('*').eq('user_id', u.id).maybeSingle()
+        if (!cancelled) { setHostApp(app || null); setLoading(false) }
       } catch (e) {
-        console.warn('[Profile] fatal load error:', e)
-      } finally {
+        console.warn('[Profile] load threw:', e)
         if (!cancelled) setLoading(false)
       }
     })()
