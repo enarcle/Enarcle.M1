@@ -615,6 +615,36 @@ function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: 
     await onMembersChange(); setActing(null)
   }
 
+  const ban = async (m: any) => {
+    if (!confirm(`Ban ${getName(m.users)}? They won't be able to rejoin this circle.`)) return
+    setActing('ban-' + m.id)
+    // Remove the member row and mark them banned
+    await supabase.from('group_members').delete().eq('id', m.id)
+    await supabase.from('group_members').insert({
+      group_id: groupId,
+      user_id: m.user_id,
+      role: 'banned',
+      status: 'banned',
+    }).maybeSingle()
+    if (m.status !== 'pending') {
+      const { data: grp } = await supabase.from('groups').select('member_count').eq('id', groupId).single()
+      const newCount = Math.max((grp?.member_count || 1) - 1, 0)
+      await supabase.from('groups').update({ member_count: newCount }).eq('id', groupId)
+    }
+    await onMembersChange(); setActing(null)
+  }
+
+  const transferOwnership = async (m: any) => {
+    if (!confirm(`Transfer ownership to ${getName(m.users)}? You will become a regular member.`)) return
+    setActing('transfer-' + m.id)
+    const myRow = members.find(mm => mm.user_id === currentUser?.id)
+    if (myRow) await supabase.from('group_members').update({ role: 'member' }).eq('id', myRow.id)
+    await supabase.from('group_members').update({ role: 'owner' }).eq('id', m.id)
+    await supabase.from('groups').update({ owner_id: m.user_id, created_by: m.user_id }).eq('id', groupId)
+    await onMembersChange(); setActing(null)
+    router.push('/groups')
+  }
+
   const leaveGroup = async () => {
     if (!confirm('Leave this circle? You can rejoin later if it is public.')) return
     const myRow = members.find(m => m.user_id === currentUser?.id)
@@ -702,7 +732,9 @@ function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: 
                     {mRole === 'owner' && <Crown style={{ width: 12, height: 12, color: C.gold, flexShrink: 0 }} />}
                     {mRole === 'admin' && <Shield style={{ width: 12, height: 12, color: C.purple, flexShrink: 0 }} />}
                   </div>
-                  <p style={{ fontSize: 11, color: C.blueLight, fontFamily: 'DM Mono,monospace' }}>View profile →</p>
+                  <p style={{ fontSize: 11, color: C.blueLight, fontFamily: 'DM Mono,monospace' }}>
+                    {isCtrl && m.users?.email ? m.users.email : 'View profile →'}
+                  </p>
                 </div>
                 <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
                   {/* DM — shown for every member except yourself */}
@@ -724,10 +756,26 @@ function MembersTab({ groupId, currentUser, myRole, members, onMembersChange }: 
                     </button>
                   )}
                   {canKick && (
-                    <button onClick={() => kick(m)} disabled={acting === m.id}
+                    <button onClick={() => kick(m)} disabled={!!acting}
                       style={{ padding: '5px 10px', borderRadius: 7, border: 'none', background: C.redDim, color: C.red, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
                       {acting === m.id ? <Loader2 style={{ width: 10, height: 10, animation: 'spin 1s linear infinite' }} /> : <UserMinus style={{ width: 10, height: 10 }} />}
-                      Remove
+                      Kick
+                    </button>
+                  )}
+                  {myRole === 'owner' && !isMe && mRole !== 'owner' && (
+                    <button onClick={() => ban(m)} disabled={!!acting}
+                      title="Ban from circle"
+                      style={{ padding: '5px 10px', borderRadius: 7, border: 'none', background: 'rgba(239,68,68,0.2)', color: C.red, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {acting === 'ban-' + m.id ? <Loader2 style={{ width: 10, height: 10, animation: 'spin 1s linear infinite' }} /> : <Shield style={{ width: 10, height: 10 }} />}
+                      Ban
+                    </button>
+                  )}
+                  {myRole === 'owner' && !isMe && mRole !== 'owner' && (
+                    <button onClick={() => transferOwnership(m)} disabled={!!acting}
+                      title="Transfer ownership to this member"
+                      style={{ padding: '5px 10px', borderRadius: 7, border: 'none', background: C.goldDim, color: C.gold, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {acting === 'transfer-' + m.id ? <Loader2 style={{ width: 10, height: 10, animation: 'spin 1s linear infinite' }} /> : <Crown style={{ width: 10, height: 10 }} />}
+                      Owner
                     </button>
                   )}
                 </div>
@@ -947,15 +995,10 @@ export default function GroupRoomPage() {
         const activeCount = rows.filter((m: any) => m.status !== 'pending' || m.role === 'owner').length
         setMembers(rows)
         setPendingCount(rows.filter((m: any) => m.status === 'pending' && m.role !== 'owner').length)
-        // Guard: never sync a 0 count to the DB. A group always has at least
-        // the owner as a member — if rows is empty, the fetch was blocked
-        // (RLS / transient network) rather than the group genuinely being empty.
-        // Writing 0 here is what was silently corrupting member_count permanently.
+        // Sync DB count and update group state so header shows correct number
         if (activeCount > 0) {
           setGroup((prev: any) => prev ? { ...prev, member_count: activeCount } : prev)
           await supabase.from('groups').update({ member_count: activeCount }).eq('id', groupId)
-        } else if (rows.length === 0) {
-          console.warn('[Group] member fetch returned 0 rows — skipping member_count sync to avoid corrupting it')
         }
         // setLoading AFTER members are in state — prevents 0-count flash
         setLoading(false)
@@ -966,19 +1009,15 @@ export default function GroupRoomPage() {
   }, [groupId])
 
   const loadMembers = useCallback(async () => {
-    const { data, error } = await supabase.from('group_members').select('*,users(id,email,full_name,photo_url,role)').eq('group_id', groupId).order('created_at', { ascending: true })
-    if (error) { console.warn('[Group] loadMembers error:', error.message); return }
+    const { data } = await supabase.from('group_members').select('*,users(id,email,full_name,photo_url,role)').eq('group_id', groupId).order('created_at', { ascending: true })
     const rows = data || []
     setMembers(rows)
     const pending = rows.filter((m: any) => m.status === 'pending' && m.role !== 'owner').length
     const active  = rows.filter((m: any) => m.status !== 'pending' || m.role === 'owner').length
     setPendingCount(pending)
-    // Guard: never sync 0 — a real fetch failure should not corrupt the count
     if (active > 0) {
       await supabase.from('groups').update({ member_count: active }).eq('id', groupId)
       setGroup((prev: any) => prev ? { ...prev, member_count: active } : prev)
-    } else if (rows.length === 0) {
-      console.warn('[Group] loadMembers returned 0 rows — skipping member_count sync')
     }
   }, [groupId])
 
