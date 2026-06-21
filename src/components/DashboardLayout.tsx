@@ -12,7 +12,6 @@ import {
 import NotificationBell from '@/components/NotificationBell'
 import ThemeToggle     from '@/components/ThemeToggle'
 import { C }           from '@/lib/theme'
-import { usePlatformSettings } from '@/lib/usePlatformSettings'
 
 interface UserProfile {
   id: string; full_name: string | null; email: string | null
@@ -45,14 +44,14 @@ const HOST_NAV = [
   { href: '/dashboard/profile',    label: 'Profile',      icon: User },
 ]
 const ADMIN_NAV = [
-  { href: '/admin',          label: 'Overview',       icon: BarChart2 },
-  { href: '/admin/users',    label: 'Users',          icon: Users },
-  { href: '/admin/hosts',    label: 'Host Approvals', icon: UserCheck },
-  { href: '/admin/events',   label: 'Events',         icon: Radio },
-  { href: '/admin/groups',   label: 'Groups',         icon: Zap },
-  { href: '/admin/content',  label: 'Content',        icon: BookOpen },
-  { href: '/admin/revenue',  label: 'Revenue',        icon: DollarSign },
-  { href: '/admin/settings', label: 'Settings',       icon: Settings },
+  { href: '/admin',               label: 'Overview',       icon: BarChart2 },
+  { href: '/admin/users',         label: 'Users',          icon: Users },
+  { href: '/admin/hosts',         label: 'Host Approvals', icon: UserCheck },
+  { href: '/admin/events',        label: 'Events',         icon: Radio },
+  { href: '/admin/groups',        label: 'Groups',         icon: Zap },
+  { href: '/admin/content',       label: 'Content',        icon: BookOpen },
+  { href: '/admin/revenue',       label: 'Revenue',        icon: DollarSign },
+  { href: '/admin/settings',      label: 'Settings',       icon: Settings },
 ]
 
 function SignOutModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
@@ -143,26 +142,27 @@ function SidebarContent({ navItems, role, profile, user, displayName, photoUrl, 
         {navItems.map(item => (
           <NavItem key={item.href} href={item.href} label={item.label} Icon={item.icon} active={isActive(item.href)} onClick={onNavClick} />
         ))}
-        <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}` }}>
-          <Link href="/pricing" onClick={onNavClick} style={{ textDecoration: 'none', display: 'block' }}>
-            {role !== 'admin' && (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '8px 10px', borderRadius: 8, color: profile?.is_premium ? C.amber : C.textDim, fontFamily: C.fontSans, fontSize: 13, cursor: 'pointer', transition: 'background 0.15s', background: profile?.is_premium ? C.amberDim : 'transparent', border: profile?.is_premium ? `1px solid rgba(245,158,11,0.2)` : '1px solid transparent' }}
-              onMouseEnter={e => { if (!profile?.is_premium) (e.currentTarget as HTMLElement).style.background = C.elevated }}
-              onMouseLeave={e => { if (!profile?.is_premium) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-            >
-              <Crown style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.7 }} />
-              {profile?.is_premium ? '✦ Premium' : 'Upgrade Plan'}
-            </div>
-      )}
-          </Link>
-        </div>
+        {role !== 'admin' && (
+          <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}` }}>
+            <Link href="/pricing" onClick={onNavClick} style={{ textDecoration: 'none', display: 'block' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '8px 10px', borderRadius: 8, color: profile?.is_premium ? C.amber : C.textDim, fontFamily: C.fontSans, fontSize: 13, cursor: 'pointer', transition: 'background 0.15s', background: profile?.is_premium ? C.amberDim : 'transparent', border: profile?.is_premium ? `1px solid rgba(245,158,11,0.2)` : '1px solid transparent' }}
+                onMouseEnter={e => { if (!profile?.is_premium) (e.currentTarget as HTMLElement).style.background = C.elevated }}
+                onMouseLeave={e => { if (!profile?.is_premium) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              >
+                <Crown style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.7 }} />
+                {profile?.is_premium ? '✦ Premium' : 'Upgrade Plan'}
+              </div>
+            </Link>
+          </div>
+        )}
       </nav>
 
       {/* User footer */}
       <div style={{ flexShrink: 0, padding: '6px 6px 8px', borderTop: `1px solid ${C.border}` }}>
         {role === 'admin' ? (
+          /* Admin: show name/email but no profile link — admins manage the platform */
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 10px', borderRadius: 8, background: C.elevated, marginBottom: 2 }}>
-            <div style={{ width: 30, height: 30, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.redDim, fontFamily: C.fontDisplay, fontWeight: 700, fontSize: 11, color: C.red }}>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.redDim, fontFamily: C.fontDisplay, fontWeight: 700, fontSize: 11, color: C.red }}>
               {photoUrl ? <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} /> : initials}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -171,6 +171,7 @@ function SidebarContent({ navItems, role, profile, user, displayName, photoUrl, 
             </div>
           </div>
         ) : (
+          /* All other roles: clickable card goes to profile page */
           <Link href="/dashboard/profile" onClick={onNavClick} style={{ textDecoration: 'none', display: 'block', marginBottom: 2 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 10px', borderRadius: 8, background: C.elevated, cursor: 'pointer', transition: 'background 0.15s' }}
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = C.overlay}
@@ -202,7 +203,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname()
   const router   = useRouter()
 
-  const { settings: platformSettings } = usePlatformSettings()
   const [user,        setUser]        = useState<AuthUser | null>(null)
   const [profile,     setProfile]     = useState<UserProfile | null>(null)
   const [role,        setRole]        = useState('audience')
@@ -261,15 +261,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const initials    = displayName.slice(0, 2).toUpperCase()
 
   const sidebarProps = { navItems, role, profile, user, displayName, photoUrl, initials, pathname, onNavClick: closeMobile, onSignOutClick: openSignOut }
-
-  // Maintenance mode — block non-admins immediately
-  if (platformSettings.maintenance_mode && role !== 'admin') return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: C.bg, gap: 16, padding: 24 }}>
-      <div style={{ fontSize: 40 }}>🔧</div>
-      <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, fontFamily: 'Sora,sans-serif', textAlign: 'center' }}>Down for maintenance</h1>
-      <p style={{ fontSize: 14, color: C.textMuted, fontFamily: 'DM Sans,sans-serif', textAlign: 'center', maxWidth: 360, lineHeight: 1.6 }}>Enarcle is undergoing scheduled maintenance. We'll be back shortly.</p>
-    </div>
-  )
 
   return (
     <>
