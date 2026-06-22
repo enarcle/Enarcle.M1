@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import { Mic, CheckCircle, AlertCircle, Clock, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -16,28 +18,27 @@ export default function BecomeHostPage() {
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
 
-  useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/auth/login'); return }
-      setUser(user)
+  // React Query: host application status cached 5 min
+  const { isLoading: loading } = useQuery({
+    queryKey: ['become-host', user?.id ?? ''],
+    queryFn: async () => {
+      const { data: { user: u } } = await supabase.auth.getUser()
+      if (!u) { router.push('/auth/login'); throw new Error('no session') }
+      if (!user) setUser(u)
 
-      const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-      if (profile?.role === 'host') { router.push('/host'); return }
-      if (profile?.role === 'admin') { router.push('/admin'); return }
+      const { data: profile } = await supabase.from('users').select('role').eq('id', u.id).single()
+      if (profile?.role === 'host')  { router.push('/host');  return null }
+      if (profile?.role === 'admin') { router.push('/admin'); return null }
 
       const { data: app, error: appErr } = await supabase
-        .from('host_applications')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle()
-
+        .from('host_applications').select('*').eq('user_id', u.id).maybeSingle()
       if (appErr) console.error('fetch app error:', appErr)
       if (app) setExisting(app)
-      setLoading(false)
-    }
-    load()
-  }, [])
+      return app ?? null
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,  // form page — don't interrupt the user
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
