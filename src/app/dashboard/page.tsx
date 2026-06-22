@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import Link from 'next/link'
 import { Search, Radio, Lock, X, Loader2, Calendar, Users, Tag, Zap } from 'lucide-react'
@@ -176,15 +178,15 @@ function EventCard({ event }: { event: Event }) {
 }
 
 export default function EventsPage() {
+  const queryClient = useQueryClient()
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null)
   const [profile,     setProfile]     = useState<{ role?: string } | null>(null)
-  const [events,      setEvents]      = useState<Event[]>([])
-  const [loading,     setLoading]     = useState(true)
   const [search,      setSearch]      = useState('')
   const [category,    setCategory]    = useState('All')
   const [liveOnly,    setLiveOnly]    = useState(false)
   const [freeOnly,    setFreeOnly]    = useState(false)
 
+  // ── Auth (still needed to know if user is host) ────────────────────────────
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
       if (u) {
@@ -192,26 +194,34 @@ export default function EventsPage() {
         const { data: prof } = await supabase.from('users').select('*').eq('id', u.id).single()
         setProfile(prof)
       }
-      const { data } = await supabase
+    })
+  }, [])
+
+  // ── Events — React Query (5 min cache + stale-while-revalidate) ────────────
+  const { data: events = [], isLoading: loading } = useQuery({
+    queryKey: qk.events(),
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('events')
         .select('*, users(id, email, full_name, photo_url)')
-        .in('status', ['scheduled','live'])
-        .order('start_time', { ascending:true })
-      setEvents((data || []) as Event[])
-      setLoading(false)
-    })
+        .in('status', ['scheduled', 'live'])
+        .order('start_time', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as Event[]
+    },
+    staleTime:            5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
 
-    const ch = supabase.channel('events-list')
-      .on('postgres_changes', { event:'*', schema:'public', table:'events' }, () => {
-        supabase.from('events')
-          .select('*, users(id, email, full_name, photo_url)')
-          .in('status', ['scheduled','live'])
-          .order('start_time', { ascending:true })
-          .then(({ data }) => setEvents((data || []) as Event[]))
+  // ── Real-time: Supabase channel invalidates React Query cache on change ────
+  useEffect(() => {
+    const ch = supabase.channel('events-list-rq')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
+        queryClient.invalidateQueries({ queryKey: qk.events() })
       })
       .subscribe()
     return () => { supabase.removeChannel(ch) }
-  }, [])
+  }, [queryClient])
 
   const filtered = events.filter(e => {
     const q = search.toLowerCase()
