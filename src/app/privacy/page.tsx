@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import SiteFooter from '@/components/SiteFooter'
 
 export const metadata = { title: 'Privacy Policy | Enarcle', description: 'Enarcle Privacy Policy' }
 
@@ -24,7 +25,7 @@ export default function PrivacyPage() {
       <nav style={{ borderBottom: `1px solid ${C.border}`, padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 800, margin: '0 auto' }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
           <span style={{ fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: 20, color: C.text }}>
-            Grit<span style={{ color: C.gold }}>Club</span>
+            ENARCLE
           </span>
         </Link>
         <Link href="/terms" style={{ fontSize: 13, color: C.blue, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>
@@ -152,13 +153,8 @@ export default function PrivacyPage() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 20, marginTop: 40, paddingTop: 20, borderTop: `1px solid ${C.border}` }}>
-          <Link href="/terms" style={{ fontSize: 13, color: C.blue, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>Terms of Service</Link>
-          <Link href="/pricing" style={{ fontSize: 13, color: C.blue, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>Pricing</Link>
-          <Link href="/dashboard" style={{ fontSize: 13, color: C.muted, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>Back to App</Link>
-          <span style={{ marginLeft: 'auto', fontSize: 12, color: C.dim, fontFamily: 'DM Mono,monospace' }}>© 2026 Enarcle</span>
-        </div>
       </div>
+      <SiteFooter variant="landing" />
     </div>
   )
 }
