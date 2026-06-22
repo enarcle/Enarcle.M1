@@ -6,6 +6,7 @@ import { Zap, Users, Radio, MessageCircle, ArrowRight, Play, Monitor, PenTool, H
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase/client'
+import SiteFooter from '@/components/SiteFooter'
 
 const P = {
   bg:         '#0B0B0C',
@@ -523,12 +524,7 @@ export default function LandingPage() {
           </Section>
 
           {/* ═══ FOOTER ═══ */}
-          <footer style={{ borderTop: `1px solid ${P.border}`, padding: '40px 24px', background: '#09090A' }}>
-            <div style={{ maxWidth: '7xl', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
-              <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: '1.2rem', color: P.textDim }}>ENARCLE</span>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: P.textDim }}>&copy; {new Date().getFullYear()} ENARCLE. All rights reserved.</p>
-            </div>
-          </footer>
+          <SiteFooter variant="landing" />
 
         </motion.main>
       )}
