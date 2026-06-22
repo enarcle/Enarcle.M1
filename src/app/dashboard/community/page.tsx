@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import {
   Heart, MessageCircle, Share2, Send, Trash2,
@@ -572,67 +574,89 @@ function PostCard({ post, currentUserId, onDelete }: {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function CommunityPage() {
+  const queryClient = useQueryClient()
   const [currentUser,   setCurrentUser]   = useState<{ id: string } | null>(null)
   const [profile,       setProfile]       = useState<Partial<UserProfile> | null>(null)
   const [posts,         setPosts]         = useState<Post[]>([])
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [loading,       setLoading]       = useState(true)
+  const [likedIds,      setLikedIds]      = useState<Set<string>>(new Set())
   const [loadingMore,   setLoadingMore]   = useState(false)
   const [hasMore,       setHasMore]       = useState(true)
-  const [likedIds,      setLikedIds]      = useState<Set<string>>(new Set())
   const PAGE      = 20
   const offsetRef = useRef(0)
 
-  const loadPosts = useCallback(async (userId: string, reset = false) => {
-    if (reset) { offsetRef.current = 0; setLoading(true) }
-    else setLoadingMore(true)
-
-    const { data, error } = await supabase
-      .from('posts')
-      .select('id, content, image_urls, created_at, user_id, likes_count, comments_count, users(id, full_name, email, photo_url, username, role)')
-      .order('created_at', { ascending: false })
-      .range(offsetRef.current, offsetRef.current + PAGE - 1)
-
-    if (!error && data) {
-      const enriched = (data as unknown as Omit<Post, 'my_like'>[]).map(p => ({ ...p, my_like: likedIds.has(p.id) }))
-      if (reset) {
-        setPosts(enriched)
-      } else {
-        setPosts(prev => {
-          const ids = new Set(prev.map(x => x.id))
-          return [...prev, ...enriched.filter(x => !ids.has(x.id))]
-        })
-      }
-      setHasMore(data.length === PAGE)
-      offsetRef.current += data.length
-    }
-
-    setLoading(false)
-    setLoadingMore(false)
-  }, [likedIds])
-
+  // ── Auth + profile (once) ─────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
       if (!u) return
       setCurrentUser({ id: u.id })
-
       const { data: prof } = await supabase.from('users').select('*').eq('id', u.id).single()
       setProfile(prof as Partial<UserProfile>)
-
       const { data: likes } = await supabase.from('post_likes').select('post_id').eq('user_id', u.id)
-      setLikedIds(new Set(Array.from((likes || []).map((l: { post_id: string }) => l.post_id))))
+      setLikedIds(new Set((likes || []).map((l: { post_id: string }) => l.post_id)))
+    })
+  }, [])
 
-      loadPosts(u.id, true)
-
-      const { data: anns } = await supabase
+  // ── Announcements — React Query 5-min cache ───────────────────────────────
+  const { data: announcements = [] } = useQuery<Announcement[]>({
+    queryKey: qk.community(),
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('announcements')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(3)
-      setAnnouncements((anns as Announcement[]) || [])
-    })
-  }, [])
+      if (error) throw error
+      return (data as Announcement[]) ?? []
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
+
+  // ── Posts — paginated, kept in local state; first load cached via RQ ──────
+  const { isLoading: loading } = useQuery({
+    queryKey: ['community-posts-initial', currentUser?.id ?? ''],
+    queryFn: async () => {
+      offsetRef.current = 0
+      const { data, error } = await supabase
+        .from('posts')
+        .select('id, content, image_urls, created_at, user_id, likes_count, comments_count, users(id, full_name, email, photo_url, username, role)')
+        .order('created_at', { ascending: false })
+        .range(0, PAGE - 1)
+      if (error) throw error
+      const enriched = ((data ?? []) as unknown as Omit<Post,'my_like'>[]).map(p => ({ ...p, my_like: likedIds.has(p.id) }))
+      setPosts(enriched)
+      setHasMore((data ?? []).length === PAGE)
+      offsetRef.current = (data ?? []).length
+      return enriched
+    },
+    enabled: !!currentUser?.id,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
+
+  const loadPosts = useCallback(async (userId: string, reset = false) => {
+    if (reset) {
+      queryClient.invalidateQueries({ queryKey: ['community-posts-initial', userId] })
+      return
+    }
+    setLoadingMore(true)
+    const { data, error } = await supabase
+      .from('posts')
+      .select('id, content, image_urls, created_at, user_id, likes_count, comments_count, users(id, full_name, email, photo_url, username, role)')
+      .order('created_at', { ascending: false })
+      .range(offsetRef.current, offsetRef.current + PAGE - 1)
+    if (!error && data) {
+      const enriched = (data as unknown as Omit<Post, 'my_like'>[]).map(p => ({ ...p, my_like: likedIds.has(p.id) }))
+      setPosts(prev => {
+        const ids = new Set(prev.map(x => x.id))
+        return [...prev, ...enriched.filter(x => !ids.has(x.id))]
+      })
+      setHasMore(data.length === PAGE)
+      offsetRef.current += data.length
+    }
+    setLoadingMore(false)
+  }, [likedIds, queryClient])
 
   useEffect(() => {
     const ch = supabase.channel('community-global')
