@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import Link from 'next/link'
 import {
@@ -92,6 +94,8 @@ export default function AdminPage() {
     })
   }
 
+  const queryClient = useQueryClient()
+
   const loadData = useCallback(async () => {
     // Get current session to pass admin id to RPC functions
     const { data: { session } } = await supabase.auth.getSession()
@@ -127,7 +131,8 @@ export default function AdminPage() {
     setAuditLog(auditRes.data || [])
     setAnnouncements(annRes.data || [])
     setInitialized(true)
-  }, [])
+    queryClient.invalidateQueries({ queryKey: qk.adminStats() })
+  }, [queryClient])
 
   useEffect(() => {
     // getSession reads from cookies instantly — prevents reload redirect
