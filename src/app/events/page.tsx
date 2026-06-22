@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, Users, Clock, Search, Filter, Radio } from 'lucide-react'
@@ -15,29 +17,29 @@ const fmtDate = (d: string) => d ? new Date(d).toLocaleDateString('en-US',{month
 
 export default function EventsPage() {
   const router = useRouter()
-  const [events, setEvents]       = useState<any[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [search, setSearch]       = useState('')
-  const [category, setCategory]   = useState('All')
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [search,      setSearch]      = useState('')
+  const [category,    setCategory]    = useState('All')
+  const [isLoggedIn,  setIsLoggedIn]  = useState(false)
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setIsLoggedIn(!!user)
-    })
-    loadEvents()
+    supabase.auth.getUser().then(({ data: { user } }) => setIsLoggedIn(!!user))
   }, [])
 
-  const loadEvents = async () => {
-    const { data } = await supabase
-      .from('events')
-      .select('*, users(id, full_name, email, photo_url)')
-      .in('status', ['upcoming', 'live'])
-      .order('start_time', { ascending: true })
-      .limit(50)
-    setEvents(data || [])
-    setLoading(false)
-  }
+  const { data: events = [], isLoading: loading } = useQuery({
+    queryKey: qk.events(),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*, users(id, full_name, email, photo_url)')
+        .in('status', ['upcoming', 'live'])
+        .order('start_time', { ascending: true })
+        .limit(50)
+      if (error) throw error
+      return data ?? []
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
 
   const filtered = events.filter(e => {
     const q = search.toLowerCase()
