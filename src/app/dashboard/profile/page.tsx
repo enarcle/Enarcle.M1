@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import { useRouter } from 'next/navigation'
 import {
@@ -157,51 +159,36 @@ export default function ProfilePage() {
   const [usernameStatus, setUsernameStatus] = useState<'idle'|'checking'|'available'|'taken'>('idle')
   const checkTimeout = useRef<NodeJS.Timeout>()
 
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      try {
-        // getSession reads from cookie — instant, no network needed, no redirect flash
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) { router.push('/auth/login'); return }
-        const u = session.user
-        if (cancelled) return
-        setUser(u)
+  // ── React Query: profile cached 5 min, revalidate in background ─────────
+  const { isLoading: loading } = useQuery({
+    queryKey: qk.profile(user?.id ?? ''),
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { router.push('/auth/login'); throw new Error('no session') }
+      const u = session.user
+      if (!user) setUser(u)
 
-        // maybeSingle() returns null instead of throwing when:
-        //   - the row doesn't exist yet (new user)
-        //   - RLS blocks the query
-        //   - any DB error occurs
-        // .single() was throwing an unhandled exception that crashed the
-        // entire page with "Application error" for every user including admin.
-        const { data: prof, error: profErr } = await supabase
-          .from('users').select('*').eq('id', u.id).maybeSingle()
+      const { data: prof, error: profErr } = await supabase
+        .from('users').select('*').eq('id', u.id).maybeSingle()
+      if (profErr) console.warn('[Profile] could not load profile row:', profErr.message)
 
-        if (profErr) {
-          console.warn('[Profile] could not load profile row:', profErr.message)
-        }
-
-        if (!cancelled) {
-          // Always prefill from auth metadata as fallback
-          setFullName(prof?.full_name || u.user_metadata?.full_name || '')
-          setUsername(prof?.username || '')
-          setBio(prof?.bio || prof?.profile_bio || '')
-          setInstagram(prof?.instagram || '')
-          setTwitter(prof?.twitter || '')
-          setLinkedin(prof?.linkedin || '')
-          setWebsiteUrl(prof?.website_url || '')
-          setShowEmail(prof?.show_email || false)
-          setPhotoUrl(prof?.photo_url || u.user_metadata?.avatar_url || null)
-          if (prof) setProfile(prof)
-          setLoading(false)
-        }
-      } catch (err) {
-        console.error('[Profile] fatal load error:', err)
-        if (!cancelled) setLoading(false)
-      }
-    })()
-    return () => { cancelled = true }
-  }, [])
+      setFullName(prof?.full_name || u.user_metadata?.full_name || '')
+      setUsername(prof?.username || '')
+      setBio(prof?.bio || prof?.profile_bio || '')
+      setInstagram(prof?.instagram || '')
+      setTwitter(prof?.twitter || '')
+      setLinkedin(prof?.linkedin || '')
+      setWebsiteUrl(prof?.website_url || '')
+      setShowEmail(prof?.show_email || false)
+      setPhotoUrl(prof?.photo_url || u.user_metadata?.avatar_url || null)
+      if (prof) setProfile(prof)
+      return prof
+    },
+    // prime with session check — no uid needed until session resolves
+    enabled: true,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
 
   const handleUsernameChange = (raw: string) => {
     const s = sanitizeUsername(raw); setUsername(s); setUsernameStatus('idle')
