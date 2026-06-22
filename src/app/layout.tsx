@@ -3,6 +3,7 @@ import { Inter, Sora } from 'next/font/google'
 import './globals.css'
 import { AuthProvider }  from '@/context/AuthContext'
 import { ThemeProvider } from '@/context/ThemeContext'
+import QueryProvider     from '@/components/QueryProvider'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -68,11 +69,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
       <body style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}>
-        <ThemeProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   )
