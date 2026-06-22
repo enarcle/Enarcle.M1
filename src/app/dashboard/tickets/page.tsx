@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import Link from 'next/link'
 import { Ticket, Calendar, Clock, Radio, Check, Loader2, ExternalLink } from 'lucide-react'
@@ -16,16 +18,18 @@ const formatTime = (ts: string) => ts ? new Date(ts).toLocaleTimeString('en-US',
 const fmt = (cents: number) => cents === 0 ? 'Free' : `$${(cents/100).toFixed(0)}`
 
 export default function TicketsPage() {
-  const [tickets,  setTickets]  = useState<any[]>([])
-  const [loading,  setLoading]  = useState(true)
-  const [user,     setUser]     = useState<any>(null)
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user: u } }) => {
-      if (!u) return
-      setUser(u)
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (u) setUser(u)
+    })
+  }, [])
 
-      const { data } = await supabase
+  const { data: tickets = [], isLoading: loading } = useQuery({
+    queryKey: qk.tickets(user?.id ?? ''),
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('tickets')
         .select(`
           id, status, amount, ticket_type, created_at,
@@ -34,13 +38,15 @@ export default function TicketsPage() {
             users ( id, full_name, email, photo_url )
           )
         `)
-        .eq('user_id', u.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-
-      setTickets(data || [])
-      setLoading(false)
-    })
-  }, [])
+      if (error) throw error
+      return data ?? []
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
 
   const upcoming = tickets.filter(t => t.events?.status !== 'ended')
   const past     = tickets.filter(t => t.events?.status === 'ended')
