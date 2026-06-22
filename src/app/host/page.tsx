@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import Link from 'next/link'
 import { formatCurrency, formatDate } from '@/lib/utils'
@@ -29,50 +31,40 @@ interface Ticket { amount: number }
 
 export default function HostDashboard() {
   const [user,         setUser]         = useState<{ id: string; user_metadata?: { full_name?: string } } | null>(null)
-  const [events,       setEvents]       = useState<Event[]>([])
   const [earnings,     setEarnings]     = useState(0)
   const [totalTickets, setTotalTickets] = useState(0)
-  const [loading,      setLoading]      = useState(true)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user: u } }) => {
-      if (u) {
-        setUser(u as typeof user)
-        loadData(u.id)
-
-        const channel = supabase
-          .channel('host-tickets')
-          .on('postgres_changes', { event:'INSERT', schema:'public', table:'tickets' }, (payload) => {
-            const t = payload.new as Ticket
-            setEarnings(prev => prev + Math.floor(t.amount * 0.8))
-            setTotalTickets(prev => prev + 1)
-          })
-          .subscribe()
-
-        return () => { supabase.removeChannel(channel) }
-      }
+      if (u) setUser(u as typeof user)
     })
   }, [])
 
-  const loadData = async (userId: string) => {
-    const { data: evts } = await supabase
-      .from('events').select('*').eq('host_id', userId)
-      .order('created_at', { ascending:false })
+  // React-Query: cache host events for 5 min, revalidate in background
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ['host-events', user?.id ?? ''],
+    queryFn: async () => {
+      const { data: evts, error } = await supabase
+        .from('events').select('*').eq('host_id', user!.id)
+        .order('created_at', { ascending: false })
+      if (error) throw error
 
-    setEvents((evts || []) as Event[])
+      const eventIds = (evts || []).map((e: any) => e.id)
+      if (eventIds.length > 0) {
+        const { data: tkts } = await supabase
+          .from('tickets').select('amount').in('event_id', eventIds).eq('status', 'paid')
+        const total = (tkts || []).reduce((s: number, t: any) => s + Math.floor(t.amount * 0.8), 0)
+        setEarnings(total)
+        setTotalTickets((tkts || []).length)
+      }
+      return (evts || []) as Event[]
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
 
-    const eventIds = ((evts || []) as Event[]).map(e => e.id)
-    if (eventIds.length > 0) {
-      const { data: tickets } = await supabase
-        .from('tickets').select('amount')
-        .in('event_id', eventIds).eq('status','paid')
-
-      const total = ((tickets || []) as Ticket[]).reduce((sum, t) => sum + Math.floor(t.amount * 0.8), 0)
-      setEarnings(total)
-      setTotalTickets((tickets || []).length)
-    }
-    setLoading(false)
-  }
+  const loading = isLoading
 
   const liveEvent       = events.find(e => e.status === 'live')
   const scheduledEvents = events.filter(e => e.status === 'scheduled')
