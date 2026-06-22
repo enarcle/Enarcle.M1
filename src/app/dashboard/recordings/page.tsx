@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import { useRouter } from 'next/navigation'
 import {
@@ -176,32 +178,35 @@ function RecordingCard({ rec, isPremium, onWatch }: { rec: any; isPremium: boole
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function RecordingsPage() {
   const router = useRouter()
-  const [recordings,  setRecordings]  = useState<any[]>([])
+  const [userId,      setUserId]      = useState<string | null>(null)
   const [isPremium,   setIsPremium]   = useState(false)
-  const [loading,     setLoading]     = useState(true)
   const [search,      setSearch]      = useState('')
   const [showUpgrade, setShowUpgrade] = useState(false)
 
   useEffect(() => {
-    const init = async () => {
-      const { data: { user: u } } = await supabase.auth.getUser()
+    supabase.auth.getUser().then(async ({ data: { user: u } }) => {
       if (!u) { router.push('/auth/login'); return }
-
+      setUserId(u.id)
       const { data: prof } = await supabase.from('users').select('is_premium, role').eq('id', u.id).single()
-      const premium = prof?.is_premium === true || prof?.role === 'host' || prof?.role === 'admin'
-      setIsPremium(premium)
+      setIsPremium(prof?.is_premium === true || prof?.role === 'host' || prof?.role === 'admin')
+    })
+  }, [router])
 
-      // Load all recordings with event + host info
-      const { data: recs } = await supabase
+  const { data: recordings = [], isLoading: loading } = useQuery({
+    queryKey: qk.recordings(userId ?? ''),
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('event_recordings')
         .select('*, events(id, title, poster_url, ended_at, users(id, full_name, email, photo_url))')
         .order('created_at', { ascending: false })
         .limit(50)
-      setRecordings(recs || [])
-      setLoading(false)
-    }
-    init()
-  }, [])
+      if (error) throw error
+      return data ?? []
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
 
   const handleWatch = async (rec: any) => {
     const daysAgo = rec.created_at
