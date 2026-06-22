@@ -2,7 +2,9 @@
 
 import { Suspense } from 'react'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import { useRouter } from 'next/navigation'
 import {
@@ -405,18 +407,38 @@ function DMPage() {
     return () => { supabase.removeChannel(ch) }
   }, [activeConvo?.id, me?.id])
 
-  const loadConvos = async (uid: string) => {
-    const { data } = await supabase
+  const queryClient = useQueryClient()
+
+  const fetchConvos = async (uid: string) => {
+    const { data, error } = await supabase
       .from('dm_conversations')
       .select(`*, user_a_data:users!dm_conversations_user_a_fkey(id,full_name,email,photo_url,role), user_b_data:users!dm_conversations_user_b_fkey(id,full_name,email,photo_url,role)`)
       .or(`user_a.eq.${uid},user_b.eq.${uid}`)
       .order('last_message_at', { ascending: false })
-    if (data) {
-      setConvos(data.map(c => ({
-        ...c,
-        partner: c.user_a === uid ? c.user_b_data : c.user_a_data,
-      })))
-    }
+    if (error) throw error
+    return (data ?? []).map((c: any) => ({
+      ...c,
+      partner: c.user_a === uid ? c.user_b_data : c.user_a_data,
+    }))
+  }
+
+  // React Query: conversations cached 5 min, revalidate in background
+  const { data: cachedConvos } = useQuery({
+    queryKey: ['dm-convos', me?.id ?? ''],
+    queryFn: () => fetchConvos(me!.id),
+    enabled: !!me?.id,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
+
+  // Sync React Query result into local state (local state also handles RT updates)
+  useEffect(() => {
+    if (cachedConvos) setConvos(cachedConvos)
+  }, [cachedConvos])
+
+  const loadConvos = async (uid: string) => {
+    // Invalidate so React Query refetches and syncs to local state
+    queryClient.invalidateQueries({ queryKey: ['dm-convos', uid] })
   }
 
   const openOrCreateConvo = async (myId: string, partnerId: string) => {
