@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import SiteFooter from '@/components/SiteFooter'
 
 export const metadata = { title: 'Terms of Service | Enarcle', description: 'Enarcle Terms of Service' }
 
@@ -25,7 +26,7 @@ export default function TermsPage() {
       <nav style={{ borderBottom: `1px solid ${C.border}`, padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 800, margin: '0 auto' }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
           <span style={{ fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: 20, color: C.text }}>
-            Grit<span style={{ color: C.gold }}>Club</span>
+            ENARCLE
           </span>
         </Link>
         <Link href="/privacy" style={{ fontSize: 13, color: C.blue, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>
@@ -125,11 +126,11 @@ export default function TermsPage() {
         </Section>
 
         <Section n={10} title="Disclaimer of Warranties">
-          <p>THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. GRITCLUB DOES NOT GUARANTEE ANY SPECIFIC ATTENDANCE, REVENUE, OR RESULTS FROM USING THE SERVICE. YOUR USE IS AT YOUR SOLE RISK.</p>
+          <p>THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. ENARCLE DOES NOT GUARANTEE ANY SPECIFIC ATTENDANCE, REVENUE, OR RESULTS FROM USING THE SERVICE. YOUR USE IS AT YOUR SOLE RISK.</p>
         </Section>
 
         <Section n={11} title="Limitation of Liability">
-          <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, GRITCLUB'S TOTAL LIABILITY FOR ANY CLAIMS ARISING FROM YOUR USE SHALL NOT EXCEED THE AMOUNT YOU PAID TO GRITCLUB IN THE 12 MONTHS PRECEDING THE CLAIM. GRITCLUB IS NOT LIABLE FOR INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES.</p>
+          <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, ENARCLE'S TOTAL LIABILITY FOR ANY CLAIMS ARISING FROM YOUR USE SHALL NOT EXCEED THE AMOUNT YOU PAID TO ENARCLE IN THE 12 MONTHS PRECEDING THE CLAIM. ENARCLE IS NOT LIABLE FOR INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES.</p>
         </Section>
 
         <Section n={12} title="Governing Law">
@@ -148,14 +149,8 @@ export default function TermsPage() {
           </p>
         </div>
 
-        {/* Footer */}
-        <div style={{ display: 'flex', gap: 20, marginTop: 40, paddingTop: 20, borderTop: `1px solid ${C.border}` }}>
-          <Link href="/privacy" style={{ fontSize: 13, color: C.blue, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>Privacy Policy</Link>
-          <Link href="/pricing" style={{ fontSize: 13, color: C.blue, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>Pricing</Link>
-          <Link href="/dashboard" style={{ fontSize: 13, color: C.muted, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif' }}>Back to App</Link>
-          <span style={{ marginLeft: 'auto', fontSize: 12, color: C.dim, fontFamily: 'DM Mono,monospace' }}>© 2026 Enarcle</span>
-        </div>
       </div>
+      <SiteFooter variant="landing" />
     </div>
   )
 }
