@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
@@ -9,9 +9,10 @@ import {
   Calendar, DollarSign, Menu, X, LogOut, Radio, Zap, UserCheck,
   BookOpen, Settings, ChevronRight, Crown, Video,
 } from 'lucide-react'
-import NotificationBell from '@/components/NotificationBell'
-import ThemeToggle     from '@/components/ThemeToggle'
-import { C }           from '@/lib/theme'
+import NotificationBell    from '@/components/NotificationBell'
+import ThemeToggle         from '@/components/ThemeToggle'
+import SiteFooter          from '@/components/SiteFooter'
+import { C }               from '@/lib/theme'
 
 interface UserProfile {
   id: string; full_name: string | null; email: string | null
@@ -77,11 +78,18 @@ function SignOutModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel
   )
 }
 
-function NavItem({ href, label, Icon, active, onClick }: {
+function NavItem({ href, label, Icon, active, onClick, onPrefetchEnter, onPrefetchLeave }: {
   href: string; label: string; Icon: React.ElementType; active: boolean; onClick: () => void
+  onPrefetchEnter?: () => void; onPrefetchLeave?: () => void
 }) {
   return (
-    <Link href={href} onClick={onClick} style={{ textDecoration: 'none', display: 'block' }}>
+    <Link
+      href={href}
+      onClick={onClick}
+      onMouseEnter={onPrefetchEnter}
+      onMouseLeave={onPrefetchLeave}
+      style={{ textDecoration: 'none', display: 'block' }}
+    >
       <div style={{
         display: 'flex', alignItems: 'center', gap: 9, padding: '8px 10px',
         borderRadius: 8, margin: '1px 0', cursor: 'pointer',
@@ -108,6 +116,25 @@ function SidebarContent({ navItems, role, profile, user, displayName, photoUrl, 
   displayName: string; photoUrl: string | null; initials: string
   pathname: string; onNavClick: () => void; onSignOutClick: () => void
 }) {
+  const router      = useRouter()
+  const timerMap    = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+  const prefetched  = useRef<Record<string, boolean>>({})
+
+  // Predictive prefetch: fire after 100 ms hover dwell
+  const makePrefetchHandlers = useCallback((href: string) => ({
+    onPrefetchEnter: () => {
+      if (prefetched.current[href]) return
+      timerMap.current[href] = setTimeout(() => {
+        router.prefetch(href)
+        prefetched.current[href] = true
+      }, 100)
+    },
+    onPrefetchLeave: () => {
+      clearTimeout(timerMap.current[href])
+      delete timerMap.current[href]
+    },
+  }), [router])
+
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard'
     if (href === '/host')      return pathname === '/host'
@@ -140,7 +167,15 @@ function SidebarContent({ navItems, role, profile, user, displayName, photoUrl, 
       {/* Nav */}
       <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 6px' }}>
         {navItems.map(item => (
-          <NavItem key={item.href} href={item.href} label={item.label} Icon={item.icon} active={isActive(item.href)} onClick={onNavClick} />
+          <NavItem
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            Icon={item.icon}
+            active={isActive(item.href)}
+            onClick={onNavClick}
+            {...makePrefetchHandlers(item.href)}
+          />
         ))}
         {role !== 'admin' && (
           <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}` }}>
@@ -317,7 +352,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
 
-          <main style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>{children}</main>
+          <main style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+            {children}
+            <SiteFooter variant="dashboard" />
+          </main>
 
           {/* Mobile bottom nav */}
           <nav className="en-mobile-nav" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', height: 58, background: C.surface, borderTop: `1px solid ${C.border}`, flexShrink: 0 }}>
