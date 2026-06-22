@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import {
   Search, UserPlus, Check, UserCheck, Users, X,
@@ -156,31 +158,57 @@ function PeopleCard({ user, currentUserId, onAction }: any) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function NetworkPage() {
+  const queryClient = useQueryClient()
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [tab,         setTab]         = useState<'suggestions'|'discover'|'connections'|'pending'>('suggestions')
   const [search,      setSearch]      = useState('')
   const [people,      setPeople]      = useState<any[]>([])
-  const [suggestions, setSuggestions] = useState<any[]>([])
-  const [connections, setConnections] = useState<any[]>([])
-  const [pending,     setPending]     = useState<any[]>([])
-  const [loading,     setLoading]     = useState(true)
   const [dismissed,   setDismissed]   = useState<Set<string>>(new Set())
   const [actionStates, setActionStates] = useState<Record<string, string>>({})
   const debounce = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user: u } }) => {
-      if (!u) return
-      setCurrentUser(u)
-      await Promise.all([
-        loadSuggestions(u.id),
-        loadConnections(u.id),
-        loadPending(u.id),
-        loadDiscover(u.id, ''),
-      ])
-      setLoading(false)
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (u) setCurrentUser(u)
     })
   }, [])
+
+  const uid = currentUser?.id
+
+  // React Query: suggestions (cached 5 min)
+  const { data: suggestions = [], isLoading: loadingSugg } = useQuery({
+    queryKey: ['network-suggestions', uid ?? ''],
+    queryFn: () => loadSuggestions(uid!),
+    enabled: !!uid,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
+
+  // React Query: connections (cached 5 min)
+  const { data: connections = [], isLoading: loadingConn } = useQuery({
+    queryKey: qk.network(uid ?? ''),
+    queryFn: () => loadConnections(uid!),
+    enabled: !!uid,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
+
+  // React Query: pending requests (cached 5 min)
+  const { data: pending = [], isLoading: loadingPend } = useQuery({
+    queryKey: ['network-pending', uid ?? ''],
+    queryFn: () => loadPending(uid!),
+    enabled: !!uid,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
+
+  const loading = loadingSugg && loadingConn && loadingPend
+
+  const invalidateNetwork = () => {
+    queryClient.invalidateQueries({ queryKey: ['network-suggestions', uid ?? ''] })
+    queryClient.invalidateQueries({ queryKey: qk.network(uid ?? '') })
+    queryClient.invalidateQueries({ queryKey: ['network-pending', uid ?? ''] })
+  }
 
   // ── Suggestions: shared events + 2nd degree + everyone else ──
   const loadSuggestions = async (uid: string) => {
@@ -287,13 +315,12 @@ export default function NetworkPage() {
 
   const handleAccept = async (connectionId: string, senderId: string) => {
     await supabase.from('connections').update({ status: 'accepted' }).eq('id', connectionId)
-    setPending(p => p.filter(c => c.id !== connectionId))
-    if (currentUser) { loadConnections(currentUser.id); loadSuggestions(currentUser.id) }
+    invalidateNetwork()   // React Query will silently refetch connections + suggestions
   }
 
   const handleDecline = async (connectionId: string) => {
     await supabase.from('connections').delete().eq('id', connectionId)
-    setPending(p => p.filter(c => c.id !== connectionId))
+    invalidateNetwork()
   }
 
   const visibleSuggestions = suggestions.filter(s => !dismissed.has(s.id))
