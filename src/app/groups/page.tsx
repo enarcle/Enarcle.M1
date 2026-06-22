@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
+import { qk } from '@/lib/queries'
 import DashboardLayout from '@/components/DashboardLayout'
 import { useRouter } from 'next/navigation'
 import {
@@ -358,10 +360,8 @@ function GroupCard({ group, uid, onJoin }: { group: any; uid: string; onJoin: (g
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function GroupsPage() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [me, setMe] = useState<any>(null)
-  const [groups, setGroups] = useState<any[]>([])
-  const [myGroups, setMyGroups] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [cat, setCat] = useState('All')
   const [tab, setTab] = useState<'discover' | 'mine'>('discover')
@@ -372,40 +372,44 @@ export default function GroupsPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.search.includes('pending=1')) setPendingBanner(true)
+    supabase.auth.getUser().then(({ data: { user: u } }) => setMe(u || null))
   }, [])
 
-  useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user: u } }) => {
-      setMe(u || null)
-      await load(u?.id || null)
-      setLoading(false)
-    })
-  }, [])
+  // React Query: groups cached 5 min, stale-while-revalidate
+  const { data: enrichedGroups = [], isLoading: loading } = useQuery({
+    queryKey: [...qk.groups(), me?.id ?? ''],
+    queryFn: async () => {
+      const uid = me?.id ?? null
+      const { data: all, error } = await supabase.from('groups').select('*').order('created_at', { ascending: false })
+      if (error) throw error
+      const { data: mems } = uid
+        ? await supabase.from('group_members').select('group_id,status,role').eq('user_id', uid)
+        : { data: [] }
 
-  const load = async (uid: string | null) => {
-    const { data: all } = await supabase.from('groups').select('*').order('created_at', { ascending: false })
-    const { data: mems } = uid
-      ? await supabase.from('group_members').select('group_id,status,role').eq('user_id', uid)
-      : { data: [] }
+      const ownerIds   = new Set((mems || []).filter((m: any) => m.role === 'owner').map((m: any) => m.group_id))
+      const activeIds  = new Set((mems || []).filter((m: any) =>
+        m.status === 'active' || m.role === 'owner' || m.role === 'admin'
+      ).map((m: any) => m.group_id))
+      const pendingIds = new Set((mems || []).filter((m: any) =>
+        m.status === 'pending' && m.role !== 'owner' && m.role !== 'admin'
+      ).map((m: any) => m.group_id))
 
-    const ownerIds   = new Set((mems || []).filter((m: any) => m.role === 'owner').map((m: any) => m.group_id))
-    const activeIds  = new Set((mems || []).filter((m: any) =>
-      m.status === 'active' || m.role === 'owner' || m.role === 'admin'
-    ).map((m: any) => m.group_id))
-    const pendingIds = new Set((mems || []).filter((m: any) =>
-      m.status === 'pending' && m.role !== 'owner' && m.role !== 'admin'
-    ).map((m: any) => m.group_id))
+      return (all || []).map((g: any) => ({
+        ...g,
+        is_owner:   ownerIds.has(g.id)  || (uid && (g.created_by === uid || g.owner_id === uid)),
+        is_member:  activeIds.has(g.id) || ownerIds.has(g.id) || (uid && (g.created_by === uid || g.owner_id === uid)),
+        is_pending: pendingIds.has(g.id),
+      }))
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  })
 
-    // Also mark groups where uid is the creator (created_by) as owner
-    const enriched = (all || []).map(g => ({
-      ...g,
-      is_owner:  ownerIds.has(g.id) || (uid && (g.created_by === uid || g.owner_id === uid)),
-      is_member: activeIds.has(g.id) || ownerIds.has(g.id) || (uid && (g.created_by === uid || g.owner_id === uid)),
-      is_pending: pendingIds.has(g.id),
-    }))
-    setGroups(enriched)
-    setMyGroups(enriched.filter(g => g.is_member))
-  }
+  const groups   = enrichedGroups
+  const myGroups = enrichedGroups.filter((g: any) => g.is_member)
+
+  // After any mutation, invalidate groups cache so it refetches fresh
+  const invalidateGroups = () => queryClient.invalidateQueries({ queryKey: qk.groups() })
 
   const handleJoin = async (group: any) => {
     if (!me) { router.push('/auth/login?next=/groups'); return }
