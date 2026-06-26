@@ -214,17 +214,14 @@ export default function NetworkPage() {
   const loadSuggestions = async (uid: string) => {
     // Try RPC first (requires feed_algorithm.sql to have been run)
     const { data: rpcData, error: rpcErr } = await supabase.rpc('get_connection_suggestions', { p_user_id: uid, p_limit: 20 })
-    if (!rpcErr && rpcData && rpcData.length > 0) {
-      setSuggestions(rpcData)
-      return
-    }
+    if (!rpcErr && rpcData && rpcData.length > 0) return rpcData
 
     // Fallback: simple query — all users not yet connected
     const { data: connected } = await supabase
       .from('connections')
       .select('user1_id, user2_id')
       .or(`user1_id.eq.${uid},user2_id.eq.${uid}`)
-    const connectedIds = new Set((connected||[]).flatMap((c:any) => [c.user1_id, c.user2_id]).filter((id:string) => id !== uid))
+    const connectedIds = new Set(((connected||[]) as any[]).flatMap((c:any) => [c.user1_id, c.user2_id]).filter((id:string) => id !== uid))
     connectedIds.add(uid)
 
     const { data: users } = await supabase
@@ -234,33 +231,29 @@ export default function NetworkPage() {
       .neq('role', 'admin')
       .limit(20)
 
-    const enriched = (users||[]).map((u:any) => ({ ...u, suggestion_reason: 'New member on Enarcle' }))
-    setSuggestions(enriched)
+    return ((users||[]) as any[]).map((u:any) => ({ ...u, suggestion_reason: 'New member on Enarcle' }))
   }
 
   const loadConnections = async (uid: string) => {
-    // Fetch connections with both user records using separate queries for reliability
     const { data } = await supabase
       .from('connections')
       .select('id, user1_id, user2_id, status, created_at')
       .or(`user1_id.eq.${uid},user2_id.eq.${uid}`)
       .eq('status', 'accepted')
-    if (!data?.length) { setConnections([]); return }
+    if (!data?.length) return []
 
-    // Get all unique user IDs that are the "other" person
-    const otherIds = data.map((c:any) => c.user1_id === uid ? c.user2_id : c.user1_id)
+    const otherIds = (data as any[]).map((c:any) => c.user1_id === uid ? c.user2_id : c.user1_id)
     const { data: users } = await supabase
       .from('users')
       .select('id, full_name, email, photo_url, username, role, bio')
       .in('id', otherIds)
       .neq('role', 'admin')
-    const userMap = Object.fromEntries((users||[]).map((u:any) => [u.id, u]))
+    const userMap = Object.fromEntries(((users||[]) as any[]).map((u:any) => [u.id, u]))
 
-    const enriched = data.map((c:any) => {
+    return (data as any[]).map((c:any) => {
       const friendId = c.user1_id === uid ? c.user2_id : c.user1_id
       return { ...c, friend: userMap[friendId] || {} }
     })
-    setConnections(enriched)
   }
 
   const loadPending = async (uid: string) => {
@@ -269,7 +262,7 @@ export default function NetworkPage() {
       .select('id, user1_id, status, users!connections_user1_id_fkey(id, full_name, email, photo_url, username, bio, role)')
       .eq('user2_id', uid)
       .eq('status', 'requested')
-    setPending(data||[])
+    return (data || []) as any[]
   }
 
   const loadDiscover = async (uid: string, q: string) => {
@@ -323,7 +316,7 @@ export default function NetworkPage() {
     invalidateNetwork()
   }
 
-  const visibleSuggestions = suggestions.filter(s => !dismissed.has(s.id))
+  const visibleSuggestions = (suggestions as any[]).filter((s: any) => !dismissed.has(s.id))
 
   const TABS = [
     { id: 'suggestions', label: 'Suggestions', count: visibleSuggestions.length },
@@ -381,7 +374,7 @@ export default function NetworkPage() {
                         People you may know — based on shared events and connections
                       </p>
                       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:14 }}>
-                        {visibleSuggestions.map(u => (
+                        {(visibleSuggestions as any[]).map((u: any) => (
                           <SuggestionCard
                             key={u.id}
                             user={u}
