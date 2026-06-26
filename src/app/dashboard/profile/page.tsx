@@ -138,7 +138,6 @@ export default function ProfilePage() {
   const router = useRouter()
   const [user,    setUser]    = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const [saving,  setSaving]  = useState(false)
   const [saved,   setSaved]   = useState(false)
   const [showSignOut,      setShowSignOut]      = useState(false)
