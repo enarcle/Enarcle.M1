@@ -432,11 +432,11 @@ export default function GroupsPage() {
 
     if (!needsApproval) {
       await supabase.from('groups').update({ member_count: (group.member_count || 0) + 1 }).eq('id', group.id)
-      await load(me.id)
+      invalidateGroups()
       router.push(`/groups/${group.id}`)
     } else {
       setPendingBanner(true)
-      await load(me.id)
+      invalidateGroups()
     }
   }
 
@@ -452,7 +452,7 @@ export default function GroupsPage() {
     <DashboardLayout>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
 
-      {showCreate && me && <CreateGroupModal uid={me.id} onClose={() => setShowCreate(false)} onCreated={async id => { setShowCreate(false); await load(me.id); router.push(`/groups/${id}`) }} />}
+      {showCreate && me && <CreateGroupModal uid={me.id} onClose={() => setShowCreate(false)} onCreated={async id => { setShowCreate(false); invalidateGroups(); router.push(`/groups/${id}`) }} />}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
 
       <div style={{ minHeight: '100%', background: C.bg }}>
