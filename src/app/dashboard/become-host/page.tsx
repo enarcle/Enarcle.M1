@@ -13,7 +13,6 @@ export default function BecomeHostPage() {
   const [user, setUser] = useState<any>(null)
   const [existing, setExisting] = useState<any>(null)
   const [form, setForm] = useState({ expertise: '', reason: '', social_url: '' })
-  const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
