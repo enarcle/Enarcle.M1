@@ -48,8 +48,8 @@ export default function TicketsPage() {
     refetchOnWindowFocus: true,
   })
 
-  const upcoming = tickets.filter(t => t.events?.status !== 'ended')
-  const past     = tickets.filter(t => t.events?.status === 'ended')
+  const upcoming = (tickets as any[]).filter((t: any) => (t.events as any)?.status !== 'ended')
+  const past     = (tickets as any[]).filter((t: any) => (t.events as any)?.status === 'ended')
 
   const TicketCard = ({ ticket }: { ticket: any }) => {
     const event  = ticket.events || {}
