@@ -163,7 +163,7 @@ function ConvoList({
             <button key={conv.id} onClick={() => onSelectConvo(conv)} style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: 11,
               padding: '11px 16px',
-              background: isActive ? C.redDim : 'transparent',
+              background: isActive ? C.blueDim : 'transparent',
               border: 'none', cursor: 'pointer', textAlign: 'left',
               borderLeft: `3px solid ${isActive ? C.indigo : 'transparent'}`,
               transition: 'background 0.15s',
@@ -337,7 +337,7 @@ function ChatWindow({
                 <div style={{
                   padding: '10px 14px',
                   borderRadius: isOwn ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                  background: isOwn ? C.red : '#1f2937',
+                  background: isOwn ? C.blue : C.card,
                   color: '#f4f4f5',
                   fontSize: 14, lineHeight: 1.55,
                   wordBreak: 'break-word', fontFamily: 'Inter,sans-serif',
@@ -348,7 +348,7 @@ function ChatWindow({
                 <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <span style={{ fontSize: 10, color: C.textDim, fontFamily: 'Inter,sans-serif' }}>{fmtTime(msg.created_at)}</span>
                   {isOwn && (isRead
-                    ? <CheckCheck style={{ width: 12, height: 12, color: C.red }} />
+                    ? <CheckCheck style={{ width: 12, height: 12, color: C.blueLight }} />
                     : <Check     style={{ width: 12, height: 12, color: C.textDim }} />
                   )}
                 </div>
@@ -368,11 +368,11 @@ function ChatWindow({
               flex: 1, background: 'transparent', border: 'none',
               color: C.text, fontSize: 14, fontFamily: 'Inter,sans-serif',
               outline: 'none', resize: 'none', lineHeight: 1.5,
-              maxHeight: 120, overflowY: 'auto', caretColor: C.red,
+              maxHeight: 120, overflowY: 'auto', caretColor: C.blue,
             }} />
           <button onClick={sendMessage} disabled={!text.trim() || sending} type="button" style={{
             width: 34, height: 34, borderRadius: 10, border: 'none',
-            background: text.trim() ? C.red : 'rgba(255,255,255,0.06)',
+            background: text.trim() ? C.blue : C.border,
             color: text.trim() ? '#fff' : C.textDim,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: text.trim() ? 'pointer' : 'default',
@@ -397,8 +397,8 @@ function ChatWindow({
 function EmptyState({ onNewChat }: { onNewChat: () => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', background: C.bg, gap: 14 }}>
-      <div style={{ width: 68, height: 68, borderRadius: '50%', background: C.redDim, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <MessageCircle style={{ width: 30, height: 30, color: C.red }} />
+      <div style={{ width: 68, height: 68, borderRadius: '50%', background: C.blueDim, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <MessageCircle style={{ width: 30, height: 30, color: C.blueLight }} />
       </div>
       <h3 style={{ fontSize: 17, fontWeight: 700, color: C.text, fontFamily: 'Syne,sans-serif', margin: 0 }}>Your Messages</h3>
       <p style={{ fontSize: 13, color: C.textMuted, textAlign: 'center', maxWidth: 260, fontFamily: 'Inter,sans-serif', lineHeight: 1.65, margin: 0 }}>
@@ -406,7 +406,7 @@ function EmptyState({ onNewChat }: { onNewChat: () => void }) {
       </p>
       <button onClick={onNewChat} style={{
         display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px',
-        borderRadius: 10, border: 'none', background: C.red, color: '#fff',
+        borderRadius: 10, border: 'none', background: C.blue, color: '#fff',
         fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: 13, cursor: 'pointer',
       }}>
         <Search style={{ width: 15, height: 15 }} /> Start a conversation
@@ -448,12 +448,14 @@ function DMPage() {
 
   // ── Boot ───────────────────────────────────────────────────────────────────
   useEffect(() => {
-    const targetUserId = typeof window !== 'undefined'
-      ? new URLSearchParams(window.location.search).get('user')
-      : null
+    const params = typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search)
+      : new URLSearchParams()
+    const targetUserId = params.get('user') || params.get('dm') || null
 
     ;(async () => {
-      const { data: { user: u } } = await supabase.auth.getUser()
+      const { data: { session } } = await supabase.auth.getSession()
+      const u = session?.user
       if (!u) { router.push('/auth/login'); return }
 
       meRef.current = u
@@ -461,7 +463,7 @@ function DMPage() {
 
       // Check pro status
       const { data: prof } = await supabase
-        .from('users').select('is_premium, role').eq('id', u.id).single()
+        .from('users').select('is_premium, role').eq('id', u.id).maybeSingle()
       const pro = prof?.is_premium === true || prof?.role === 'host' || prof?.role === 'admin'
       setIsPro(pro)
 
@@ -673,7 +675,7 @@ function DMPage() {
   if (!bootDone) return (
     <DashboardLayout>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: C.bg }}>
-        <Loader2 style={{ width: 32, height: 32, color: C.red, animation: 'spin 1s linear infinite' }} />
+        <Loader2 style={{ width: 32, height: 32, color: C.blue, animation: 'spin 1s linear infinite' }} />
         <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
       </div>
     </DashboardLayout>
